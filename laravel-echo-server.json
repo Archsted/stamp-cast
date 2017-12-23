@@ -1,5 +1,5 @@
 {
-	"authHost": "http://stamp.test",
+	"authHost": "http://stamp.archsted.com",
 	"authEndpoint": "/broadcasting/auth",
 	"clients": [
 		{
