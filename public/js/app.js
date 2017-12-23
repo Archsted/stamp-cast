@@ -1013,7 +1013,7 @@ window.animejs = __webpack_require__(33);
 
 window.echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
     broadcaster: 'socket.io',
-    host: 'http://stamp.test:6001',
+    host: 'http://49.212.132.144:6001',
     auth: {
         headers: {
             'Authorization': 'Bearer ' + 'af17c8556c099c6d'

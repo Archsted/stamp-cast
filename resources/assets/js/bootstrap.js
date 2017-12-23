@@ -45,7 +45,7 @@ import Echo from 'laravel-echo';
 
 window.echo = new Echo({
     broadcaster: 'socket.io',
-    host: 'http://stamp.test:6001',
+    host: 'http://49.212.132.144:6001',
     auth:
         {
             headers:
