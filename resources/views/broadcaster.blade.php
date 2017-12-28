@@ -11,6 +11,14 @@
     <style>
         body {
             background-color:rgba(0,0,0,0);
+            overflow: hidden;
+        }
+
+        button {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         img.stamp {
