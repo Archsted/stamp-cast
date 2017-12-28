@@ -44117,6 +44117,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 
 
@@ -44126,9 +44128,9 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            display: false,
-            stampAreaStyle: this.getInvisibleStyle(),
-            informationDisplay: 'none',
+            display: true,
+            stampAreaStyle: this.getVisibleStyle(),
+            informationDisplay: 'block',
             width: 0,
             height: 0,
             x: 0,
@@ -44136,6 +44138,10 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
             counter: 0,
             displayEl: null
         };
+    },
+    created: function created() {
+        this.x = 100;
+        this.y = 100;
     },
     mounted: function mounted() {
         this.displayEl = document.querySelector('#display');
@@ -44262,10 +44268,12 @@ var render = function() {
         "vue-draggable-resizable",
         {
           attrs: {
-            w: 800,
-            h: 600,
+            w: 400,
+            h: 300,
             minw: 120,
             minh: 120,
+            x: 100,
+            y: 100,
             parent: true,
             resizable: _vm.display,
             draggable: _vm.display,

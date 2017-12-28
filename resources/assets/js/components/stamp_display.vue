@@ -1,10 +1,12 @@
 <template>
     <div class="stampAreaWrapper">
         <vue-draggable-resizable
-            :w="800"
-            :h="600"
+            :w="400"
+            :h="300"
             :minw="120"
             :minh="120"
+            :x="100"
+            :y="100"
             v-on:dragging="onDrag"
             v-on:resizing="onResize"
             :parent="true"
@@ -34,9 +36,9 @@
     export default {
         data: function () {
             return {
-                display: false,
-                stampAreaStyle: this.getInvisibleStyle(),
-                informationDisplay: 'none',
+                display: true,
+                stampAreaStyle: this.getVisibleStyle(),
+                informationDisplay: 'block',
                 width: 0,
                 height: 0,
                 x: 0,
@@ -45,8 +47,11 @@
                 displayEl: null,
             }
         },
-        mounted: function ()
-        {
+        created: function () {
+            this.x = 100;
+            this.y = 100;
+        },
+        mounted: function () {
             this.displayEl = document.querySelector('#display');
         },
         watch: {
