@@ -22,7 +22,6 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/listener', 'HomeController@listener')->name('listener');
 Route::get('/broadcaster', 'HomeController@broadcaster')->name('broadcaster');
 
-
 Route::get('/doStamp', function(){
     event(new \App\Events\StampEvent());
 });

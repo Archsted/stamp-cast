@@ -12,16 +12,31 @@
         body {
             background-color:rgba(0,0,0,0);
         }
+
         img.stamp {
             position: absolute;
             opacity: 0;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .stampArea {
+            width: 100%;
+            height: 100%;
+        }
+
+        .stampAreaInfo > div {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
     </style>
-<body style="/*-webkit-app-region: drag*/">
+<body>
 <div id="app">
-    <div style="padding: 1em; background-color: #aaaaff;">
-        <button @click="sendStamp" style="/*-webkit-app-region: no-drag*/">counter: @{{counter}}</button>
-    </div>
+    <stamp-display ref="stamp"></stamp-display>
 </div>
 <script src="{{ asset('js/broadcaster.js') }}"></script>
 </body>

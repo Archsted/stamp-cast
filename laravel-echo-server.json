@@ -1,5 +1,5 @@
 {
-    "authHost": "http://stamp.archsted.com",
+    "authHost": "http://localhost",
     "authEndpoint": "/broadcasting/auth",
     "clients": [
         {
@@ -24,9 +24,9 @@
     "sslCertChainPath": "",
     "sslPassphrase": "",
     "apiOriginAllow":{
-        "allowCors" : true,
-        "allowOrigin" : "http://stamp.archsted.com",
-        "allowMethods" : "GET, POST",
-        "allowHeaders" : "Origin, Content-Type, X-Auth-Token, X-Requested-With, Accept, Authorization, X-CSRF-TOKEN, X-Socket-Id"
+        "allowCors" : false,
+        "allowOrigin" : "",
+        "allowMethods" : "",
+        "allowHeaders" : ""
     }
 }
