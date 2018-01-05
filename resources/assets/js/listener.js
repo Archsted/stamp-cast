@@ -1,7 +1,14 @@
 require('./bootstrap');
 require('./echo');
 
-echo.channel('general')
-    .listen('StampEvent', (e) => {
-        console.log(e);
-    });
+import stampList from './components/stamp_list';
+
+const app = new Vue({
+    el: '#app',
+    data: {
+
+    },
+    components: {
+        'stamp-list': stampList
+    },
+});

@@ -63,6 +63,12 @@ return [
             'bucket' => env('AWS_BUCKET'),
         ],
 
+        // seed置き場
+        'seed' => [
+            'driver' => 'local',
+            'root' => database_path('seeds'),
+        ],
+
     ],
 
 ];

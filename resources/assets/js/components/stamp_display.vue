@@ -22,7 +22,28 @@
                     <div class="stampAreaLeft">{{ height }}</div>
                 </div>
             </div>
-            <button @click="toggleDisplay">領域表示 [{{ display }}]</button>
+        </vue-draggable-resizable>
+
+        <vue-draggable-resizable
+            :w="80"
+            :h="80"
+            :x="100"
+            :y="410"
+            :parent="true"
+            :resizable="false"
+            :draggable="draggableSub">
+            <div id="stampAreaControl">
+                <div class="form-group">
+                    <button class="btn btn-primary"
+                            v-on:mouseover="draggableSub = false"
+                            v-on:mouseout="draggableSub = true"
+                            @click="toggleDisplay"
+                            style="font-size:1.4em;">
+                        <span class="glyphicon glyphicon-eye-open" v-show="display"></span>
+                        <span class="glyphicon glyphicon-eye-close" v-show="!display"></span>
+                    </button>
+                </div>
+            </div>
         </vue-draggable-resizable>
     </div>
 </template>
@@ -45,11 +66,21 @@
                 y: 0,
                 counter: 0,
                 displayEl: null,
+                draggableSub: true,
             }
         },
+        props: [
+            'roomId'
+        ],
         created: function () {
             this.x = 100;
             this.y = 100;
+
+            // チャンネル接続
+            echo.channel('room.' + this.roomId)
+                .listen('StampEvent', (e) => {
+                    this.addStamp(e.stamp);
+                });
         },
         mounted: function () {
             this.displayEl = document.querySelector('#display');
@@ -76,6 +107,7 @@
                 return {
                     backgroundColor: 'rgba(255, 0, 0, 0.0)',
                     border: 'dashed 1px rgba(255, 0, 0, 0.0)',
+                    overflow: 'hidden',
                 };
             },
 
@@ -83,28 +115,27 @@
                 return {
                     backgroundColor: 'rgba(255, 0, 0, 0.4)',
                     border: 'dashed 1px rgba(255, 0, 0, 0.7)',
+                    overflow: 'hidden',
                 };
             },
 
-            testAdd: function () {
-                let stamp = {
-                    id: 1,
-                    path: 'bg1.png'
-                };
-
-                this.addStamp(stamp);
-            },
             toggleDisplay: function() {
                 this.display = !this.display;
             },
+
             addStamp: function(stamp) {
                 let img = new Image();
 
                 img.onload = () => {
+                    // 領域を超えないようにサイズ調整
+                    let size = this.calculateAspectRatioFit(stamp.width, stamp.height, this.width, this.height);
+                    img.width = size.width;
+                    img.height = size.height;
+
                     // クラス、スタイルの定義
                     img.classList.add('stamp');
-                    img.style.top = this.getRandomTop(img.height) + 'px';
-                    img.style.left = this.getRandomLeft(img.width) + 'px';
+                    img.style.top = this.getRandomTop(size.height) + 'px';
+                    img.style.left = this.getRandomLeft(size.width) + 'px';
 
                     // 要素の追加
                     this.displayEl.appendChild(img);
@@ -142,7 +173,7 @@
 
                 };
 
-                img.src = stamp.path;
+                img.src = stamp.name;
             },
 
             getRandomTop: function (offset) {
@@ -151,6 +182,24 @@
 
             getRandomLeft: function (offset) {
                 return Math.floor(Math.random() * (this.width - offset));
+            },
+
+            calculateAspectRatioFit: function (srcWidth, srcHeight, maxWidth, maxHeight) {
+                // 画像の大きさが最大サイズに満たない場合はそのままのサイズを返す
+                if (srcWidth <= maxWidth && srcHeight <= maxHeight) {
+                    return {
+                        width: srcWidth,
+                        height: srcHeight
+                    };
+                } else {
+                    // 比率を求める
+                    let ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+
+                    return {
+                        width: srcWidth * ratio,
+                        height: srcHeight * ratio
+                    };
+                }
             },
         }
     }
@@ -212,4 +261,16 @@
         margin-top: -24px;
         text-align: center;
     }
+
+    #stampAreaControl {
+        background-color:rgba(100, 100, 255, 0.2);
+        width: 100%;
+        height: 100%;
+        padding: 15px;
+        box-sizing: border-box;
+        border: solid 2px rgba(0, 0, 200, 0.7);
+        border-radius: 6px;
+        text-align: left;
+    }
+
 </style>

@@ -2,31 +2,28 @@
 
 namespace App\Events;
 
+use App\Room;
+use App\Stamp;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class StampEvent implements ShouldBroadcast
 {
-//    use Dispatchable, InteractsWithSockets, SerializesModels;
-
     public $stamp;
+
+    private $room; // スタンプ送り元ルーム
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($stamp_id, Room $room)
     {
-        $this->stamp = [
-            'id' => 7144,
-            'image' => 'http://hogehoge/hoge.jpg'
-        ];
+        $stamp = Stamp::findOrFail($stamp_id);
+
+        $this->stamp = $stamp;
+        $this->room = $room;
     }
 
     /**
@@ -36,6 +33,23 @@ class StampEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('general');
+        return new Channel('room.' . $this->room->id);
+    }
+
+    /**
+     * ブロードキャストするデータだけ抽出
+     *
+     * @return array
+     */
+    public function broadcastWith()
+    {
+        return [
+            'stamp' => [
+                'id' => $this->stamp->id,
+                'name' => $this->stamp->name,
+                'width' => $this->stamp->width,
+                'height' => $this->stamp->height,
+            ],
+        ];
     }
 }
