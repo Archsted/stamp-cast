@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Room;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -13,7 +14,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        //$this->middleware('auth');
     }
 
     /**
@@ -26,13 +27,19 @@ class HomeController extends Controller
         return view('home');
     }
 
-    public function listener()
+    public function listener($code)
     {
-        return view('listener');
+        $room = Room::where('code', $code)
+            ->firstOrFail();
+
+        return view('listener', compact('room'));
     }
 
-    public function broadcaster()
+    public function broadcaster($code)
     {
-        return view('broadcaster');
+        $room = Room::where('code', $code)
+            ->firstOrFail();
+
+        return view('broadcaster', compact('room'));
     }
 }

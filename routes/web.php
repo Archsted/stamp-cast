@@ -15,13 +15,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
+//Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/listener', 'HomeController@listener')->name('listener');
-Route::get('/broadcaster', 'HomeController@broadcaster')->name('broadcaster');
-
-Route::get('/doStamp', function(){
-    event(new \App\Events\StampEvent());
-});
+Route::get('/{code}/listener', 'HomeController@listener');
+Route::get('/{code}/broadcaster', 'HomeController@broadcaster');

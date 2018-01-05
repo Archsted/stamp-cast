@@ -11,10 +11,4 @@ const app = new Vue({
     components: {
         'stamp-display': stampDisplay
     },
-    created: function () {
-        echo.channel('general')
-            .listen('StampEvent', (e) => {
-                app.$refs.stamp.testAdd();
-            });
-    },
 });

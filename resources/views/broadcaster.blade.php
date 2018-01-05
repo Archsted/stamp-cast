@@ -8,6 +8,8 @@
     <script src="//{{ Request::getHost() }}:6001/socket.io/socket.io.js"></script>
     <title>スタンプ表示用透過ウィンドウ</title>
     <!-- Styles -->
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
     <style>
         body {
             background-color:rgba(0,0,0,0);
@@ -44,7 +46,7 @@
     </style>
 <body>
 <div id="app">
-    <stamp-display ref="stamp"></stamp-display>
+    <stamp-display ref="stamp" room-id="{{ $room->id }}"></stamp-display>
 </div>
 <script src="{{ asset('js/broadcaster.js') }}"></script>
 </body>
