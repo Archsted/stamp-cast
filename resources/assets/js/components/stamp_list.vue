@@ -9,7 +9,14 @@
             ></vue-dropzone>
         </div>
 
-        <img v-for="stamp in stamps" :src="stamp.name" :key="stamp.id" @click="sendStamp(stamp.id)" class="stamp">
+        <div v-for="stamp in stamps" :key="stamp.id" class="stampWrapper">
+            <img :src="stamp.name" @click="sendStamp(stamp.id)" class="stamp">
+            <!--
+            <div class="favoriteForm">
+                <span class="glyphicon glyphicon-star-empty"></span>
+            </div>
+            -->
+        </div>
     </div>
 </template>
 
@@ -64,33 +71,49 @@
 </script>
 
 <style>
+    .stampList {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .stampWrapper {
+        position: relative;
+        margin-left: 3px;
+        margin-right: 3px;
+        margin-bottom: 6px;
+        height: 140px;
+        min-width: 50px;
+        box-sizing: border-box;
+        cursor: pointer;
+    }
+
     .stamp {
+        height: 100%;
         border: solid 2px #888;
-        -webkit-border-radius: 4px;
-        -moz-border-radius: 4px;
-        border-radius: 4px;
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
 
-
-        float:left;
-        max-height: 140px;
-        max-width: 140px;
+    .favoriteForm {
+        position: absolute;
+        right: 4px;
+        top: 4px;
+        text-align: right;
+        font-size: 2em;
     }
 
     .stampForm {
         background-color: #FFA;
         box-sizing: border-box;
         border: dashed 4px #555;
-        height: 100px;
-        width: 100px;
-        line-height: 100px;
+        height: 140px;
+        width: 140px;
+        line-height: 140px;
         text-align: center;
         font-size: 2.5em;
         overflow: hidden;
         float: left;
     }
-    
-    .stampList {
-
-    }
-
 </style>
