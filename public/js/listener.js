@@ -44068,7 +44068,7 @@ exports = module.exports = __webpack_require__(37)(undefined);
 
 
 // module
-exports.push([module.i, "\n.stamp {\n    border: solid 2px #888;\n    border-radius: 4px;\n\n\n    float:left;\n    max-height: 140px;\n    max-width: 140px;\n}\n.stampForm {\n    background-color: #FFA;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n    border: dashed 4px #555;\n    height: 100px;\n    width: 100px;\n    line-height: 100px;\n    text-align: center;\n    font-size: 2.5em;\n    overflow: hidden;\n    float: left;\n}\n.stampList {\n}\n\n", ""]);
+exports.push([module.i, "\n.stampList {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap;\n}\n.stampWrapper {\n    position: relative;\n    margin-left: 3px;\n    margin-right: 3px;\n    margin-bottom: 6px;\n    height: 140px;\n    min-width: 50px;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n    cursor: pointer;\n}\n.stamp {\n    height: 100%;\n    border: solid 2px #888;\n    border-radius: 8px;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n}\n.favoriteForm {\n    position: absolute;\n    right: 4px;\n    top: 4px;\n    text-align: right;\n    font-size: 2em;\n}\n.stampForm {\n    background-color: #FFA;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n    border: dashed 4px #555;\n    height: 140px;\n    width: 140px;\n    line-height: 140px;\n    text-align: center;\n    font-size: 2.5em;\n    overflow: hidden;\n    float: left;\n}\n", ""]);
 
 // exports
 
@@ -44081,6 +44081,13 @@ exports.push([module.i, "\n.stamp {\n    border: solid 2px #888;\n    border-rad
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue2_dropzone__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue2_dropzone___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue2_dropzone__);
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -47693,16 +47700,17 @@ var render = function() {
       ),
       _vm._v(" "),
       _vm._l(_vm.stamps, function(stamp) {
-        return _c("img", {
-          key: stamp.id,
-          staticClass: "stamp",
-          attrs: { src: stamp.name },
-          on: {
-            click: function($event) {
-              _vm.sendStamp(stamp.id)
+        return _c("div", { key: stamp.id, staticClass: "stampWrapper" }, [
+          _c("img", {
+            staticClass: "stamp",
+            attrs: { src: stamp.name },
+            on: {
+              click: function($event) {
+                _vm.sendStamp(stamp.id)
+              }
             }
-          }
-        })
+          })
+        ])
       })
     ],
     2

@@ -23,6 +23,7 @@ class StampController extends Controller
                     ->orWhereNull('room_id');
             })
             ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->get();
 
         return [
