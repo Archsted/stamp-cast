@@ -51,6 +51,7 @@
             :h="80"
             :x="100"
             :y="410"
+            :z="999"
             :parent="true"
             :resizable="false"
             :draggable="draggableSub">
