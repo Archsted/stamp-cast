@@ -7,6 +7,7 @@
             :minh="120"
             :x="100"
             :y="100"
+            :z="areaZ"
             v-on:dragging="onDrag"
             v-on:resizing="onResize"
             :parent="true"
@@ -15,17 +16,38 @@
             :active="display">
             <div class="stampArea" id="display" v-bind:style="stampAreaStyle">
                 <div class="stampAreaInfo" v-bind:style="{ display: informationDisplay }">
-                    <div class="stampAreaCenter">X: {{ x }}<br>Y: {{ y }}</div>
-                    <div class="stampAreaTop">{{ width }}</div>
-                    <div class="stampAreaRight">{{ height }}</div>
-                    <div class="stampAreaBottom">{{ width }}</div>
-                    <div class="stampAreaLeft">{{ height }}</div>
+                    <!--
+                    <div class="stampAreaCenter"><span>X: {{ x }} / Y: {{ y }}</span></div>
+                    -->
+                    <div class="stampAreaTop"><span>{{ width }}</span></div>
+                    <div class="stampAreaRight"><span>{{ height }}</span></div>
+                    <div class="stampAreaBottom"><span>{{ width }}</span></div>
+                    <div class="stampAreaLeft"><span>{{ height }}</span></div>
                 </div>
             </div>
         </vue-draggable-resizable>
 
         <vue-draggable-resizable
-            :w="80"
+            :w="200"
+            :h="200"
+            :minw="120"
+            :minh="120"
+            :x="150"
+            :y="150"
+            :z="sizeZ"
+            v-on:resizing="onSizeResize"
+            :parent="true"
+            :resizable="sizeDisplay"
+            :draggable="sizeDisplay"
+            :active="sizeDisplay">
+            <div class="stampArea" v-bind:style="stampSizeStyle">
+
+            </div>
+        </vue-draggable-resizable>
+
+
+        <vue-draggable-resizable
+            :w="140"
             :h="80"
             :x="100"
             :y="410"
@@ -33,16 +55,21 @@
             :resizable="false"
             :draggable="draggableSub">
             <div id="stampAreaControl">
-                <div class="form-group">
-                    <button class="btn btn-primary"
-                            v-on:mouseover="draggableSub = false"
-                            v-on:mouseout="draggableSub = true"
-                            @click="toggleDisplay"
-                            style="font-size:1.4em;">
-                        <span class="glyphicon glyphicon-eye-open" v-show="display"></span>
-                        <span class="glyphicon glyphicon-eye-close" v-show="!display"></span>
-                    </button>
-                </div>
+                <button class="btn btn-primary"
+                        v-on:mouseover="draggableSub = false"
+                        v-on:mouseout="draggableSub = true"
+                        @click="toggleDisplay"
+                        v-bind:style="areaButtonStyle">
+                    <span class="glyphicon glyphicon-modal-window"></span>
+                </button>
+
+                <button class="btn btn-primary"
+                        v-on:mouseover="draggableSub = false"
+                        v-on:mouseout="draggableSub = true"
+                        @click="toggleSizeDisplay"
+                        v-bind:style="sizeButtonStyle">
+                    <span class="glyphicon glyphicon-picture"></span>
+                </button>
             </div>
         </vue-draggable-resizable>
     </div>
@@ -58,16 +85,38 @@
         data: function () {
             return {
                 display: true,
+                sizeDisplay: false,
                 stampAreaStyle: this.getVisibleStyle(),
+                stampSizeStyle: this.getInvisibleStyle(),
                 informationDisplay: 'block',
                 width: 0,
                 height: 0,
                 x: 0,
                 y: 0,
+                stampSizeWidth: 0,
+                stampSizeHeight: 0,
                 counter: 0,
                 displayEl: null,
                 draggableSub: true,
             }
+        },
+        computed: {
+            areaZ: function () {
+                return this.display ? 1 : 0;
+            },
+            sizeZ: function () {
+                return this.sizeDisplay ? 2 : 0;
+            },
+            areaButtonStyle: function () {
+                return {
+                    opacity: this.display ? 1 : 0.3
+                };
+            },
+            sizeButtonStyle: function () {
+                return {
+                    opacity: this.sizeDisplay ? 1 : 0.3
+                };
+            },
         },
         props: [
             'roomId'
@@ -89,7 +138,10 @@
             display: function (newDisplay) {
                 this.stampAreaStyle = newDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
                 this.informationDisplay = newDisplay ? 'block' : 'none';
-            }
+            },
+            sizeDisplay: function (newSizeDisplay) {
+                this.stampSizeStyle = newSizeDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
+            },
         },
         methods: {
             onResize: function (x, y, width, height) {
@@ -98,9 +150,15 @@
                 this.width = width
                 this.height = height
             },
+
             onDrag: function (x, y) {
                 this.x = x
                 this.y = y
+            },
+
+            onSizeResize: function (x, y, width, height) {
+                this.stampSizeWidth = width
+                this.stampSizeHeight = height
             },
 
             getInvisibleStyle: function () {
@@ -123,12 +181,16 @@
                 this.display = !this.display;
             },
 
+            toggleSizeDisplay: function() {
+                this.sizeDisplay = !this.sizeDisplay;
+            },
+
             addStamp: function(stamp) {
                 let img = new Image();
 
                 img.onload = () => {
                     // 領域を超えないようにサイズ調整
-                    let size = this.calculateAspectRatioFit(stamp.width, stamp.height, this.width, this.height);
+                    let size = this.calculateAspectRatioFit(stamp.width, stamp.height, this.stampSizeWidth, this.stampSizeHeight);
                     img.width = size.width;
                     img.height = size.height;
 
@@ -206,6 +268,11 @@
 </script>
 
 <style>
+    .stampArea {
+        width: 100%;
+        height: 100%;
+    }
+
     .stampAreaWrapper {
         position: absolute;
         top: 0;
@@ -221,36 +288,123 @@
         padding: 0;
     }
 
+    .stampAreaInfo > div > span {
+        background-color: #ffffff;
+        color: #000000;
+        padding: 3px 4px;
+        border: solid 1px #555555;
+    }
+
     .stampAreaTop {
         position: absolute;
-        top: 0;
+        top: 10px;
         right: 0;
         left: 0;
         text-align: center;
+    }
+    .stampAreaTop:before{
+        content: "";
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        margin-left: -6px;
+        border: 6px solid transparent;
+        border-bottom: 6px solid #555555;
+        z-index: 1;
+    }
+    .stampAreaTop:after{
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        margin-left: -5px;
+        border: 5px solid transparent;
+        border-bottom: 5px solid #ffffff;
+        z-index: 2;
     }
 
     .stampAreaRight {
         position: absolute;
         top: 50%;
-        right: 4px;
+        right: 10px;
         margin-top: -12px;
         text-align: right;
+    }
+    .stampAreaRight:before{
+        content: "";
+        position: absolute;
+        right: -11px;
+        top: 50%;
+        margin-top: -6px;
+        border: 6px solid transparent;
+        border-left: 6px solid #555555;
+        z-index: 1;
+    }
+    .stampAreaRight:after{
+        content: "";
+        position: absolute;
+        right: -9px;
+        top: 50%;
+        margin-top: -5px;
+        border: 5px solid transparent;
+        border-left: 5px solid #ffffff;
+        z-index: 2;
     }
 
     .stampAreaBottom {
         position: absolute;
         right: 0;
-        bottom: 0;
+        bottom: 10px;
         left: 0;
         text-align: center;
+    }
+    .stampAreaBottom:before{
+        content: "";
+        position: absolute;
+        bottom: -12px;
+        left: 50%;
+        margin-left: -6px;
+        border: 6px solid transparent;
+        border-top: 6px solid #555555;
+        z-index: 1;
+    }
+    .stampAreaBottom:after{
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        margin-left: -5px;
+        border: 5px solid transparent;
+        border-top: 5px solid #ffffff;
+        z-index: 2;
     }
 
     .stampAreaLeft {
         position: absolute;
         top: 50%;
-        left: 4px;
+        left: 10px;
         margin-top: -12px;
         text-align: left;
+    }
+    .stampAreaLeft:before{
+        content: "";
+        position: absolute;
+        left: -11px;
+        top: 50%;
+        margin-top: -6px;
+        border: 6px solid transparent;
+        border-right: 6px solid #555555;
+        z-index: 1;
+    }
+    .stampAreaLeft:after{
+        content: "";
+        position: absolute;
+        left: -9px;
+        top: 50%;
+        margin-top: -5px;
+        border: 5px solid transparent;
+        border-right: 5px solid #ffffff;
+        z-index: 2;
     }
 
     .stampAreaCenter {
@@ -258,19 +412,25 @@
         top: 50%;
         right: 0;
         left: 0;
-        margin-top: -24px;
+        margin-top: -12px;
         text-align: center;
     }
 
     #stampAreaControl {
+        display: inline-flex;
+        justify-content: space-around;
+        align-items: center;
         background-color:rgba(100, 100, 255, 0.2);
         width: 100%;
         height: 100%;
-        padding: 15px;
+        padding: 15px 5px;
         box-sizing: border-box;
         border: solid 2px rgba(0, 0, 200, 0.7);
         border-radius: 6px;
-        text-align: left;
+    }
+
+    #stampAreaControl button {
+        font-size:1.4em;
     }
 
 </style>

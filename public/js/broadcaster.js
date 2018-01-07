@@ -44077,7 +44077,7 @@ exports = module.exports = __webpack_require__(37)(undefined);
 
 
 // module
-exports.push([module.i, "\n.stampAreaWrapper {\n    position: absolute;\n    top: 0;\n    right: 0;\n    bottom:0;\n    left: 0;\n    padding: 0;\n    margin: 0;\n}\n.stampAreaInfo {\n    margin: 0;\n    padding: 0;\n}\n.stampAreaTop {\n    position: absolute;\n    top: 0;\n    right: 0;\n    left: 0;\n    text-align: center;\n}\n.stampAreaRight {\n    position: absolute;\n    top: 50%;\n    right: 4px;\n    margin-top: -12px;\n    text-align: right;\n}\n.stampAreaBottom {\n    position: absolute;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    text-align: center;\n}\n.stampAreaLeft {\n    position: absolute;\n    top: 50%;\n    left: 4px;\n    margin-top: -12px;\n    text-align: left;\n}\n.stampAreaCenter {\n    position: absolute;\n    top: 50%;\n    right: 0;\n    left: 0;\n    margin-top: -24px;\n    text-align: center;\n}\n#stampAreaControl {\n    background-color:rgba(100, 100, 255, 0.2);\n    width: 100%;\n    height: 100%;\n    padding: 15px;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n    border: solid 2px rgba(0, 0, 200, 0.7);\n    border-radius: 6px;\n    text-align: left;\n}\n\n", ""]);
+exports.push([module.i, "\n.stampArea {\n    width: 100%;\n    height: 100%;\n}\n.stampAreaWrapper {\n    position: absolute;\n    top: 0;\n    right: 0;\n    bottom:0;\n    left: 0;\n    padding: 0;\n    margin: 0;\n}\n.stampAreaInfo {\n    margin: 0;\n    padding: 0;\n}\n.stampAreaInfo > div > span {\n    background-color: #ffffff;\n    color: #000000;\n    padding: 3px 4px;\n    border: solid 1px #555555;\n}\n.stampAreaTop {\n    position: absolute;\n    top: 10px;\n    right: 0;\n    left: 0;\n    text-align: center;\n}\n.stampAreaTop:before{\n    content: \"\";\n    position: absolute;\n    top: -12px;\n    left: 50%;\n    margin-left: -6px;\n    border: 6px solid transparent;\n    border-bottom: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaTop:after{\n    content: \"\";\n    position: absolute;\n    top: -10px;\n    left: 50%;\n    margin-left: -5px;\n    border: 5px solid transparent;\n    border-bottom: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaRight {\n    position: absolute;\n    top: 50%;\n    right: 10px;\n    margin-top: -12px;\n    text-align: right;\n}\n.stampAreaRight:before{\n    content: \"\";\n    position: absolute;\n    right: -11px;\n    top: 50%;\n    margin-top: -6px;\n    border: 6px solid transparent;\n    border-left: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaRight:after{\n    content: \"\";\n    position: absolute;\n    right: -9px;\n    top: 50%;\n    margin-top: -5px;\n    border: 5px solid transparent;\n    border-left: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaBottom {\n    position: absolute;\n    right: 0;\n    bottom: 10px;\n    left: 0;\n    text-align: center;\n}\n.stampAreaBottom:before{\n    content: \"\";\n    position: absolute;\n    bottom: -12px;\n    left: 50%;\n    margin-left: -6px;\n    border: 6px solid transparent;\n    border-top: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaBottom:after{\n    content: \"\";\n    position: absolute;\n    bottom: -10px;\n    left: 50%;\n    margin-left: -5px;\n    border: 5px solid transparent;\n    border-top: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaLeft {\n    position: absolute;\n    top: 50%;\n    left: 10px;\n    margin-top: -12px;\n    text-align: left;\n}\n.stampAreaLeft:before{\n    content: \"\";\n    position: absolute;\n    left: -11px;\n    top: 50%;\n    margin-top: -6px;\n    border: 6px solid transparent;\n    border-right: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaLeft:after{\n    content: \"\";\n    position: absolute;\n    left: -9px;\n    top: 50%;\n    margin-top: -5px;\n    border: 5px solid transparent;\n    border-right: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaCenter {\n    position: absolute;\n    top: 50%;\n    right: 0;\n    left: 0;\n    margin-top: -12px;\n    text-align: center;\n}\n#stampAreaControl {\n    display: -webkit-inline-box;\n    display: -ms-inline-flexbox;\n    display: inline-flex;\n    -ms-flex-pack: distribute;\n        justify-content: space-around;\n    -webkit-box-align: center;\n        -ms-flex-align: center;\n            align-items: center;\n    background-color:rgba(100, 100, 255, 0.2);\n    width: 100%;\n    height: 100%;\n    padding: 15px 5px;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n    border: solid 2px rgba(0, 0, 200, 0.7);\n    border-radius: 6px;\n}\n#stampAreaControl button {\n    font-size:1.4em;\n}\n\n", ""]);
 
 // exports
 
@@ -44142,6 +44142,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -44152,16 +44179,38 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
     data: function data() {
         return {
             display: true,
+            sizeDisplay: false,
             stampAreaStyle: this.getVisibleStyle(),
+            stampSizeStyle: this.getInvisibleStyle(),
             informationDisplay: 'block',
             width: 0,
             height: 0,
             x: 0,
             y: 0,
+            stampSizeWidth: 0,
+            stampSizeHeight: 0,
             counter: 0,
             displayEl: null,
             draggableSub: true
         };
+    },
+    computed: {
+        areaZ: function areaZ() {
+            return this.display ? 1 : 0;
+        },
+        sizeZ: function sizeZ() {
+            return this.sizeDisplay ? 2 : 0;
+        },
+        areaButtonStyle: function areaButtonStyle() {
+            return {
+                opacity: this.display ? 1 : 0.3
+            };
+        },
+        sizeButtonStyle: function sizeButtonStyle() {
+            return {
+                opacity: this.sizeDisplay ? 1 : 0.3
+            };
+        }
     },
     props: ['roomId'],
     created: function created() {
@@ -44182,6 +44231,9 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
         display: function display(newDisplay) {
             this.stampAreaStyle = newDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
             this.informationDisplay = newDisplay ? 'block' : 'none';
+        },
+        sizeDisplay: function sizeDisplay(newSizeDisplay) {
+            this.stampSizeStyle = newSizeDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
         }
     },
     methods: {
@@ -44191,9 +44243,15 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
             this.width = width;
             this.height = height;
         },
+
         onDrag: function onDrag(x, y) {
             this.x = x;
             this.y = y;
+        },
+
+        onSizeResize: function onSizeResize(x, y, width, height) {
+            this.stampSizeWidth = width;
+            this.stampSizeHeight = height;
         },
 
         getInvisibleStyle: function getInvisibleStyle() {
@@ -44216,6 +44274,10 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
             this.display = !this.display;
         },
 
+        toggleSizeDisplay: function toggleSizeDisplay() {
+            this.sizeDisplay = !this.sizeDisplay;
+        },
+
         addStamp: function addStamp(stamp) {
             var _this2 = this;
 
@@ -44223,7 +44285,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
 
             img.onload = function () {
                 // 領域を超えないようにサイズ調整
-                var size = _this2.calculateAspectRatioFit(stamp.width, stamp.height, _this2.width, _this2.height);
+                var size = _this2.calculateAspectRatioFit(stamp.width, stamp.height, _this2.stampSizeWidth, _this2.stampSizeHeight);
                 img.width = size.width;
                 img.height = size.height;
 
@@ -44324,6 +44386,7 @@ var render = function() {
             minh: 120,
             x: 100,
             y: 100,
+            z: _vm.areaZ,
             parent: true,
             resizable: _vm.display,
             draggable: _vm.display,
@@ -44347,26 +44410,20 @@ var render = function() {
                   style: { display: _vm.informationDisplay }
                 },
                 [
-                  _c("div", { staticClass: "stampAreaCenter" }, [
-                    _vm._v("X: " + _vm._s(_vm.x)),
-                    _c("br"),
-                    _vm._v("Y: " + _vm._s(_vm.y))
-                  ]),
-                  _vm._v(" "),
                   _c("div", { staticClass: "stampAreaTop" }, [
-                    _vm._v(_vm._s(_vm.width))
+                    _c("span", [_vm._v(_vm._s(_vm.width))])
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "stampAreaRight" }, [
-                    _vm._v(_vm._s(_vm.height))
+                    _c("span", [_vm._v(_vm._s(_vm.height))])
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "stampAreaBottom" }, [
-                    _vm._v(_vm._s(_vm.width))
+                    _c("span", [_vm._v(_vm._s(_vm.width))])
                   ]),
                   _vm._v(" "),
                   _c("div", { staticClass: "stampAreaLeft" }, [
-                    _vm._v(_vm._s(_vm.height))
+                    _c("span", [_vm._v(_vm._s(_vm.height))])
                   ])
                 ]
               )
@@ -44379,7 +44436,28 @@ var render = function() {
         "vue-draggable-resizable",
         {
           attrs: {
-            w: 80,
+            w: 200,
+            h: 200,
+            minw: 120,
+            minh: 120,
+            x: 150,
+            y: 150,
+            z: _vm.sizeZ,
+            parent: true,
+            resizable: _vm.sizeDisplay,
+            draggable: _vm.sizeDisplay,
+            active: _vm.sizeDisplay
+          },
+          on: { resizing: _vm.onSizeResize }
+        },
+        [_c("div", { staticClass: "stampArea", style: _vm.stampSizeStyle })]
+      ),
+      _vm._v(" "),
+      _c(
+        "vue-draggable-resizable",
+        {
+          attrs: {
+            w: 140,
             h: 80,
             x: 100,
             y: 410,
@@ -44390,49 +44468,41 @@ var render = function() {
         },
         [
           _c("div", { attrs: { id: "stampAreaControl" } }, [
-            _c("div", { staticClass: "form-group" }, [
-              _c(
-                "button",
-                {
-                  staticClass: "btn btn-primary",
-                  staticStyle: { "font-size": "1.4em" },
-                  on: {
-                    mouseover: function($event) {
-                      _vm.draggableSub = false
-                    },
-                    mouseout: function($event) {
-                      _vm.draggableSub = true
-                    },
-                    click: _vm.toggleDisplay
-                  }
-                },
-                [
-                  _c("span", {
-                    directives: [
-                      {
-                        name: "show",
-                        rawName: "v-show",
-                        value: _vm.display,
-                        expression: "display"
-                      }
-                    ],
-                    staticClass: "glyphicon glyphicon-eye-open"
-                  }),
-                  _vm._v(" "),
-                  _c("span", {
-                    directives: [
-                      {
-                        name: "show",
-                        rawName: "v-show",
-                        value: !_vm.display,
-                        expression: "!display"
-                      }
-                    ],
-                    staticClass: "glyphicon glyphicon-eye-close"
-                  })
-                ]
-              )
-            ])
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary",
+                style: _vm.areaButtonStyle,
+                on: {
+                  mouseover: function($event) {
+                    _vm.draggableSub = false
+                  },
+                  mouseout: function($event) {
+                    _vm.draggableSub = true
+                  },
+                  click: _vm.toggleDisplay
+                }
+              },
+              [_c("span", { staticClass: "glyphicon glyphicon-modal-window" })]
+            ),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary",
+                style: _vm.sizeButtonStyle,
+                on: {
+                  mouseover: function($event) {
+                    _vm.draggableSub = false
+                  },
+                  mouseout: function($event) {
+                    _vm.draggableSub = true
+                  },
+                  click: _vm.toggleSizeDisplay
+                }
+              },
+              [_c("span", { staticClass: "glyphicon glyphicon-picture" })]
+            )
           ])
         ]
       )
