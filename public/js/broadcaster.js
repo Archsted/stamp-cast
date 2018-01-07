@@ -44178,7 +44178,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            display: true,
+            areaDisplay: true,
             sizeDisplay: false,
             stampAreaStyle: this.getVisibleStyle(),
             stampSizeStyle: this.getInvisibleStyle(),
@@ -44196,14 +44196,14 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
     },
     computed: {
         areaZ: function areaZ() {
-            return this.display ? 1 : 0;
+            return this.areaDisplay ? 1 : 0;
         },
         sizeZ: function sizeZ() {
             return this.sizeDisplay ? 2 : 0;
         },
         areaButtonStyle: function areaButtonStyle() {
             return {
-                opacity: this.display ? 1 : 0.3
+                opacity: this.areaDisplay ? 1 : 0.3
             };
         },
         sizeButtonStyle: function sizeButtonStyle() {
@@ -44228,7 +44228,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
         this.displayEl = document.querySelector('#display');
     },
     watch: {
-        display: function display(newDisplay) {
+        areaDisplay: function areaDisplay(newDisplay) {
             this.stampAreaStyle = newDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
             this.informationDisplay = newDisplay ? 'block' : 'none';
         },
@@ -44237,14 +44237,14 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
         }
     },
     methods: {
-        onResize: function onResize(x, y, width, height) {
+        onAreaResize: function onAreaResize(x, y, width, height) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
         },
 
-        onDrag: function onDrag(x, y) {
+        onAreaDrag: function onAreaDrag(x, y) {
             this.x = x;
             this.y = y;
         },
@@ -44271,7 +44271,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
         },
 
         toggleDisplay: function toggleDisplay() {
-            this.display = !this.display;
+            this.areaDisplay = !this.areaDisplay;
         },
 
         toggleSizeDisplay: function toggleSizeDisplay() {
@@ -44388,11 +44388,11 @@ var render = function() {
             y: 100,
             z: _vm.areaZ,
             parent: true,
-            resizable: _vm.display,
-            draggable: _vm.display,
-            active: _vm.display
+            resizable: _vm.areaDisplay,
+            draggable: _vm.areaDisplay,
+            active: _vm.areaDisplay
           },
-          on: { dragging: _vm.onDrag, resizing: _vm.onResize }
+          on: { dragging: _vm.onAreaDrag, resizing: _vm.onAreaResize }
         },
         [
           _c(
