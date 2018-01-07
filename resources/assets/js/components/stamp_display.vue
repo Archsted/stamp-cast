@@ -8,12 +8,12 @@
             :x="100"
             :y="100"
             :z="areaZ"
-            v-on:dragging="onDrag"
-            v-on:resizing="onResize"
+            v-on:dragging="onAreaDrag"
+            v-on:resizing="onAreaResize"
             :parent="true"
-            :resizable="display"
-            :draggable="display"
-            :active="display">
+            :resizable="areaDisplay"
+            :draggable="areaDisplay"
+            :active="areaDisplay">
             <div class="stampArea" id="display" v-bind:style="stampAreaStyle">
                 <div class="stampAreaInfo" v-bind:style="{ display: informationDisplay }">
                     <!--
@@ -84,7 +84,7 @@
     export default {
         data: function () {
             return {
-                display: true,
+                areaDisplay: true,
                 sizeDisplay: false,
                 stampAreaStyle: this.getVisibleStyle(),
                 stampSizeStyle: this.getInvisibleStyle(),
@@ -102,14 +102,14 @@
         },
         computed: {
             areaZ: function () {
-                return this.display ? 1 : 0;
+                return this.areaDisplay ? 1 : 0;
             },
             sizeZ: function () {
                 return this.sizeDisplay ? 2 : 0;
             },
             areaButtonStyle: function () {
                 return {
-                    opacity: this.display ? 1 : 0.3
+                    opacity: this.areaDisplay ? 1 : 0.3
                 };
             },
             sizeButtonStyle: function () {
@@ -135,7 +135,7 @@
             this.displayEl = document.querySelector('#display');
         },
         watch: {
-            display: function (newDisplay) {
+            areaDisplay: function (newDisplay) {
                 this.stampAreaStyle = newDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
                 this.informationDisplay = newDisplay ? 'block' : 'none';
             },
@@ -144,14 +144,14 @@
             },
         },
         methods: {
-            onResize: function (x, y, width, height) {
+            onAreaResize: function (x, y, width, height) {
                 this.x = x
                 this.y = y
                 this.width = width
                 this.height = height
             },
 
-            onDrag: function (x, y) {
+            onAreaDrag: function (x, y) {
                 this.x = x
                 this.y = y
             },
@@ -178,7 +178,7 @@
             },
 
             toggleDisplay: function() {
-                this.display = !this.display;
+                this.areaDisplay = !this.areaDisplay;
             },
 
             toggleSizeDisplay: function() {
