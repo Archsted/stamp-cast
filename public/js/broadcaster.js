@@ -44169,6 +44169,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 
 
@@ -44461,6 +44462,7 @@ var render = function() {
             h: 80,
             x: 100,
             y: 410,
+            z: 999,
             parent: true,
             resizable: false,
             draggable: _vm.draggableSub
