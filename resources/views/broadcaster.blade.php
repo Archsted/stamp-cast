@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="//{{ Request::getHost() }}:6001/socket.io/socket.io.js"></script>
     <title>スタンプ表示用透過ウィンドウ</title>
+
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
@@ -30,11 +31,6 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-        }
-
-        .stampArea {
-            width: 100%;
-            height: 100%;
         }
 
         .stampAreaInfo > div {
