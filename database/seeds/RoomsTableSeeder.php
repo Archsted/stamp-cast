@@ -22,10 +22,10 @@ class RoomsTableSeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'code' => 'test',
+                'code' => 'nico',
                 'user_id' => null,
-                'name' => 'テストルーム',
-                'description' => 'スタンプ配信のテストに使います',
+                'name' => 'ニコ生配信用',
+                'description' => 'ニコニコ生放送での配信用。',
             ],
         ];
 
