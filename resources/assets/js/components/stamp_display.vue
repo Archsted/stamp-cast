@@ -16,9 +16,6 @@
             :active="areaDisplay">
             <div class="stampArea" id="display" v-bind:style="stampAreaStyle">
                 <div class="stampAreaInfo" v-bind:style="{ display: informationDisplay }">
-                    <!--
-                    <div class="stampAreaCenter"><span>X: {{ x }} / Y: {{ y }}</span></div>
-                    -->
                     <div class="stampAreaTop"><span>{{ width }}</span></div>
                     <div class="stampAreaRight"><span>{{ height }}</span></div>
                     <div class="stampAreaBottom"><span>{{ width }}</span></div>
@@ -146,15 +143,15 @@
         },
         methods: {
             onAreaResize: function (x, y, width, height) {
-                this.x = x
-                this.y = y
-                this.width = width
-                this.height = height
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
             },
 
             onAreaDrag: function (x, y) {
-                this.x = x
-                this.y = y
+                this.x = x;
+                this.y = y;
             },
 
             onSizeResize: function (x, y, width, height) {
@@ -298,7 +295,7 @@
 
     .stampAreaTop {
         position: absolute;
-        top: 10px;
+        top: 20px;
         right: 0;
         left: 0;
         text-align: center;
@@ -327,7 +324,7 @@
     .stampAreaRight {
         position: absolute;
         top: 50%;
-        right: 10px;
+        right: 20px;
         margin-top: -12px;
         text-align: right;
     }
@@ -355,7 +352,7 @@
     .stampAreaBottom {
         position: absolute;
         right: 0;
-        bottom: 10px;
+        bottom: 20px;
         left: 0;
         text-align: center;
     }
@@ -383,7 +380,7 @@
     .stampAreaLeft {
         position: absolute;
         top: 50%;
-        left: 10px;
+        left: 20px;
         margin-top: -12px;
         text-align: left;
     }
@@ -408,15 +405,6 @@
         z-index: 2;
     }
 
-    .stampAreaCenter {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        left: 0;
-        margin-top: -12px;
-        text-align: center;
-    }
-
     #stampAreaControl {
         display: inline-flex;
         justify-content: space-around;
@@ -432,6 +420,35 @@
 
     #stampAreaControl button {
         font-size:1.4em;
+    }
+
+    .handle-tl {
+        top: 0 !important;
+        left: 0 !important;
+    }
+    .handle-tm {
+        top: 0 !important;
+    }
+    .handle-tr {
+        top: 0 !important;
+        right: 0 !important;
+    }
+    .handle-bl {
+        bottom: 0 !important;
+        left: 0 !important;
+    }
+    .handle-bm {
+        bottom: 0 !important;
+    }
+    .handle-br {
+        bottom: 0 !important;
+        right: 0 !important;
+    }
+    .handle-ml {
+        left: 0 !important;
+    }
+    .handle-mr {
+        right: 0 !important;
     }
 
 </style>
