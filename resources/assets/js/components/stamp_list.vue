@@ -61,7 +61,9 @@
                     stamp_id: stamp_id
                 }).then((response) => {
 
-                }).catch( error => { console.log(error); });
+                }).catch( error => {
+                    console.log(error);
+                });
             },
             uploadCompleteEvent(file) {
                 this.getStamps();

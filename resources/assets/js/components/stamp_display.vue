@@ -15,11 +15,11 @@
             :draggable="areaDisplay"
             :active="areaDisplay">
             <div class="stampArea" id="display" v-bind:style="stampAreaStyle">
-                <div class="stampAreaInfo" v-bind:style="{ display: informationDisplay }">
-                    <div class="stampAreaTop"><span>{{ width }}</span></div>
-                    <div class="stampAreaRight"><span>{{ height }}</span></div>
-                    <div class="stampAreaBottom"><span>{{ width }}</span></div>
-                    <div class="stampAreaLeft"><span>{{ height }}</span></div>
+                <div class="stampAreaInfoWrapper" v-bind:style="{ display: informationDisplay }">
+                    <div class="stampAreaInfo stampAreaTop"><span>{{ width }}</span></div>
+                    <div class="stampAreaInfo stampAreaRight"><span>{{ height }}</span></div>
+                    <div class="stampAreaInfo stampAreaBottom"><span>{{ width }}</span></div>
+                    <div class="stampAreaInfo stampAreaLeft"><span>{{ height }}</span></div>
                 </div>
             </div>
         </vue-draggable-resizable>
@@ -281,12 +281,19 @@
         margin: 0;
     }
 
-    .stampAreaInfo {
+    .stampAreaInfoWrapper {
         margin: 0;
         padding: 0;
     }
 
-    .stampAreaInfo > div > span {
+    .stampAreaInfo {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .stampAreaInfo > span {
         background-color: #ffffff;
         color: #000000;
         padding: 3px 4px;
@@ -420,6 +427,15 @@
 
     #stampAreaControl button {
         font-size:1.4em;
+    }
+
+    img.stamp {
+        position: absolute;
+        opacity: 0;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
 
     .handle-tl {
