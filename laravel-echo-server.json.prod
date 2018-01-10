@@ -1,0 +1,32 @@
+{
+    "authHost": "https://localhost",
+    "authEndpoint": "/broadcasting/auth",
+    "clients": [
+        {
+            "appId": "af17c8556c099c6d",
+            "key": "a3c5ebc35b061f8105da5305391e493e"
+        }
+    ],
+    "database": "redis",
+    "databaseConfig": {
+        "redis": {},
+        "sqlite": {
+            "databasePath": "/database/laravel-echo-server.sqlite"
+        }
+    },
+    "devMode": true,
+    "host": null,
+    "port": "6001",
+    "protocol": "https",
+    "socketio": {},
+    "sslCertPath": "/etc/letsencrypt/archive/hs.archsted.com/cert1.pem",
+    "sslKeyPath": "/etc/letsencrypt/keys/0000_key-certbot.pem",
+    "sslCertChainPath": "/etc/letsencrypt/archive/hs.archsted.com/chain1.pem",
+    "sslPassphrase": "",
+    "apiOriginAllow":{
+        "allowCors" : false,
+        "allowOrigin" : "",
+        "allowMethods" : "",
+        "allowHeaders" : ""
+    }
+}
