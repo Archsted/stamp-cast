@@ -15,17 +15,9 @@ class RoomsTableSeeder extends Seeder
         $testRooms = [
             [
                 'id' => 1,
-                'code' => 'kaicho_ch',
-                'user_id' => null,
+                'user_id' => 1,
                 'name' => '会長ch',
                 'description' => '会長chの配信画面にスタンプを送る事ができます。',
-            ],
-            [
-                'id' => 2,
-                'code' => 'nico',
-                'user_id' => null,
-                'name' => 'ニコ生配信用',
-                'description' => 'ニコニコ生放送での配信用。',
             ],
         ];
 

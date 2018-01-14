@@ -36,4 +36,14 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+
+    /**
+     * ログインIDカラム
+     *
+     * @return string
+     */
+    public function username()
+    {
+        return 'login_id';
+    }
 }

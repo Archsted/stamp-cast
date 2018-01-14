@@ -227,7 +227,7 @@
                             scale: 0.5,
                             duration: 500,
                             opacity: 0,
-                            delay: 3000,
+                            delay: 3500,
                             easing: 'easeInOutSine'
                         });
 

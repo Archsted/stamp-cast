@@ -31,12 +31,11 @@ Route::group(['prefix' => '/v1'], function () {
     Route::group(['prefix' => '/stamps'], function () {
 //        Route::get('/', 'StampController@index');
 //        Route::post('/', 'StampController@create');
+        Route::get('/samples', 'StampController@sample');
     });
 
     // Imprint
     Route::group(['prefix' => '/imprints'], function () {
 //        Route::post('/', 'ImprintController@create');
     });
-
 });
-
