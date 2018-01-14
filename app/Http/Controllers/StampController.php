@@ -59,4 +59,16 @@ class StampController extends Controller
             'room' => $room
         ];
     }
+
+    public function sample()
+    {
+        $stamps = Stamp::query()
+            ->whereNull('room_id')
+            ->orderBy('id')
+            ->get();
+
+        return [
+            'stamps' => $stamps
+        ];
+    }
 }

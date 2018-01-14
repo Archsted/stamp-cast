@@ -15,11 +15,22 @@ class CreateRoomsTable extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('code', 32)->unique();
-            $table->unsignedInteger('user_id')->nullable();
+
+            // 作成ユーザー
+            $table->unsignedInteger('user_id');
+
+            // ルーム名
             $table->string('name', 255);
+
+            // ルーム説明
             $table->text('description')->nullable();
+
             $table->timestamps();
+        });
+
+        // 外部キー作成
+        Schema::table('rooms', function (Blueprint $table) {
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
@@ -30,6 +41,11 @@ class CreateRoomsTable extends Migration
      */
     public function down()
     {
+        // 外部キー削除
+        Schema::table('rooms', function (Blueprint $table) {
+            $table->dropForeign('rooms_user_id_foreign');
+        });
+
         Schema::dropIfExists('rooms');
     }
 }

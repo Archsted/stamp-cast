@@ -2,5 +2,6 @@
     "/js/listener.js": "/js/listener.js",
     "/js/broadcaster.js": "/js/broadcaster.js",
     "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css"
+    "/css/app.css": "/css/app.css",
+    "/js/top.js": "/js/top.js"
 }
