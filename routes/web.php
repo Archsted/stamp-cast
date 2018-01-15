@@ -17,7 +17,23 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'HomeController@index')
+    ->middleware('auth')
+    ->name('home');
 
-Route::get('/{code}/listener', 'HomeController@listener');
-Route::get('/{code}/broadcaster', 'HomeController@broadcaster');
+Route::get('/{room}', 'HomeController@listener');
+Route::get('/{room}/broadcaster', 'HomeController@broadcaster');
+
+
+Route::get('/rooms/create', 'RoomController@create')
+    ->middleware('auth')
+    ->name('room_create');
+
+Route::post('/rooms', 'RoomController@store')
+    ->middleware('auth')
+    ->name('room_store');
+
+//Route::get('/{code}/listener', 'HomeController@listener');
+//Route::get('/{code}/broadcaster', 'HomeController@broadcaster');
+
+
