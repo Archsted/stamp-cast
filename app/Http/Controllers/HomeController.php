@@ -24,22 +24,18 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $room = auth()->user()->room;
+
+        return view('home', compact('room'));
     }
 
-    public function listener($code)
+    public function listener(Room $room)
     {
-        $room = Room::where('code', $code)
-            ->firstOrFail();
-
         return view('listener', compact('room'));
     }
 
-    public function broadcaster($code)
+    public function broadcaster(Room $room)
     {
-        $room = Room::where('code', $code)
-            ->firstOrFail();
-
         return view('broadcaster', compact('room'));
     }
 }
