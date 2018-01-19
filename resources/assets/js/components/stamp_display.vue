@@ -123,6 +123,8 @@
             this.x = 100;
             this.y = 100;
 
+            createjs.Sound.registerSound("/button16.mp3", 'receiveStamp');
+
             // チャンネル接続
             echo.channel('room.' + this.roomId)
                 .listen('StampEvent', (e) => {
@@ -204,6 +206,9 @@
                     this.counter++;
 
                     let basicTimeLine = animejs.timeline({
+                        begin: () => {
+                            createjs.Sound.play('receiveStamp');
+                        },
                         complete: () => {
                             // タイムラインが全て終わったら自分自身を削除し、カウンターを減らす
                             this.displayEl.removeChild(img);
