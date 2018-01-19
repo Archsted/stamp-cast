@@ -44219,6 +44219,8 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
         this.x = 100;
         this.y = 100;
 
+        createjs.Sound.registerSound("/button16.mp3", 'receiveStamp');
+
         // チャンネル接続
         echo.channel('room.' + this.roomId).listen('StampEvent', function (e) {
             _this.addStamp(e.stamp);
@@ -44301,6 +44303,9 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
                 _this2.counter++;
 
                 var basicTimeLine = animejs.timeline({
+                    begin: function begin() {
+                        createjs.Sound.play('receiveStamp');
+                    },
                     complete: function complete() {
                         // タイムラインが全て終わったら自分自身を削除し、カウンターを減らす
                         _this2.displayEl.removeChild(img);

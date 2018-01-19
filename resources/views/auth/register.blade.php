@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-md-6 col-md-offset-3">
             <div class="panel panel-default">
                 <div class="panel-heading">新規登録</div>
 
@@ -18,7 +18,7 @@
                             <label for="name" class="col-md-3 control-label">ユーザー名</label>
 
                             <div class="col-md-6">
-                                <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" placeholder="会長" required>
+                                <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" placeholder="会長" required autofocus>
 
                                 @if ($errors->has('name'))
                                     <span class="help-block">
@@ -29,7 +29,7 @@
 
                             <div class="col-md-3">
                                 <span class="help-block">
-                                    任意の文字列
+                                    任意の文字
                                 </span>
                             </div>
                         </div>
@@ -38,7 +38,7 @@
                             <label for="login_id" class="col-md-3 control-label">ログインID</label>
 
                             <div class="col-md-6">
-                                <input id="login_id" type="text" class="form-control" name="login_id" value="{{ old('login_id') }}" placeholder="archsted" required autofocus>
+                                <input id="login_id" type="text" class="form-control" name="login_id" value="{{ old('login_id') }}" placeholder="archsted" required>
                                 @if ($errors->has('login_id'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('login_id') }}</strong>
@@ -48,7 +48,7 @@
 
                             <div class="col-md-3">
                                 <span class="help-block">
-                                    半角の英数字記号
+                                    半角英数
                                 </span>
                             </div>
                         </div>

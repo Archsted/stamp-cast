@@ -24,6 +24,9 @@
             user-select: none;
         }
     </style>
+
+    <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+</head>
 <body>
 <div id="app">
     <stamp-display ref="stamp" room-id="{{ $room->id }}"></stamp-display>
