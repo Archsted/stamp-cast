@@ -1,6 +1,6 @@
 <template>
     <div class="stampList">
-        <div class="stampForm">
+        <div class="stampForm" v-if="canUploadStamp">
             <vue-dropzone
                 ref="myVueDropzone"
                 id="dropzone"
@@ -9,7 +9,7 @@
             ></vue-dropzone>
         </div>
 
-        <div v-for="stamp in stamps" :key="stamp.id" class="stampWrapper">
+        <div v-for="stamp in stamps" :key="stamp.id" class="stampWrapper" v-bind:style="cursor">
             <img :src="stamp.name" @click="sendStamp(stamp.id)" class="stamp">
             <!--
             <div class="favoriteForm">
@@ -30,13 +30,19 @@
                 stamps: [],
                 dropzoneOptions: {
                     url: '/api/v1/rooms/' + this.roomId + '/stamps',
+                    params: {
+                        user_id: this.userId
+                    },
                     createImageThumbnails: false,
                     dictDefaultMessage: '<span class="glyphicon glyphicon-plus-sign"></span>'
                 }
             };
         },
         props: [
-            'roomId'
+            'roomId',
+            'imprinterLevel',
+            'uploaderLevel',
+            'userId'
         ],
         mounted: function () {
             this.getStamps();
@@ -44,7 +50,25 @@
         components: {
             vueDropzone: vue2Dropzone
         },
+        computed: {
+            canUploadStamp: function () {
+                return (this.uploaderLevel === '1' || (this.uploaderLevel === '2' && this.userId));
+            },
+            canSendStamp: function () {
+                return (this.imprinterLevel === '1' || (this.imprinterLevel === '2' && this.userId));
+            },
+            cursor: function () {
+                return this.canSendStamp ? {
+                    cursor: 'pointer'
+                } : {
+                    cursor: 'not-allowed'
+                };
+            },
+        },
         methods: {
+            canUploadStamp() {
+                return (this.uploaderLevel === '1' || (this.uploaderLevel === '2' && this.userId));
+            },
             getStamps() {
                 // スタンプ一覧
                 let url = '/api/v1/rooms/' + this.roomId + '/stamps';
@@ -54,16 +78,22 @@
                 }).catch( error => { console.log(error); });
             },
             sendStamp(stamp_id) {
-                // スタンプ送信
-                let url = '/api/v1/rooms/' + this.roomId + '/imprints';
+                if (this.canSendStamp) {
+                    // スタンプ送信
+                    let url = '/api/v1/rooms/' + this.roomId + '/imprints';
 
-                axios.post(url, {
-                    stamp_id: stamp_id
-                }).then((response) => {
+                    axios.post(url, {
+                        stamp_id: stamp_id,
+                        user_id: this.userId,
+                    }).then((response) => {
 
-                }).catch( error => {
-                    console.log(error);
-                });
+                    }).catch( error => {
+                        console.log(error);
+                    });
+                } else {
+                    // 送れない場合の説明文章
+
+                }
             },
             uploadCompleteEvent(file) {
                 this.getStamps();
@@ -86,7 +116,6 @@
         height: 140px;
         min-width: 50px;
         box-sizing: border-box;
-        cursor: pointer;
     }
 
     .stamp {

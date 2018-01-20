@@ -31,6 +31,9 @@ class CreateImprintsTable extends Migration
             // 画像のスタンプの場合はnullとなる
             $table->string('comment')->nullable();
 
+            // IPアドレス
+            $table->ipAddress('ip');
+
             $table->timestamps();
         });
 

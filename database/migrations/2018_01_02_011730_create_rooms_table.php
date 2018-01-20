@@ -25,6 +25,14 @@ class CreateRoomsTable extends Migration
             // ルーム説明
             $table->text('description')->nullable();
 
+            // スタンプを送ることが可能なユーザーレベル
+            // 1: 誰でも可能 / 2: 会員のみ可能
+            $table->integer('imprinter_level')->default(1);
+
+            // 新規スタンプをアップロード可能なユーザーレベル
+            // 1: 誰でも可能 / 2: 会員のみ可能 / 9: 全員不可能
+            $table->integer('uploader_level')->default(1);
+
             $table->timestamps();
         });
 

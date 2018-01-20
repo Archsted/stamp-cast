@@ -443,6 +443,7 @@
     #stampAreaControl {
         display: inline-flex;
         justify-content: space-around;
+        align-content: space-between;
         flex-wrap: wrap;
         align-items: center;
         background-color:rgba(100, 100, 255, 0.2);
