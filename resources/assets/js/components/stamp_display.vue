@@ -45,7 +45,7 @@
 
         <vue-draggable-resizable
             :w="140"
-            :h="80"
+            :h="140"
             :x="100"
             :y="410"
             :z="999"
@@ -68,6 +68,23 @@
                         v-bind:style="sizeButtonStyle">
                     <span class="glyphicon glyphicon-picture"></span>
                 </button>
+
+                <button class="btn btn-primary"
+                        v-on:mouseover="draggableSub = false"
+                        v-on:mouseout="draggableSub = true"
+                        @click="isShow = !isShow">
+                    <span class="glyphicon glyphicon-eye-open" v-show="isShow"></span>
+                    <span class="glyphicon glyphicon-eye-close" v-show="!isShow"></span>
+                </button>
+
+                <button class="btn btn-primary"
+                        v-on:mouseover="draggableSub = false"
+                        v-on:mouseout="draggableSub = true"
+                        @click="isMute = !isMute">
+                    <span class="glyphicon glyphicon-volume-off" v-show="isMute"></span>
+                    <span class="glyphicon glyphicon-volume-up" v-show="!isMute"></span>
+                </button>
+
             </div>
         </vue-draggable-resizable>
     </div>
@@ -96,6 +113,8 @@
                 counter: 0,
                 displayEl: null,
                 draggableSub: true,
+                isShow: true,
+                isMute: false,
             }
         },
         computed: {
@@ -128,7 +147,9 @@
             // チャンネル接続
             echo.channel('room.' + this.roomId)
                 .listen('StampEvent', (e) => {
-                    this.addStamp(e.stamp);
+                    if (this.isShow) {
+                        this.addStamp(e.stamp);
+                    }
                 });
         },
         mounted: function () {
@@ -207,7 +228,9 @@
 
                     let basicTimeLine = animejs.timeline({
                         begin: () => {
-                            createjs.Sound.play('receiveStamp');
+                            if (!this.isMute) {
+                                createjs.Sound.play('receiveStamp');
+                            }
                         },
                         complete: () => {
                             // タイムラインが全て終わったら自分自身を削除し、カウンターを減らす
@@ -420,6 +443,7 @@
     #stampAreaControl {
         display: inline-flex;
         justify-content: space-around;
+        flex-wrap: wrap;
         align-items: center;
         background-color:rgba(100, 100, 255, 0.2);
         width: 100%;

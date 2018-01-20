@@ -44079,7 +44079,7 @@ exports = module.exports = __webpack_require__(37)(undefined);
 
 
 // module
-exports.push([module.i, "\n.stampArea {\n    width: 100%;\n    height: 100%;\n}\n.stampAreaWrapper {\n    position: absolute;\n    top: 0;\n    right: 0;\n    bottom:0;\n    left: 0;\n    padding: 0;\n    margin: 0;\n}\n.stampAreaInfoWrapper {\n    margin: 0;\n    padding: 0;\n}\n.stampAreaInfo {\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.stampAreaInfo > span {\n    background-color: #ffffff;\n    color: #000000;\n    padding: 3px 4px;\n    border: solid 1px #555555;\n}\n.stampAreaTop {\n    position: absolute;\n    top: 20px;\n    right: 0;\n    left: 0;\n    text-align: center;\n}\n.stampAreaTop:before{\n    content: \"\";\n    position: absolute;\n    top: -12px;\n    left: 50%;\n    margin-left: -6px;\n    border: 6px solid transparent;\n    border-bottom: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaTop:after{\n    content: \"\";\n    position: absolute;\n    top: -10px;\n    left: 50%;\n    margin-left: -5px;\n    border: 5px solid transparent;\n    border-bottom: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaRight {\n    position: absolute;\n    top: 50%;\n    right: 20px;\n    margin-top: -12px;\n    text-align: right;\n}\n.stampAreaRight:before{\n    content: \"\";\n    position: absolute;\n    right: -11px;\n    top: 50%;\n    margin-top: -6px;\n    border: 6px solid transparent;\n    border-left: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaRight:after{\n    content: \"\";\n    position: absolute;\n    right: -9px;\n    top: 50%;\n    margin-top: -5px;\n    border: 5px solid transparent;\n    border-left: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaBottom {\n    position: absolute;\n    right: 0;\n    bottom: 20px;\n    left: 0;\n    text-align: center;\n}\n.stampAreaBottom:before{\n    content: \"\";\n    position: absolute;\n    bottom: -12px;\n    left: 50%;\n    margin-left: -6px;\n    border: 6px solid transparent;\n    border-top: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaBottom:after{\n    content: \"\";\n    position: absolute;\n    bottom: -10px;\n    left: 50%;\n    margin-left: -5px;\n    border: 5px solid transparent;\n    border-top: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaLeft {\n    position: absolute;\n    top: 50%;\n    left: 20px;\n    margin-top: -12px;\n    text-align: left;\n}\n.stampAreaLeft:before{\n    content: \"\";\n    position: absolute;\n    left: -11px;\n    top: 50%;\n    margin-top: -6px;\n    border: 6px solid transparent;\n    border-right: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaLeft:after{\n    content: \"\";\n    position: absolute;\n    left: -9px;\n    top: 50%;\n    margin-top: -5px;\n    border: 5px solid transparent;\n    border-right: 5px solid #ffffff;\n    z-index: 2;\n}\n#stampAreaControl {\n    display: -webkit-inline-box;\n    display: -ms-inline-flexbox;\n    display: inline-flex;\n    -ms-flex-pack: distribute;\n        justify-content: space-around;\n    -webkit-box-align: center;\n        -ms-flex-align: center;\n            align-items: center;\n    background-color:rgba(100, 100, 255, 0.2);\n    width: 100%;\n    height: 100%;\n    padding: 15px 5px;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n    border: solid 2px rgba(0, 0, 200, 0.7);\n    border-radius: 6px;\n}\n#stampAreaControl button {\n    font-size:1.4em;\n}\nimg.stamp {\n    position: absolute;\n    opacity: 0;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.handle-tl {\n    top: 0 !important;\n    left: 0 !important;\n}\n.handle-tm {\n    top: 0 !important;\n}\n.handle-tr {\n    top: 0 !important;\n    right: 0 !important;\n}\n.handle-bl {\n    bottom: 0 !important;\n    left: 0 !important;\n}\n.handle-bm {\n    bottom: 0 !important;\n}\n.handle-br {\n    bottom: 0 !important;\n    right: 0 !important;\n}\n.handle-ml {\n    left: 0 !important;\n}\n.handle-mr {\n    right: 0 !important;\n}\n\n", ""]);
+exports.push([module.i, "\n.stampArea {\n    width: 100%;\n    height: 100%;\n}\n.stampAreaWrapper {\n    position: absolute;\n    top: 0;\n    right: 0;\n    bottom:0;\n    left: 0;\n    padding: 0;\n    margin: 0;\n}\n.stampAreaInfoWrapper {\n    margin: 0;\n    padding: 0;\n}\n.stampAreaInfo {\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.stampAreaInfo > span {\n    background-color: #ffffff;\n    color: #000000;\n    padding: 3px 4px;\n    border: solid 1px #555555;\n}\n.stampAreaTop {\n    position: absolute;\n    top: 20px;\n    right: 0;\n    left: 0;\n    text-align: center;\n}\n.stampAreaTop:before{\n    content: \"\";\n    position: absolute;\n    top: -12px;\n    left: 50%;\n    margin-left: -6px;\n    border: 6px solid transparent;\n    border-bottom: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaTop:after{\n    content: \"\";\n    position: absolute;\n    top: -10px;\n    left: 50%;\n    margin-left: -5px;\n    border: 5px solid transparent;\n    border-bottom: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaRight {\n    position: absolute;\n    top: 50%;\n    right: 20px;\n    margin-top: -12px;\n    text-align: right;\n}\n.stampAreaRight:before{\n    content: \"\";\n    position: absolute;\n    right: -11px;\n    top: 50%;\n    margin-top: -6px;\n    border: 6px solid transparent;\n    border-left: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaRight:after{\n    content: \"\";\n    position: absolute;\n    right: -9px;\n    top: 50%;\n    margin-top: -5px;\n    border: 5px solid transparent;\n    border-left: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaBottom {\n    position: absolute;\n    right: 0;\n    bottom: 20px;\n    left: 0;\n    text-align: center;\n}\n.stampAreaBottom:before{\n    content: \"\";\n    position: absolute;\n    bottom: -12px;\n    left: 50%;\n    margin-left: -6px;\n    border: 6px solid transparent;\n    border-top: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaBottom:after{\n    content: \"\";\n    position: absolute;\n    bottom: -10px;\n    left: 50%;\n    margin-left: -5px;\n    border: 5px solid transparent;\n    border-top: 5px solid #ffffff;\n    z-index: 2;\n}\n.stampAreaLeft {\n    position: absolute;\n    top: 50%;\n    left: 20px;\n    margin-top: -12px;\n    text-align: left;\n}\n.stampAreaLeft:before{\n    content: \"\";\n    position: absolute;\n    left: -11px;\n    top: 50%;\n    margin-top: -6px;\n    border: 6px solid transparent;\n    border-right: 6px solid #555555;\n    z-index: 1;\n}\n.stampAreaLeft:after{\n    content: \"\";\n    position: absolute;\n    left: -9px;\n    top: 50%;\n    margin-top: -5px;\n    border: 5px solid transparent;\n    border-right: 5px solid #ffffff;\n    z-index: 2;\n}\n#stampAreaControl {\n    display: -webkit-inline-box;\n    display: -ms-inline-flexbox;\n    display: inline-flex;\n    -ms-flex-pack: distribute;\n        justify-content: space-around;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap;\n    -webkit-box-align: center;\n        -ms-flex-align: center;\n            align-items: center;\n    background-color:rgba(100, 100, 255, 0.2);\n    width: 100%;\n    height: 100%;\n    padding: 15px 5px;\n    -webkit-box-sizing: border-box;\n            box-sizing: border-box;\n    border: solid 2px rgba(0, 0, 200, 0.7);\n    border-radius: 6px;\n}\n#stampAreaControl button {\n    font-size:1.4em;\n}\nimg.stamp {\n    position: absolute;\n    opacity: 0;\n    -webkit-user-select: none;\n    -moz-user-select: none;\n    -ms-user-select: none;\n    user-select: none;\n}\n.handle-tl {\n    top: 0 !important;\n    left: 0 !important;\n}\n.handle-tm {\n    top: 0 !important;\n}\n.handle-tr {\n    top: 0 !important;\n    right: 0 !important;\n}\n.handle-bl {\n    bottom: 0 !important;\n    left: 0 !important;\n}\n.handle-bm {\n    bottom: 0 !important;\n}\n.handle-br {\n    bottom: 0 !important;\n    right: 0 !important;\n}\n.handle-ml {\n    left: 0 !important;\n}\n.handle-mr {\n    right: 0 !important;\n}\n\n", ""]);
 
 // exports
 
@@ -44094,6 +44094,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_draggable_resizable__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_draggable_resizable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_draggable_resizable__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -44191,7 +44208,9 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
             stampSizeHeight: 0,
             counter: 0,
             displayEl: null,
-            draggableSub: true
+            draggableSub: true,
+            isShow: true,
+            isMute: false
         };
     },
     computed: {
@@ -44223,7 +44242,9 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
 
         // チャンネル接続
         echo.channel('room.' + this.roomId).listen('StampEvent', function (e) {
-            _this.addStamp(e.stamp);
+            if (_this.isShow) {
+                _this.addStamp(e.stamp);
+            }
         });
     },
     mounted: function mounted() {
@@ -44304,7 +44325,9 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('vue-draggable-resizable',
 
                 var basicTimeLine = animejs.timeline({
                     begin: function begin() {
-                        createjs.Sound.play('receiveStamp');
+                        if (!_this2.isMute) {
+                            createjs.Sound.play('receiveStamp');
+                        }
                     },
                     complete: function complete() {
                         // タイムラインが全て終わったら自分自身を削除し、カウンターを減らす
@@ -44463,7 +44486,7 @@ var render = function() {
         {
           attrs: {
             w: 140,
-            h: 80,
+            h: 140,
             x: 100,
             y: 410,
             z: 999,
@@ -44508,6 +44531,92 @@ var render = function() {
                 }
               },
               [_c("span", { staticClass: "glyphicon glyphicon-picture" })]
+            ),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary",
+                on: {
+                  mouseover: function($event) {
+                    _vm.draggableSub = false
+                  },
+                  mouseout: function($event) {
+                    _vm.draggableSub = true
+                  },
+                  click: function($event) {
+                    _vm.isShow = !_vm.isShow
+                  }
+                }
+              },
+              [
+                _c("span", {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.isShow,
+                      expression: "isShow"
+                    }
+                  ],
+                  staticClass: "glyphicon glyphicon-eye-open"
+                }),
+                _vm._v(" "),
+                _c("span", {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: !_vm.isShow,
+                      expression: "!isShow"
+                    }
+                  ],
+                  staticClass: "glyphicon glyphicon-eye-close"
+                })
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-primary",
+                on: {
+                  mouseover: function($event) {
+                    _vm.draggableSub = false
+                  },
+                  mouseout: function($event) {
+                    _vm.draggableSub = true
+                  },
+                  click: function($event) {
+                    _vm.isMute = !_vm.isMute
+                  }
+                }
+              },
+              [
+                _c("span", {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.isMute,
+                      expression: "isMute"
+                    }
+                  ],
+                  staticClass: "glyphicon glyphicon-volume-off"
+                }),
+                _vm._v(" "),
+                _c("span", {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: !_vm.isMute,
+                      expression: "!isMute"
+                    }
+                  ],
+                  staticClass: "glyphicon glyphicon-volume-up"
+                })
+              ]
             )
           ])
         ]
