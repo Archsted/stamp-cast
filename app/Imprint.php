@@ -11,5 +11,6 @@ class Imprint extends Model
         'user_id',
         'stamp_id',
         'comment',
+        'ip',
     ];
 }

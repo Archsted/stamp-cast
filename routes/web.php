@@ -21,17 +21,22 @@ Route::get('/home', 'HomeController@index')
     ->middleware('auth')
     ->name('home');
 
-Route::get('/{room}', 'HomeController@listener');
-Route::get('/{room}/broadcaster', 'HomeController@broadcaster');
+Route::get('/{room}', 'HomeController@listener')
+    ->name('listener');
+
+Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
+    ->name('broadcaster');
 
 
-Route::get('/rooms/create', 'RoomController@create')
-    ->middleware('auth')
-    ->name('room_create');
+Route::group(['prefix' => '/rooms', 'middleware' => ['auth']], function () {
+    Route::get('/create', 'RoomController@create')->name('room_create');
+    Route::post('/', 'RoomController@store')->name('room_store');
 
-Route::post('/rooms', 'RoomController@store')
-    ->middleware('auth')
-    ->name('room_store');
+    Route::get('/{room}/edit', 'RoomController@edit')->name('room_edit');
+    Route::put('/{room}', 'RoomController@update')->name('room_update');
+
+});
+
 
 //Route::get('/{code}/listener', 'HomeController@listener');
 //Route::get('/{code}/broadcaster', 'HomeController@broadcaster');

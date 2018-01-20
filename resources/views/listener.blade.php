@@ -2,7 +2,29 @@
 
 @section('content')
     <div style="padding: 0 10px;">
-        <stamp-list ref="stampList" room-id="{{ $room->id }}"></stamp-list>
+        <div>
+            <p>
+                {{$room->name}}
+                @auth
+                    @if( auth()->user()->id === $room->user_id )
+                        <a href="{{ route('room_edit', ['room' => $room->id]) }}"><span class="glyphicon glyphicon-pencil"></span></a>
+                    @endif
+                @endauth
+            </p>
+            <p>
+                {!! nl2br(htmlspecialchars($room->description)) !!}
+            </p>
+        </div>
+
+        <stamp-list
+                ref="stampList"
+                room-id="{{ $room->id }}"
+                uploader-level="{{ $room->uploader_level }}"
+                imprinter-level="{{ $room->imprinter_level }}"
+        @auth
+            user-id="{{ auth()->user()->id }}"
+        @endauth
+        ></stamp-list>
     </div>
 @endsection
 
