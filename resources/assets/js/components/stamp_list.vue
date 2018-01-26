@@ -3,6 +3,7 @@
         <div class="btn-group" role="group" aria-label="..." style="margin-bottom:12px;">
             <button type="button" class="btn btn-default" @click="stampSort = 'all'">全て</button>
             <button type="button" class="btn btn-default" @click="stampSort = 'latest'">送信された順</button>
+            <button type="button" class="btn btn-default" @click="stampSort = 'popular'">人気順</button>
         </div>
 
         <div class="stampList">
