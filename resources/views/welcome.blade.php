@@ -96,6 +96,6 @@
             </div>
         </div>
 
-        <script src="{{ asset('js/top.js') }}"></script>
+        <script src="{{ mix('js/top.js') }}"></script>
     </body>
 </html>

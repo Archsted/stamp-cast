@@ -9,7 +9,7 @@
     <title>スタンプ表示用透過ウィンドウ</title>
 
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
 
     <style>
         body {
@@ -31,6 +31,6 @@
 <div id="app">
     <stamp-display ref="stamp" room-id="{{ $room->id }}"></stamp-display>
 </div>
-<script src="{{ asset('js/broadcaster.js') }}"></script>
+<script src="{{ mix('js/broadcaster.js') }}"></script>
 </body>
 </html>
