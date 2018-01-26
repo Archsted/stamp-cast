@@ -29,21 +29,22 @@
             return {
                 stamps: [],
                 dropzoneOptions: {
-                    url: '/api/v1/rooms/' + this.roomId + '/stamps',
-                    params: {
-                        user_id: this.userId
-                    },
+                    url: (this.guest) ? '/api/v1/rooms/' + this.roomId + '/stamps/guest' : '/api/v1/rooms/' + this.roomId + '/stamps',
                     createImageThumbnails: false,
+                    withCredentials: true,
+                    headers: {
+                        'X-CSRF-TOKEN': window.axios.defaults.headers.common['X-CSRF-TOKEN']
+                    },
                     dictDefaultMessage: '<span class="glyphicon glyphicon-plus-sign"></span>'
                 }
             };
         },
-        props: [
-            'roomId',
-            'imprinterLevel',
-            'uploaderLevel',
-            'userId'
-        ],
+        props: {
+            roomId: Number,
+            imprinterLevel: Number,
+            uploaderLevel: Number,
+            guest: Boolean,
+        },
         mounted: function () {
             this.getStamps();
         },
@@ -52,10 +53,10 @@
         },
         computed: {
             canUploadStamp: function () {
-                return (this.uploaderLevel === '1' || (this.uploaderLevel === '2' && this.userId));
+                return (this.uploaderLevel === 1 || (this.uploaderLevel === 2 && !this.guest));
             },
             canSendStamp: function () {
-                return (this.imprinterLevel === '1' || (this.imprinterLevel === '2' && this.userId));
+                return (this.imprinterLevel === 1 || (this.imprinterLevel === 2 && !this.guest));
             },
             cursor: function () {
                 return this.canSendStamp ? {
@@ -66,9 +67,6 @@
             },
         },
         methods: {
-            canUploadStamp() {
-                return (this.uploaderLevel === '1' || (this.uploaderLevel === '2' && this.userId));
-            },
             getStamps() {
                 // スタンプ一覧
                 let url = '/api/v1/rooms/' + this.roomId + '/stamps';
@@ -80,11 +78,16 @@
             sendStamp(stamp_id) {
                 if (this.canSendStamp) {
                     // スタンプ送信
-                    let url = '/api/v1/rooms/' + this.roomId + '/imprints';
+                    let url;
+
+                    if (this.guest) {
+                        url = '/api/v1/rooms/' + this.roomId + '/imprints/guest';
+                    } else {
+                        url = '/api/v1/rooms/' + this.roomId + '/imprints';
+                    }
 
                     axios.post(url, {
-                        stamp_id: stamp_id,
-                        user_id: this.userId,
+                        stamp_id: stamp_id
                     }).then((response) => {
 
                     }).catch( error => {

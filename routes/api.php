@@ -23,8 +23,12 @@ Route::group(['prefix' => '/v1'], function () {
     // Room
     Route::group(['prefix' => '/rooms'], function () {
         Route::get('/{room}/stamps', 'StampController@index');
-        Route::post('/{room}/stamps', 'StampController@create');
-        Route::post('/{room}/imprints', 'ImprintController@create');
+
+        Route::post('/{room}/stamps', 'StampController@create')->middleware('auth:api');
+        Route::post('/{room}/stamps/guest', 'StampController@guestCreate');
+
+        Route::post('/{room}/imprints', 'ImprintController@create')->middleware('auth:api');
+        Route::post('/{room}/imprints/guest', 'ImprintController@guestCreate');
     });
 
     // Stamp

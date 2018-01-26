@@ -44114,16 +44114,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             stamps: [],
             dropzoneOptions: {
-                url: '/api/v1/rooms/' + this.roomId + '/stamps',
-                params: {
-                    user_id: this.userId
-                },
+                url: this.guest ? '/api/v1/rooms/' + this.roomId + '/stamps/guest' : '/api/v1/rooms/' + this.roomId + '/stamps',
                 createImageThumbnails: false,
+                withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': window.axios.defaults.headers.common['X-CSRF-TOKEN']
+                },
                 dictDefaultMessage: '<span class="glyphicon glyphicon-plus-sign"></span>'
             }
         };
     },
-    props: ['roomId', 'imprinterLevel', 'uploaderLevel', 'userId'],
+    props: {
+        roomId: Number,
+        imprinterLevel: Number,
+        uploaderLevel: Number,
+        guest: Boolean
+    },
     mounted: function mounted() {
         this.getStamps();
     },
@@ -44132,10 +44138,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     computed: {
         canUploadStamp: function canUploadStamp() {
-            return this.uploaderLevel === '1' || this.uploaderLevel === '2' && this.userId;
+            return this.uploaderLevel === 1 || this.uploaderLevel === 2 && !this.guest;
         },
         canSendStamp: function canSendStamp() {
-            return this.imprinterLevel === '1' || this.imprinterLevel === '2' && this.userId;
+            return this.imprinterLevel === 1 || this.imprinterLevel === 2 && !this.guest;
         },
         cursor: function cursor() {
             return this.canSendStamp ? {
@@ -44146,9 +44152,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
     },
     methods: {
-        canUploadStamp: function canUploadStamp() {
-            return this.uploaderLevel === '1' || this.uploaderLevel === '2' && this.userId;
-        },
         getStamps: function getStamps() {
             var _this = this;
 
@@ -44164,11 +44167,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         sendStamp: function sendStamp(stamp_id) {
             if (this.canSendStamp) {
                 // スタンプ送信
-                var url = '/api/v1/rooms/' + this.roomId + '/imprints';
+                var url = void 0;
+
+                if (this.guest) {
+                    url = '/api/v1/rooms/' + this.roomId + '/imprints/guest';
+                } else {
+                    url = '/api/v1/rooms/' + this.roomId + '/imprints';
+                }
 
                 axios.post(url, {
-                    stamp_id: stamp_id,
-                    user_id: this.userId
+                    stamp_id: stamp_id
                 }).then(function (response) {}).catch(function (error) {
                     console.log(error);
                 });
