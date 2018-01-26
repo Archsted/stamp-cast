@@ -1,21 +1,28 @@
 <template>
-    <div class="stampList">
-        <div class="stampForm" v-if="canUploadStamp">
-            <vue-dropzone
-                ref="myVueDropzone"
-                id="dropzone"
-                :options="dropzoneOptions"
-                v-on:vdropzone-complete="uploadCompleteEvent"
-            ></vue-dropzone>
+    <div>
+        <div class="btn-group" role="group" aria-label="..." style="margin-bottom:12px;">
+            <button type="button" class="btn btn-default" @click="stampSort = 'all'">全て</button>
+            <button type="button" class="btn btn-default" @click="stampSort = 'latest'">送信された順</button>
         </div>
 
-        <div v-for="stamp in stamps" :key="stamp.id" class="stampWrapper" v-bind:style="cursor">
-            <img :src="stamp.name" @click="sendStamp(stamp.id)" class="stamp">
-            <!--
-            <div class="favoriteForm">
-                <span class="glyphicon glyphicon-star-empty"></span>
+        <div class="stampList">
+            <div class="stampForm" v-if="canUploadStamp">
+                <vue-dropzone
+                    ref="myVueDropzone"
+                    id="dropzone"
+                    :options="dropzoneOptions"
+                    v-on:vdropzone-complete="uploadCompleteEvent"
+                ></vue-dropzone>
             </div>
-            -->
+
+            <div v-for="stamp in stamps" :key="stamp.id" class="stampWrapper" v-bind:style="cursor">
+                <img :src="stamp.name" @click="sendStamp(stamp.id)" class="stamp">
+                <!--
+                <div class="favoriteForm">
+                    <span class="glyphicon glyphicon-star-empty"></span>
+                </div>
+                -->
+            </div>
         </div>
     </div>
 </template>
@@ -36,7 +43,8 @@
                         'X-CSRF-TOKEN': window.axios.defaults.headers.common['X-CSRF-TOKEN']
                     },
                     dictDefaultMessage: '<span class="glyphicon glyphicon-plus-sign"></span>'
-                }
+                },
+                stampSort: 'all',
             };
         },
         props: {
@@ -69,7 +77,7 @@
         methods: {
             getStamps() {
                 // スタンプ一覧
-                let url = '/api/v1/rooms/' + this.roomId + '/stamps';
+                let url = '/api/v1/rooms/' + this.roomId + '/stamps?sort=' + this.stampSort;
 
                 axios.get(url).then((response) => {
                     this.stamps = response.data.stamps;
@@ -99,6 +107,12 @@
                 }
             },
             uploadCompleteEvent(file) {
+                this.getStamps();
+            },
+        },
+        watch: {
+            stampSort: function (newValue) {
+                console.log("stampSort changed => " + newValue);
                 this.getStamps();
             },
         }

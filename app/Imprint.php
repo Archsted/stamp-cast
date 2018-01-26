@@ -13,4 +13,24 @@ class Imprint extends Model
         'comment',
         'ip',
     ];
+
+    public function room()
+    {
+        return $this->belongsTo('App\Room');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User');
+    }
+
+    public function stamp()
+    {
+        return $this->belongsTo('App\Stamp');
+    }
+
+    public function scopeLatest($query)
+    {
+        $query->orderBy('created_at', 'desc');
+    }
 }
