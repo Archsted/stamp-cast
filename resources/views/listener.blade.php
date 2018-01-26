@@ -17,13 +17,16 @@
         </div>
 
         <stamp-list
-                ref="stampList"
-                room-id="{{ $room->id }}"
-                uploader-level="{{ $room->uploader_level }}"
-                imprinter-level="{{ $room->imprinter_level }}"
-        @auth
-            user-id="{{ auth()->user()->id }}"
-        @endauth
+            ref="stampList"
+            :room-id="{{ $room->id }}"
+            :uploader-level="{{ $room->uploader_level }}"
+            :imprinter-level="{{ $room->imprinter_level }}"
+            @auth
+            :guest="false"
+            @endauth
+            @guest
+            :guest="true"
+            @endguest
         ></stamp-list>
     </div>
 @endsection

@@ -3,10 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Room;
-use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreStamp extends FormRequest
+class StoreStampGuest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,7 +17,7 @@ class StoreStamp extends FormRequest
         /** @var Room $room */
         $room = $this->route('room');
 
-        if ($room->uploader_level === Room::UPLOADER_LEVEL_NOBODY) {
+        if ($room->uploader_level !== Room::UPLOADER_LEVEL_ANYONE) {
             return false;
         }
 
@@ -33,7 +32,7 @@ class StoreStamp extends FormRequest
     public function rules()
     {
         return [
-            'file' => 'required|image'
+            //
         ];
     }
 }
