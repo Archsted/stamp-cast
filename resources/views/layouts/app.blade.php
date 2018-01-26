@@ -9,7 +9,7 @@
     <script src="//{{ Request::getHost() }}:6001/socket.io/socket.io.js"></script>
 
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
 </head>
 <body>
@@ -75,7 +75,7 @@
 
     <!-- Scripts -->
     @section('footer_script')
-        <script src="{{ asset('js/app.js') }}"></script>
+        <script src="{{ mix('js/app.js') }}"></script>
     @show
 </body>
 </html>

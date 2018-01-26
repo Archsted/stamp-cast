@@ -32,5 +32,5 @@
 @endsection
 
 @section('footer_script')
-    <script src="{{ asset('js/listener.js') }}"></script>
+    <script src="{{ mix('js/listener.js') }}"></script>
 @endsection
