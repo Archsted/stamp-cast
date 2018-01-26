@@ -19,32 +19,54 @@ class StampController extends Controller
      */
     public function index(Request $request, Room $room)
     {
-        if ($request->sort === "latest") {
-            // ルームに送信されたStampを新しい順に取得する
-            $imprints = Imprint::query()
-                ->latest()
-                ->where('room_id', $room->id)
-                ->select('stamp_id')
-                ->with('stamp')
-                ->get();
+        $stamps = [];
 
-            // 重複データを削除する
-            $imprints = $imprints->uniqueStrict('stamp_id')->values()->all();
+        switch ($request->sort) {
+            case 'latest':
+                // ルームに送信されたStampを新しい順に取得する
+                $imprints = Imprint::query()
+                    ->latest()
+                    ->where('room_id', $room->id)
+                    ->select('stamp_id')
+                    ->with('stamp')
+                    ->get();
 
-            $stamps = [];
-            foreach ($imprints as $imprint) {
-                $stamps[] = $imprint->stamp;
-            }
-        } else {
-            // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
-            $stamps = Stamp::query()
-                ->where(function ($query) use ($room) {
-                    $query->where('room_id', $room->id)
-                        ->orWhereNull('room_id');
-                })
-                ->orderBy('created_at', 'desc')
-                ->orderBy('id', 'desc')
-                ->get();
+                // 重複データを削除する
+                $imprints = $imprints->uniqueStrict('stamp_id')->values()->all();
+
+                foreach ($imprints as $imprint) {
+                    $stamps[] = $imprint->stamp;
+                }
+
+                break;
+            case 'popular':
+                // ルームに送信されたStampを件数順に取得する
+                $imprints = Imprint::query()
+                    ->where('room_id', $room->id)
+                    ->select('stamp_id')
+                    ->groupBy('stamp_id')
+                    ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
+                    ->orderBy('stamp_id', 'desc')
+                    ->with('stamp')
+                    ->get();
+
+                foreach ($imprints as $imprint) {
+                    $stamps[] = $imprint->stamp;
+                }
+
+                break;
+
+            default:
+                // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
+                $stamps = Stamp::query()
+                    ->where(function ($query) use ($room) {
+                        $query->where('room_id', $room->id)
+                            ->orWhereNull('room_id');
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->orderBy('id', 'desc')
+                    ->get();
+                break;
         }
 
         return [
