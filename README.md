@@ -21,6 +21,7 @@
 1. npm install
 1. php artisan storage:link
 1. php artisan migrate:refresh --seed
+1. php artisan passport:install
 1. (sudo)? npm install -g laravel-echo-server
     - gyp WARN EACCES user "root" does not have permission to access the dev dir "/usr/lib/node_modules/laravel-echo-server/node_modules/sqlite3/.node-gyp/8.9.1"
     - gyp WARN EACCES attempting to reinstall using temporary dev dir "/usr/lib/node_modules/laravel-echo-server/node_modules/sqlite3/.node-gyp"
