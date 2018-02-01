@@ -39,7 +39,7 @@ class StampController extends Controller
                 }
 
                 break;
-            case 'popular':
+            case 'count':
                 // ルームに送信されたStampを件数順に取得する
                 $imprints = Imprint::query()
                     ->where('room_id', $room->id)

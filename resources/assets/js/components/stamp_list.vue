@@ -1,10 +1,20 @@
 <template>
-    <div>
-        <div class="btn-group" role="group" aria-label="..." style="margin-bottom:12px;">
-            <button type="button" class="btn btn-default" @click="stampSort = 'all'">全て</button>
-            <button type="button" class="btn btn-default" @click="stampSort = 'latest'">送信された順</button>
-            <button type="button" class="btn btn-default" @click="stampSort = 'popular'">人気順</button>
+    <div class="litener">
+        <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click="stampSort = 'all'">全て</button>
+                <button type="button" class="btn" v-bind:class="stampSortClass('latest')" @click="stampSort = 'latest'">送信された順</button>
+                <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click="stampSort = 'count'">回数順</button>
+            </div>
+            <div class="btn-group" role="group" v-if="!guest">
+                <div class="checkbox" style="margin-left: 20px;">
+                    <label>
+                        <input type="checkbox" v-model="onlyFavorite"> お気に入りのみ表示
+                    </label>
+                </div>
+            </div>
         </div>
+
 
         <div class="stampList">
             <div class="stampForm" v-if="canUploadStamp">
@@ -13,16 +23,15 @@
                     id="dropzone"
                     :options="dropzoneOptions"
                     v-on:vdropzone-complete="uploadCompleteEvent"
-                ></vue-dropzone>
+                />
             </div>
 
-            <div v-for="stamp in stamps" :key="stamp.id" class="stampWrapper" v-bind:style="cursor">
-                <img :src="stamp.name" @click="sendStamp(stamp.id)" class="stamp">
-                <!--
-                <div class="favoriteForm">
-                    <span class="glyphicon glyphicon-star-empty"></span>
+            <div v-for="stamp in stampList" :key="stamp.id" class="stampWrapper" v-bind:style="cursor">
+                <img class="stamp" :src="stamp.name" @click="sendStamp(stamp.id)">
+                <div class="favoriteForm" @click="toggleFavorite(stamp.id)" v-if="!guest">
+                    <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
+                    <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
                 </div>
-                -->
             </div>
         </div>
     </div>
@@ -36,6 +45,9 @@
         data: function () {
             return {
                 stamps: [],
+                favorites: [],
+                stampSort: 'all',
+                onlyFavorite: false,
                 dropzoneOptions: {
                     url: (this.guest) ? '/api/v1/rooms/' + this.roomId + '/stamps/guest' : '/api/v1/rooms/' + this.roomId + '/stamps',
                     createImageThumbnails: false,
@@ -43,9 +55,8 @@
                     headers: {
                         'X-CSRF-TOKEN': window.axios.defaults.headers.common['X-CSRF-TOKEN']
                     },
-                    dictDefaultMessage: '<span class="glyphicon glyphicon-plus-sign"></span>'
+                    dictDefaultMessage: '<p>好きな画像をアップ</p><p><i class="fas fa-upload fa-2x" style="color:#000;"></i></p><p>この枠内にD&Dでも可</p>'
                 },
-                stampSort: 'all',
             };
         },
         props: {
@@ -54,13 +65,25 @@
             uploaderLevel: Number,
             guest: Boolean,
         },
-        mounted: function () {
+        created: function () {
             this.getStamps();
+            if (!this.guest) {
+                this.getFavorites();
+            }
         },
         components: {
             vueDropzone: vue2Dropzone
         },
         computed: {
+            stampList: function () {
+                if (this.onlyFavorite) {
+                    return this.stamps.filter(stamp => {
+                        return this.favorites.includes(stamp.id);
+                    });
+                } else {
+                    return this.stamps;
+                }
+            },
             canUploadStamp: function () {
                 return (this.uploaderLevel === 1 || (this.uploaderLevel === 2 && !this.guest));
             },
@@ -76,15 +99,21 @@
             },
         },
         methods: {
-            getStamps() {
+            getStamps: function () {
                 // スタンプ一覧
-                let url = '/api/v1/rooms/' + this.roomId + '/stamps?sort=' + this.stampSort;
+                let url = '/api/v1/rooms/' + this.roomId + '/stamps';
 
-                axios.get(url).then((response) => {
+                axios.get(url, {
+                    params: {
+                        sort: this.stampSort
+                    }
+                }).then(response => {
                     this.stamps = response.data.stamps;
-                }).catch( error => { console.log(error); });
+                }).catch(error => {
+                    console.log(error);
+                });
             },
-            sendStamp(stamp_id) {
+            sendStamp: function (stamp_id) {
                 if (this.canSendStamp) {
                     // スタンプ送信
                     let url;
@@ -97,9 +126,9 @@
 
                     axios.post(url, {
                         stamp_id: stamp_id
-                    }).then((response) => {
+                    }).then(response => {
 
-                    }).catch( error => {
+                    }).catch(error => {
                         console.log(error);
                     });
                 } else {
@@ -107,13 +136,66 @@
 
                 }
             },
-            uploadCompleteEvent(file) {
+            uploadCompleteEvent: function (file) {
                 this.getStamps();
             },
+            getFavorites: function () {
+                // お気に入り一覧
+                let url = '/api/v1/favorites';
+
+                axios.get(url, {
+                    params: {
+                        room_id: this.roomId
+                    }
+                }).then(response => {
+                    this.favorites = response.data.favorites.map(favorite => {
+                        return favorite.id;
+                    });
+                }).catch(error => {
+                    console.log(error);
+                });
+            },
+            stampSortClass: function (sortType) {
+                return this.stampSort === sortType ? 'btn-primary' : 'btn-default';
+            },
+            isContainsFavorite: function (stampId) {
+                let favoriteIndex = this.favorites.findIndex((el, index) => {
+                    return stampId === el;
+                });
+
+                return favoriteIndex >= 0;
+            },
+            toggleFavorite: function (stampId) {
+                // 現在のお気に入りに含んでいるか確認、含んでいた場合はそのインデックスを取得
+                let favoriteIndex = this.favorites.findIndex((el) => {
+                    return stampId === el;
+                });
+
+                if (favoriteIndex === -1) {
+                    // 追加
+                    axios.post('/api/v1/favorites', {stamp_id: stampId})
+                        .then(response => {
+                            this.favorites.push(stampId);
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        });
+                } else {
+                    // 削除
+                    axios.delete('/api/v1/favorites', {
+                        params: {
+                            stamp_id: stampId
+                        }
+                    }).then(response => {
+                        this.favorites.splice(favoriteIndex, 1);
+                    }).catch(error => {
+                        console.log(error);
+                    });
+                }
+            }
         },
         watch: {
             stampSort: function (newValue) {
-                console.log("stampSort changed => " + newValue);
                 this.getStamps();
             },
         }
@@ -121,6 +203,10 @@
 </script>
 
 <style>
+    .btn-group {
+        margin-bottom: 12px;
+    }
+
     .stampList {
         display: flex;
         flex-wrap: wrap;
@@ -134,10 +220,14 @@
         height: 140px;
         min-width: 50px;
         box-sizing: border-box;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
 
     .stamp {
-        height: 100%;
+        height: 100% !important;
         border: solid 2px #888;
         -webkit-border-radius: 8px;
         -moz-border-radius: 8px;
@@ -150,7 +240,7 @@
         right: 4px;
         top: 4px;
         text-align: right;
-        font-size: 2em;
+        color: hotpink;
     }
 
     .stampForm {
@@ -159,10 +249,10 @@
         border: dashed 4px #555;
         height: 140px;
         width: 140px;
-        line-height: 140px;
         text-align: center;
-        font-size: 2.5em;
         overflow: hidden;
-        float: left;
+        font-size: 0.8em;
+        padding-top: 25px;
+        cursor: pointer;
     }
 </style>

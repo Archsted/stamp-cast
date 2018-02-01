@@ -32,4 +32,15 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Room');
     }
+
+    /**
+     * お気に入りのスタンプ一覧
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favorites()
+    {
+        return $this->belongsToMany('App\Stamp', 'favorites')->withTimestamps();
+    }
+
 }
