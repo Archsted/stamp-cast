@@ -20,4 +20,12 @@ class Stamp extends Model
     {
         return asset('storage/' . $value);
     }
+
+    public function scopeAvailable($query, $roomId)
+    {
+        $query->where(function ($query) use ($roomId) {
+            $query->where('room_id', $roomId)
+                ->orWhereNull('room_id');
+            });
+    }
 }

@@ -42,4 +42,11 @@ Route::group(['prefix' => '/v1'], function () {
     Route::group(['prefix' => '/imprints'], function () {
 //        Route::post('/', 'ImprintController@create');
     });
+
+    // Favorite
+    Route::group(['prefix' => '/favorites', 'middleware' => ['auth:api']], function () {
+        Route::get('/', 'FavoriteController@index');
+        Route::post('/', 'FavoriteController@store');
+        Route::delete('/', 'FavoriteController@destroy');
+    });
 });
