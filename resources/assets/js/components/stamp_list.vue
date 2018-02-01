@@ -7,11 +7,9 @@
                 <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click="stampSort = 'count'">回数順</button>
             </div>
             <div class="btn-group" role="group" v-if="!guest">
-                <div class="checkbox" style="margin-left: 20px;">
-                    <label>
-                        <input type="checkbox" v-model="onlyFavorite"> お気に入りのみ表示
-                    </label>
-                </div>
+                <button type="button" class="btn" v-bind:class="onlyFavoriteButtonClass" @click="onlyFavorite = !onlyFavorite">
+                    <span style="color: hotpink;"><i class="fas fa-heart fa-lg"></i></span> お気に入りのみ表示
+                </button>
             </div>
         </div>
 
@@ -96,6 +94,9 @@
                 } : {
                     cursor: 'not-allowed'
                 };
+            },
+            onlyFavoriteButtonClass: function () {
+                return this.onlyFavorite ? 'btn-primary' : 'btn-default';
             },
         },
         methods: {
