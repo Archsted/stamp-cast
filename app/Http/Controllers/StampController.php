@@ -7,6 +7,8 @@ use App\Http\Requests\StoreStampGuest;
 use App\Imprint;
 use App\Room;
 use App\Stamp;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -145,5 +147,28 @@ class StampController extends Controller
         return [
             'stamps' => $stamps
         ];
+    }
+
+    public function uploadedIndex()
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $stamps = $user->stamps()->with('room')->get();
+
+        return view('stamp.index', compact('stamps'));
+    }
+
+    public function uploadedDelete(Request $request, Stamp $stamp)
+    {
+        $user = $request->user();
+
+        if (($stamp->user_id === $user->id) || ($stamp->room->user_id === $user->id)) {
+            // 論理削除
+            $stamp->deleted_at = Carbon::now();
+            $stamp->save();
+        } else {
+            abort(403);
+        }
     }
 }

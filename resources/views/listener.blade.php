@@ -18,14 +18,15 @@
 
         <stamp-list
             ref="stampList"
+            :room="{id: {{$room->id}}, userId: {{ $room->user_id }}}"
             :room-id="{{ $room->id }}"
             :uploader-level="{{ $room->uploader_level }}"
             :imprinter-level="{{ $room->imprinter_level }}"
             @auth
-            :guest="false"
+            :user-id="{{ auth()->user()->id }}"
             @endauth
             @guest
-            :guest="true"
+            :user-id="null"
             @endguest
         ></stamp-list>
     </div>

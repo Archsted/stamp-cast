@@ -22,23 +22,26 @@ Route::get('/home', 'HomeController@index')
     ->name('home');
 
 Route::get('/{room}', 'HomeController@listener')
-    ->name('listener');
+    ->name('listener')
+    ->where('room', '^[\d]+$');
 
 Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
-    ->name('broadcaster');
-
+    ->name('broadcaster')
+    ->where('room', '^[\d]+$');
 
 Route::group(['prefix' => '/rooms', 'middleware' => ['auth']], function () {
     Route::get('/create', 'RoomController@create')->name('room_create');
     Route::post('/', 'RoomController@store')->name('room_store');
 
-    Route::get('/{room}/edit', 'RoomController@edit')->name('room_edit');
-    Route::put('/{room}', 'RoomController@update')->name('room_update');
+    Route::get('/{room}/edit', 'RoomController@edit')
+        ->name('room_edit')
+        ->where('room', '^[\d]+$');
 
+    Route::put('/{room}', 'RoomController@update')
+        ->name('room_update')
+        ->where('room', '^[\d]+$');
 });
 
-
-//Route::get('/{code}/listener', 'HomeController@listener');
-//Route::get('/{code}/broadcaster', 'HomeController@broadcaster');
-
-
+Route::group(['prefix' => '/stamps'], function () {
+    Route::get('/', 'StampController@uploadedIndex')->name('my_stamps');
+});

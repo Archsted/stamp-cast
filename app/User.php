@@ -43,4 +43,8 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Stamp', 'favorites')->withTimestamps();
     }
 
+    public function stamps()
+    {
+        return $this->hasMany('App\Stamp');
+    }
 }
