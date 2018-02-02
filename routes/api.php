@@ -36,6 +36,9 @@ Route::group(['prefix' => '/v1'], function () {
 //        Route::get('/', 'StampController@index');
 //        Route::post('/', 'StampController@create');
         Route::get('/samples', 'StampController@sample');
+
+        Route::delete('/{stamp}', 'StampController@uploadedDelete')
+            ->middleware('auth:api');
     });
 
     // Imprint

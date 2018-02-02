@@ -30,6 +30,9 @@
                     <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
                     <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
                 </div>
+                <div class="deleteForm" @click="deleteStamp(stamp.id)" v-if="stamp.room_id && canDelete(stamp.user_id)">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -39,6 +42,13 @@
     import vue2Dropzone from 'vue2-dropzone'
 //    import 'vue2-dropzone/dist/vue2Dropzone.css'
 
+    // import into project
+    import Vue from "vue"
+    import VuejsDialog from "vuejs-dialog"
+
+    // Tell Vue to install the plugin.
+    Vue.use(VuejsDialog);
+
     export default {
         data: function () {
             return {
@@ -47,7 +57,9 @@
                 stampSort: 'all',
                 onlyFavorite: false,
                 dropzoneOptions: {
-                    url: (this.guest) ? '/api/v1/rooms/' + this.roomId + '/stamps/guest' : '/api/v1/rooms/' + this.roomId + '/stamps',
+                    url: (this.guest) ?
+                        '/api/v1/rooms/' + this.room.id + '/stamps/guest' :
+                        '/api/v1/rooms/' + this.room.id + '/stamps',
                     createImageThumbnails: false,
                     withCredentials: true,
                     headers: {
@@ -58,10 +70,10 @@
             };
         },
         props: {
-            roomId: Number,
+            room: Object,
             imprinterLevel: Number,
             uploaderLevel: Number,
-            guest: Boolean,
+            userId: Number,
         },
         created: function () {
             this.getStamps();
@@ -73,6 +85,13 @@
             vueDropzone: vue2Dropzone
         },
         computed: {
+            /**
+             * 未ログインユーザであるかどうか
+             * @returns {boolean}
+             */
+            guest: function () {
+                return this.userId === null;
+            },
             stampList: function () {
                 if (this.onlyFavorite) {
                     return this.stamps.filter(stamp => {
@@ -102,7 +121,7 @@
         methods: {
             getStamps: function () {
                 // スタンプ一覧
-                let url = '/api/v1/rooms/' + this.roomId + '/stamps';
+                let url = '/api/v1/rooms/' + this.room.id + '/stamps';
 
                 axios.get(url, {
                     params: {
@@ -120,9 +139,9 @@
                     let url;
 
                     if (this.guest) {
-                        url = '/api/v1/rooms/' + this.roomId + '/imprints/guest';
+                        url = '/api/v1/rooms/' + this.room.id + '/imprints/guest';
                     } else {
-                        url = '/api/v1/rooms/' + this.roomId + '/imprints';
+                        url = '/api/v1/rooms/' + this.room.id + '/imprints';
                     }
 
                     axios.post(url, {
@@ -146,7 +165,7 @@
 
                 axios.get(url, {
                     params: {
-                        room_id: this.roomId
+                        room_id: this.room.id
                     }
                 }).then(response => {
                     this.favorites = response.data.favorites.map(favorite => {
@@ -193,7 +212,42 @@
                         console.log(error);
                     });
                 }
-            }
+            },
+            deleteStamp: function (stampId) {
+                this.$dialog.confirm(
+                    "このスタンプを削除しますか？",
+                    {
+                        loader: true,
+                        okText: '削除する',
+                        cancelText: 'キャンセル',
+                        animation: 'fade',
+                    })
+                    .then((dialog) => {
+
+                        axios.delete('/api/v1/stamps/' + stampId)
+                            .then(response => {
+                                this.getStamps();
+                            })
+                            .catch(error => {
+
+                            })
+                            .finally(() => {
+                                dialog.close();
+                            });
+                    })
+                    .catch(() => {
+                        console.log('Delete aborted');
+                    });
+            },
+            /**
+             * スタンプを削除可能か判定
+             *
+             * @param userId スタンプ投稿ユーザID
+             * @returns {boolean}
+             */
+            canDelete: function (userId) {
+                return !this.guest && (this.userId === this.room.userId || this.userId === userId);
+            },
         },
         watch: {
             stampSort: function (newValue) {
@@ -242,6 +296,14 @@
         top: 4px;
         text-align: right;
         color: hotpink;
+    }
+
+    .deleteForm {
+        position: absolute;
+        right: 6px;
+        bottom: 4px;
+        text-align: right;
+        color: #ff4c4c;
     }
 
     .stampForm {

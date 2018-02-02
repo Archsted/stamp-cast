@@ -33,6 +33,7 @@ class CreateStampsTable extends Migration
             $table->integer('height', false, true);
             $table->integer('size', false, true);
             $table->timestamps();
+            $table->timestamp('deleted_at')->nullable();
         });
 
         // 外部キー作成

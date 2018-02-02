@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Stamp extends Model
@@ -16,6 +17,18 @@ class Stamp extends Model
         'size',
     ];
 
+    /**
+     * 論理削除されているものを除外するグローバルスコープ
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('softDelete', function (Builder $builder) {
+            $builder->whereNull('deleted_at');
+        });
+    }
+
     public function getNameAttribute($value)
     {
         return asset('storage/' . $value);
@@ -27,5 +40,10 @@ class Stamp extends Model
             $query->where('room_id', $roomId)
                 ->orWhereNull('room_id');
             });
+    }
+
+    public function room()
+    {
+        return $this->belongsTo('App\Room');
     }
 }
