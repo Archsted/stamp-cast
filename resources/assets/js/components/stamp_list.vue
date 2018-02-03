@@ -20,20 +20,26 @@
                     ref="myVueDropzone"
                     id="dropzone"
                     :options="dropzoneOptions"
-                    v-on:vdropzone-complete="uploadCompleteEvent"
+                    v-on:vdropzone-success="uploadSuccessEvent"
                 />
             </div>
 
-            <div v-for="stamp in stampList" :key="stamp.id" class="stampWrapper" v-bind:style="cursor">
+            <div v-for="(stamp, index) in stampList" :key="index" class="stampWrapper" v-bind:style="cursor">
                 <img class="stamp" :src="stamp.name" @click="sendStamp(stamp.id)">
                 <div class="favoriteForm" @click="toggleFavorite(stamp.id)" v-if="!guest">
                     <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
                     <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
                 </div>
-                <div class="deleteForm" @click="deleteStamp(stamp.id)" v-if="stamp.room_id && canDelete(stamp.user_id)">
+                <div class="deleteForm" @click="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
                     <i class="fas fa-trash-alt"></i>
                 </div>
             </div>
+
+            <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading">
+                <span slot="no-more">
+                    これ以上のスタンプはありません
+                </span>
+            </infinite-loading>
         </div>
     </div>
 </template>
@@ -42,9 +48,10 @@
     import vue2Dropzone from 'vue2-dropzone'
 //    import 'vue2-dropzone/dist/vue2Dropzone.css'
 
-    // import into project
     import Vue from "vue"
     import VuejsDialog from "vuejs-dialog"
+
+    import InfiniteLoading from 'vue-infinite-loading';
 
     // Tell Vue to install the plugin.
     Vue.use(VuejsDialog);
@@ -57,7 +64,7 @@
                 stampSort: 'all',
                 onlyFavorite: false,
                 dropzoneOptions: {
-                    url: (this.guest) ?
+                    url: (this.userId === null) ?
                         '/api/v1/rooms/' + this.room.id + '/stamps/guest' :
                         '/api/v1/rooms/' + this.room.id + '/stamps',
                     createImageThumbnails: false,
@@ -76,13 +83,14 @@
             userId: Number,
         },
         created: function () {
-            this.getStamps();
+            //this.getStamps();
             if (!this.guest) {
                 this.getFavorites();
             }
         },
         components: {
-            vueDropzone: vue2Dropzone
+            vueDropzone: vue2Dropzone,
+            InfiniteLoading,
         },
         computed: {
             /**
@@ -125,6 +133,7 @@
 
                 axios.get(url, {
                     params: {
+                        page: 1,
                         sort: this.stampSort
                     }
                 }).then(response => {
@@ -156,8 +165,13 @@
 
                 }
             },
-            uploadCompleteEvent: function (file) {
-                this.getStamps();
+            uploadSuccessEvent: function (file, response) {
+                this.stamps.unshift(response.stamp);
+//                this.resetStamps();
+//                this.stamps.unshift(response.data.stamp);
+
+                console.log(response.stamp);
+
             },
             getFavorites: function () {
                 // お気に入り一覧
@@ -213,30 +227,62 @@
                     });
                 }
             },
-            deleteStamp: function (stampId) {
+            deleteStamp: function (stampId, uploadedUserId, stampName) {
+                let isComplete = false;
+
                 this.$dialog.confirm(
-                    "このスタンプを削除しますか？",
+                    '<div style="text-align: center"><p>このスタンプを削除しますか？</p><div class="stampWrapper"><img src="' + stampName + '" class="stamp"></div></div>',
                     {
+                        html: true,
                         loader: true,
                         okText: '削除する',
                         cancelText: 'キャンセル',
                         animation: 'fade',
                     })
                     .then((dialog) => {
-
                         axios.delete('/api/v1/stamps/' + stampId)
                             .then(response => {
-                                this.getStamps();
+                                isComplete = true;
+                                this.resetStamps();
                             })
                             .catch(error => {
 
                             })
                             .finally(() => {
                                 dialog.close();
+
+                                if (this.userId !== uploadedUserId && this.userId === this.room.userId && isComplete) {
+                                    setTimeout(() => {
+                                        this.$dialog.confirm(
+                                            "今のスタンプを投稿したユーザーをブラックリストに入れますか？",
+                                            {
+                                                loader: true,
+                                                okText: 'ブラックリストに入れる',
+                                                cancelText: '何もしない',
+                                                animation: 'fade',
+                                            })
+                                            .then((blDialog) => {
+                                                axios.post('/api/v1/blackLists', {stamp_id: stampId})
+                                                    .then(response => {
+                                                        this.resetStamps();
+                                                    })
+                                                    .catch(error => {
+
+                                                    })
+                                                    .finally(() => {
+                                                        blDialog.close();
+                                                    });
+                                            })
+                                            .catch(() => {
+                                                // ブラックリストには入れない
+                                            });
+                                    }, 400);
+                                }
+
                             });
                     })
                     .catch(() => {
-                        console.log('Delete aborted');
+                        // 削除キャンセル
                     });
             },
             /**
@@ -248,10 +294,36 @@
             canDelete: function (userId) {
                 return !this.guest && (this.userId === this.room.userId || this.userId === userId);
             },
+            infiniteHandler: function ($state) {
+                let url = '/api/v1/rooms/' + this.room.id + '/stamps';
+
+                axios.get(url, {
+                    params: {
+                        page: Math.floor(this.stamps.length / 30) + 1,
+                        sort: this.stampSort,
+                    },
+                }).then(({ data }) => {
+                    if (data.stamps.length) {
+                        this.stamps = this.stamps.concat(data.stamps);
+                        $state.loaded();
+                        if (data.stamps.length < 30) {
+                            $state.complete();
+                        }
+                    } else {
+                        $state.complete();
+                    }
+                });
+            },
+            resetStamps: function () {
+                this.stamps = [];
+                this.$nextTick(() => {
+                    this.$refs.infiniteLoading.$emit('$InfiniteLoading:reset');
+                });
+            }
         },
         watch: {
             stampSort: function (newValue) {
-                this.getStamps();
+                this.resetStamps();
             },
         }
     }

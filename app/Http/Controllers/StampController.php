@@ -10,6 +10,7 @@ use App\Stamp;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class StampController extends Controller
@@ -23,14 +24,31 @@ class StampController extends Controller
     {
         $stamps = [];
 
+        $page = $request->get('page', 1);
+        $offset = Room::STAMP_COUNT_PER_PAGE * ($page - 1);
+
+        /** @var User $roomOwner */
+        $roomOwner = $room->user;
+
+        $blackListIps = $roomOwner->blackListIps->pluck('ip');
+        $blackListUserIds = $roomOwner->blackListUsers->pluck('id');
+
         switch ($request->sort) {
             case 'latest':
                 // ルームに送信されたStampを新しい順に取得する
                 $imprints = Imprint::query()
-                    ->latest()
                     ->where('room_id', $room->id)
+                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                    ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                        $query->withoutBlackList($blackListIps, $blackListUserIds);
+                    })
+                    ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                        $query->withoutBlackList($blackListIps, $blackListUserIds);
+                    }])
                     ->select('stamp_id')
-                    ->with('stamp')
+                    ->limit(Room::STAMP_COUNT_PER_PAGE)
+                    ->offset($offset)
+                    ->latest()
                     ->get();
 
                 // 重複データを削除する
@@ -43,16 +61,25 @@ class StampController extends Controller
                 break;
             case 'count':
                 // ルームに送信されたStampを件数順に取得する
+
+                /** @var Collection $imprints */
                 $imprints = Imprint::query()
                     ->where('room_id', $room->id)
+                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                    ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                        $query->withoutBlackList($blackListIps, $blackListUserIds);
+                    })
+                    ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                        $query->withoutBlackList($blackListIps, $blackListUserIds);
+                    }])
                     ->select('stamp_id')
                     ->groupBy('stamp_id')
                     ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
                     ->orderBy('stamp_id', 'desc')
-                    ->with('stamp')
                     ->get();
 
-                foreach ($imprints as $imprint) {
+                // groupByを利用しているSQLで、limitとoffsetが利用できないので、Collection取得後のここで行う
+                foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
                     $stamps[] = $imprint->stamp;
                 }
 
@@ -65,6 +92,9 @@ class StampController extends Controller
                         $query->where('room_id', $room->id)
                             ->orWhereNull('room_id');
                     })
+                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                    ->limit(Room::STAMP_COUNT_PER_PAGE)
+                    ->offset($offset)
                     ->orderBy('created_at', 'desc')
                     ->orderBy('id', 'desc')
                     ->get();
@@ -92,6 +122,7 @@ class StampController extends Controller
         $stamp->room_id = $room->id;
         $stamp->name = $file->store('stamps');
         $stamp->size = $file->getSize();
+        $stamp->ip = $request->ip();
 
         // 画像情報の取得
         $imageSize = getimagesize($file->getRealPath());
@@ -102,8 +133,7 @@ class StampController extends Controller
         $stamp->save();
 
         return [
-            'stamp' => $stamp,
-            'room' => $room
+            'stamp' => $stamp
         ];
     }
 
@@ -122,6 +152,7 @@ class StampController extends Controller
         $stamp->room_id = $room->id;
         $stamp->name = $file->store('stamps');
         $stamp->size = $file->getSize();
+        $stamp->ip = $request->ip();
 
         // 画像情報の取得
         $imageSize = getimagesize($file->getRealPath());
@@ -132,8 +163,7 @@ class StampController extends Controller
         $stamp->save();
 
         return [
-            'stamp' => $stamp,
-            'room' => $room
+            'stamp' => $stamp
         ];
     }
 
