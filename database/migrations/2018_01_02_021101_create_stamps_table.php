@@ -32,6 +32,10 @@ class CreateStampsTable extends Migration
             $table->integer('width', false, true);
             $table->integer('height', false, true);
             $table->integer('size', false, true);
+
+            // IPアドレス
+            $table->ipAddress('ip')->nullable();
+
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
         });

@@ -47,4 +47,19 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Stamp');
     }
+
+    public function blackListUsers()
+    {
+        return $this->belongsToMany(
+            'App\User',
+            'black_list_users',
+            'user_id',
+            'target_id')
+            ->withTimestamps();
+    }
+
+    public function blackListIps()
+    {
+        return $this->hasMany('App\BlackListIp');
+    }
 }

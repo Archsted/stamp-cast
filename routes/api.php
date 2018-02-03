@@ -33,17 +33,10 @@ Route::group(['prefix' => '/v1'], function () {
 
     // Stamp
     Route::group(['prefix' => '/stamps'], function () {
-//        Route::get('/', 'StampController@index');
-//        Route::post('/', 'StampController@create');
         Route::get('/samples', 'StampController@sample');
 
         Route::delete('/{stamp}', 'StampController@uploadedDelete')
             ->middleware('auth:api');
-    });
-
-    // Imprint
-    Route::group(['prefix' => '/imprints'], function () {
-//        Route::post('/', 'ImprintController@create');
     });
 
     // Favorite
@@ -51,5 +44,11 @@ Route::group(['prefix' => '/v1'], function () {
         Route::get('/', 'FavoriteController@index');
         Route::post('/', 'FavoriteController@store');
         Route::delete('/', 'FavoriteController@destroy');
+    });
+
+    // BlackList
+    Route::group(['prefix' => '/blackLists', 'middleware' => ['auth:api']], function () {
+        Route::post('/', 'BlackListController@store');
+        Route::delete('/', 'BlackListController@destroy');
     });
 });

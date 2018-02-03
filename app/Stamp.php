@@ -42,6 +42,19 @@ class Stamp extends Model
             });
     }
 
+    public function scopeWithoutBlackList($query, $blackListIps, $blackListUserIds)
+    {
+        $query->where(function ($query) use ($blackListIps) {
+            $query
+                ->whereNotIn('ip', $blackListIps)
+                ->orWhereNull('ip');
+        })->where(function ($query) use ($blackListUserIds) {
+            $query
+                ->whereNotIn('user_id', $blackListUserIds)
+                ->orWhereNull('user_id');
+        });
+    }
+
     public function room()
     {
         return $this->belongsTo('App\Room');
