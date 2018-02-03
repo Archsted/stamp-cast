@@ -36,6 +36,9 @@
             </div>
 
             <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading">
+                <span slot="no-results">
+                    データがありません
+                </span>
                 <span slot="no-more">
                     これ以上のスタンプはありません
                 </span>
