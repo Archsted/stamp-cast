@@ -39,9 +39,7 @@
                 <span slot="no-results">
                     データがありません
                 </span>
-                <span slot="no-more">
-                    これ以上のスタンプはありません
-                </span>
+                <span slot="no-more"></span>
             </infinite-loading>
         </div>
     </div>
