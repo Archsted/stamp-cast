@@ -24,6 +24,7 @@
         "pusher-js": "^4.2.1",
         "vue-draggable-resizable": "^1.5.4",
         "vue-infinite-loading": "^2.2.3",
+        "vue-toasted": "^1.1.24",
         "vue2-dropzone": "^3.0.3",
         "vuejs-dialog": "^0.4.7"
     }
