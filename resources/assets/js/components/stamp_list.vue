@@ -26,7 +26,7 @@
 
             <div v-for="(stamp, index) in stampList" :key="index" class="stampWrapper" v-bind:style="cursor">
                 <img class="stamp" :src="stamp.name" @click="sendStamp(stamp.id)">
-                <div class="favoriteForm" @click="toggleFavorite(stamp.id)" v-if="!guest">
+                <div class="favoriteForm" @click="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
                     <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
                     <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
                 </div>
@@ -46,16 +46,25 @@
 </template>
 
 <script>
-    import vue2Dropzone from 'vue2-dropzone'
-//    import 'vue2-dropzone/dist/vue2Dropzone.css'
-
     import Vue from "vue"
+
+    // 画像アップロード
+    import vue2Dropzone from 'vue2-dropzone'
+
+    // ダイアログ
     import VuejsDialog from "vuejs-dialog"
-
-    import InfiniteLoading from 'vue-infinite-loading';
-
-    // Tell Vue to install the plugin.
     Vue.use(VuejsDialog);
+
+    // 無限スクロール
+    import InfiniteLoading from 'vue-infinite-loading'
+
+    // トースト
+    import Toasted from 'vue-toasted'
+    Vue.use(Toasted, {
+        position: 'top-center',
+        duration: 3000,
+        iconPack: 'fontawesome'
+    });
 
     export default {
         data: function () {
@@ -128,21 +137,6 @@
             },
         },
         methods: {
-            getStamps: function () {
-                // スタンプ一覧
-                let url = '/api/v1/rooms/' + this.room.id + '/stamps';
-
-                axios.get(url, {
-                    params: {
-                        page: 1,
-                        sort: this.stampSort
-                    }
-                }).then(response => {
-                    this.stamps = response.data.stamps;
-                }).catch(error => {
-                    console.log(error);
-                });
-            },
             sendStamp: function (stamp_id) {
                 if (this.canSendStamp) {
                     // スタンプ送信
@@ -157,9 +151,9 @@
                     axios.post(url, {
                         stamp_id: stamp_id
                     }).then(response => {
-
+                        this.$toasted.success('スタンプを送信しました。', {icon: 'comment'});
                     }).catch(error => {
-                        console.log(error);
+                        this.$toasted.error('スタンプ送信に失敗しました。', {icon: 'exclamation-triangle'});
                     });
                 } else {
                     // 送れない場合の説明文章
@@ -167,12 +161,8 @@
                 }
             },
             uploadSuccessEvent: function (file, response) {
+                this.$toasted.success('アップロードが完了しました。', {icon: 'upload'});
                 this.stamps.unshift(response.stamp);
-//                this.resetStamps();
-//                this.stamps.unshift(response.data.stamp);
-
-                console.log(response.stamp);
-
             },
             getFavorites: function () {
                 // お気に入り一覧
@@ -187,7 +177,7 @@
                         return favorite.id;
                     });
                 }).catch(error => {
-                    console.log(error);
+                    this.$toasted.error('お気に入りの読み込みに失敗しました。', {icon: 'exclamation-triangle'});
                 });
             },
             stampSortClass: function (sortType) {
@@ -210,10 +200,11 @@
                     // 追加
                     axios.post('/api/v1/favorites', {stamp_id: stampId})
                         .then(response => {
+                            this.$toasted.success('お気に入りに追加しました。', {icon: 'heart'});
                             this.favorites.push(stampId);
                         })
                         .catch(error => {
-                            console.log(error);
+                            this.$toasted.error('お気に入りの追加に失敗しました。', {icon: 'exclamation-triangle'});
                         });
                 } else {
                     // 削除
@@ -222,9 +213,10 @@
                             stamp_id: stampId
                         }
                     }).then(response => {
+                        this.$toasted.success('お気に入りを解除しました。', {icon: 'minus'});
                         this.favorites.splice(favoriteIndex, 1);
                     }).catch(error => {
-                        console.log(error);
+                        this.$toasted.error('お気に入りの削除に失敗しました。', {icon: 'exclamation-triangle'});
                     });
                 }
             },
@@ -243,11 +235,12 @@
                     .then((dialog) => {
                         axios.delete('/api/v1/stamps/' + stampId)
                             .then(response => {
+                                this.$toasted.success('スタンプを削除しました。', {icon: 'trash-alt'});
                                 isComplete = true;
                                 this.resetStamps();
                             })
                             .catch(error => {
-
+                                this.$toasted.error('スタンプの削除に失敗しました。', {icon: 'exclamation-triangle'});
                             })
                             .finally(() => {
                                 dialog.close();
@@ -265,17 +258,18 @@
                                             .then((blDialog) => {
                                                 axios.post('/api/v1/blackLists', {stamp_id: stampId})
                                                     .then(response => {
+                                                        this.$toasted.success('ブラックリストに追加しました。', {icon: 'ban'});
                                                         this.resetStamps();
                                                     })
                                                     .catch(error => {
-
+                                                        this.$toasted.error('ブラックリストへの追加に失敗しました。', {icon: 'exclamation-triangle'});
                                                     })
                                                     .finally(() => {
                                                         blDialog.close();
                                                     });
                                             })
                                             .catch(() => {
-                                                // ブラックリストには入れない
+                                                // ここはブラックリストへの追加をキャンセルしたとき
                                             });
                                     }, 400);
                                 }
@@ -283,7 +277,7 @@
                             });
                     })
                     .catch(() => {
-                        // 削除キャンセル
+                        // ここはスタンプの削除をキャンセルしたとき
                     });
             },
             /**
@@ -297,10 +291,11 @@
             },
             infiniteHandler: function ($state) {
                 let url = '/api/v1/rooms/' + this.room.id + '/stamps';
+                let currentPage = Math.floor(this.stamps.length / 30) + 1;
 
                 axios.get(url, {
                     params: {
-                        page: Math.floor(this.stamps.length / 30) + 1,
+                        page: currentPage,
                         sort: this.stampSort,
                     },
                 }).then(({ data }) => {
@@ -313,6 +308,8 @@
                     } else {
                         $state.complete();
                     }
+                }).catch(error => {
+                    this.$toasted.error('スタンプの読み込みに失敗しました。現在のページ番号: ' + currentPage, {icon: 'exclamation-triangle'});
                 });
             },
             resetStamps: function () {
@@ -364,6 +361,8 @@
     }
 
     .favoriteForm {
+        opacity: 0;
+        transition: .5s ease;
         position: absolute;
         right: 4px;
         top: 4px;
@@ -371,7 +370,13 @@
         color: hotpink;
     }
 
+    .containsFavorite {
+        opacity: 1 !important;
+    }
+
     .deleteForm {
+        opacity: 0;
+        transition: .5s ease;
         position: absolute;
         right: 6px;
         bottom: 4px;
@@ -390,5 +395,13 @@
         font-size: 0.8em;
         padding-top: 25px;
         cursor: pointer;
+    }
+
+    .stampWrapper:hover div {
+        opacity: 1;
+    }
+
+    .toasted svg {
+        margin-right: 10px;
     }
 </style>
