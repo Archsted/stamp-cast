@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>Stamp Cast</title>
+        <title>StampCast</title>
 
         <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
 
@@ -119,7 +119,7 @@
 
             <div class="feature flex-center position-ref full-height">
                 <div class="container">
-                    <h2>StampPast（スタンプキャスト）とは？</h2>
+                    <h2>StampCast（スタンプキャスト）とは？</h2>
 
                     <p>リスナーから送信されたスタンプ画像を配信者のデスクトップ上に表示するシステムです。
                         このWebサイトと、送られたスタンプをデスクトップ上に表示するツールの２つから成ります。</p>
