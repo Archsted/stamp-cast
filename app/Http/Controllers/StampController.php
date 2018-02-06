@@ -46,15 +46,13 @@ class StampController extends Controller
                         $query->withoutBlackList($blackListIps, $blackListUserIds);
                     }])
                     ->select('stamp_id')
-                    ->limit(Room::STAMP_COUNT_PER_PAGE)
-                    ->offset($offset)
                     ->latest()
                     ->get();
 
                 // 重複データを削除する
-                $imprints = $imprints->uniqueStrict('stamp_id')->values()->all();
+                $imprints = $imprints->uniqueStrict('stamp_id')->values();
 
-                foreach ($imprints as $imprint) {
+                foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
                     $stamps[] = $imprint->stamp;
                 }
 
