@@ -2,6 +2,11 @@
     <div class="litener">
         <div class="btn-toolbar" role="toolbar">
             <div class="btn-group" role="group">
+                <button type="button" class="btn btn-warning" @click="resetStamps">
+                    <i class="fas fa-redo fa-lg"></i>
+                </button>
+            </div>
+            <div class="btn-group" role="group">
                 <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click="stampSort = 'all'">全て</button>
                 <button type="button" class="btn" v-bind:class="stampSortClass('latest')" @click="stampSort = 'latest'">送信された順</button>
                 <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click="stampSort = 'count'">回数順</button>
@@ -12,7 +17,6 @@
                 </button>
             </div>
         </div>
-
 
         <div class="stampList">
             <div class="stampForm" v-if="canUploadStamp">
@@ -224,7 +228,7 @@
                 let isComplete = false;
 
                 this.$dialog.confirm(
-                    '<div style="text-align: center"><p>このスタンプを削除しますか？</p><div class="stampWrapper"><img src="' + stampName + '" class="stamp"></div></div>',
+                    '<div style="text-align: center"><p>このスタンプを削除しますか？</p><div class="deleteConfirmStamp"><div class="stampWrapper"><img src="' + stampName + '" class="stamp"></div></div></div>',
                     {
                         html: true,
                         loader: true,
@@ -337,6 +341,12 @@
         flex-wrap: wrap;
     }
 
+    .deleteConfirmStamp {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
     .stampWrapper {
         position: relative;
         margin-left: 3px;
@@ -349,6 +359,27 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
+
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+
+        /* 市松模様 */
+        background-color: #f9f9f9;
+        -webkit-background-size: 30px 30px;
+        -moz-background-size: 30px 30px;
+        background-size: 30px 30px;
+        background-position: 0 0, 15px 15px;
+        background-image: -webkit-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -webkit-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: -moz-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -moz-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: -ms-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -ms-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: -o-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -o-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
     }
 
     .stamp {
@@ -362,7 +393,7 @@
 
     .favoriteForm {
         opacity: 0;
-        transition: .5s ease;
+        transition: .4s ease;
         position: absolute;
         right: 4px;
         top: 4px;

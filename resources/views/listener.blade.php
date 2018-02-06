@@ -1,33 +1,44 @@
 @extends('layouts.app')
 
+@section('title')
+    StampCast - {{$room->name}}
+@endsection
+
 @section('content')
-    <div style="padding: 0 10px;">
-        <div>
-            <p>
-                {{$room->name}}
+    <div class="container-fluid">
+
+        <div class="room-info">
+            <h3>{{$room->name}}
                 @auth
                     @if( auth()->user()->id === $room->user_id )
-                        <a href="{{ route('room_edit', ['room' => $room->id]) }}"><span class="glyphicon glyphicon-pencil"></span></a>
+                        <small>
+                            <a class="btn btn-success btn-sm" href="{{ route('room_edit', ['room' => $room->id]) }}" role="button">
+                                <i class="fas fa-edit"></i> ルーム設定を変更する
+                            </a>
+                        </small>
                     @endif
                 @endauth
-            </p>
-            <p>
+            </h3>
+
+            @if(strlen($room->description) > 0)
+            <div class="room-description">
                 {!! nl2br(htmlspecialchars($room->description)) !!}
-            </p>
+            </div>
+            @endif
         </div>
 
         <stamp-list
-            ref="stampList"
-            :room="{id: {{$room->id}}, userId: {{ $room->user_id }}}"
-            :room-id="{{ $room->id }}"
-            :uploader-level="{{ $room->uploader_level }}"
-            :imprinter-level="{{ $room->imprinter_level }}"
-            @auth
-            :user-id="{{ auth()->user()->id }}"
-            @endauth
-            @guest
-            :user-id="null"
-            @endguest
+                ref="stampList"
+                :room="{id: {{$room->id}}, userId: {{ $room->user_id }}}"
+                :room-id="{{ $room->id }}"
+                :uploader-level="{{ $room->uploader_level }}"
+                :imprinter-level="{{ $room->imprinter_level }}"
+                @auth
+                :user-id="{{ auth()->user()->id }}"
+                @endauth
+                @guest
+                :user-id="null"
+                @endguest
         ></stamp-list>
     </div>
 @endsection
