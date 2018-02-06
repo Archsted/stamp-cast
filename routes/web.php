@@ -45,3 +45,8 @@ Route::group(['prefix' => '/rooms', 'middleware' => ['auth']], function () {
 Route::group(['prefix' => '/stamps'], function () {
     Route::get('/', 'StampController@uploadedIndex')->name('my_stamps');
 });
+
+// 配信者用ツールの初期表示ページ
+Route::get('/broadcaster', function () {
+    redirect('/1');
+});
