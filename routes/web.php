@@ -17,18 +17,17 @@ Route::get('/', function () {
 
 Auth::routes();
 
+// 配信者用ツールの初期表示ページ
+Route::get('/broadcaster', function () {
+    return redirect('/1/broadcaster');
+});
+
+// ログイン後のホーム画面
 Route::get('/home', 'HomeController@index')
     ->middleware('auth')
     ->name('home');
 
-Route::get('/{room}', 'HomeController@listener')
-    ->name('listener')
-    ->where('room', '^[\d]+$');
-
-Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
-    ->name('broadcaster')
-    ->where('room', '^[\d]+$');
-
+// ルーム関連
 Route::group(['prefix' => '/rooms', 'middleware' => ['auth']], function () {
     Route::get('/create', 'RoomController@create')->name('room_create');
     Route::post('/', 'RoomController@store')->name('room_store');
@@ -42,11 +41,16 @@ Route::group(['prefix' => '/rooms', 'middleware' => ['auth']], function () {
         ->where('room', '^[\d]+$');
 });
 
+// リスナー用ルームURL
+Route::get('/{room}', 'HomeController@listener')
+    ->name('listener')
+    ->where('room', '^[\d]+$');
+
+// 配信者ツール用のスタンプ待機URL
+Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
+    ->name('broadcaster')
+    ->where('room', '^[\d]+$');
+
 Route::group(['prefix' => '/stamps'], function () {
     Route::get('/', 'StampController@uploadedIndex')->name('my_stamps');
-});
-
-// 配信者用ツールの初期表示ページ
-Route::get('/broadcaster', function () {
-    redirect('/1');
 });
