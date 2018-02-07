@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    StampCast - {{$room->name}}
+    {{ config('app.name', 'StampCast') }} - {{$room->name}}
 @endsection
 
 @section('content')

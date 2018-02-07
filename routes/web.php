@@ -54,3 +54,9 @@ Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
 Route::group(['prefix' => '/stamps'], function () {
     Route::get('/', 'StampController@uploadedIndex')->name('my_stamps');
 });
+
+// ツール
+Route::group(['prefix' => '/tools', 'middleware' => ['auth']], function () {
+    Route::get('/', 'ToolController@index')->name('tool_top');
+    Route::get('/download/{platform}', 'ToolController@download')->name('tool_download');
+});
