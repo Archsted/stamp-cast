@@ -29,7 +29,9 @@
             </div>
 
             <div v-for="(stamp, index) in stampList" :key="index" class="stampWrapper" v-bind:style="cursor">
-                <img class="stamp" :src="stamp.name" @click="sendStamp(stamp.id)">
+                <div class="stampRippleWrapper" v-ripple>
+                    <img class="stamp" :src="stamp.name" @click="sendStamp(stamp.id)">
+                </div>
                 <div class="favoriteForm" @click="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
                     <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
                     <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
@@ -69,6 +71,11 @@
         duration: 3000,
         iconPack: 'fontawesome'
     });
+
+    // リップル
+    import Ripple from 'vue-ripple-directive'
+    Ripple.color = 'rgba(100, 213, 103, 0.5)';
+    Vue.directive('ripple', Ripple);
 
     export default {
         data: function () {
@@ -380,6 +387,10 @@
         -o-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
         background-image: linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
         linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+    }
+
+    .stampRippleWrapper {
+        height: 100%;
     }
 
     .stamp {
