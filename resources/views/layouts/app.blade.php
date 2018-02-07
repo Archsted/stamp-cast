@@ -31,14 +31,29 @@
 
                     <!-- Branding Image -->
                     <a class="navbar-brand" href="{{ url('/') }}">
-                        {{ config('app.name', 'Laravel') }}
+                        <span><img src="/images/logo.png" alt="logo" style="padding-bottom: 6px; margin-right: 4px;">{{ config('app.name', 'Laravel') }}</span>
                     </a>
                 </div>
 
                 <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
-                        &nbsp;
+                        @auth
+                            <li><a href="{{ route('login') }}"><i class="fas fa-home fa-lg"></i> ホーム</a></li>
+                            @if(Auth::user()->room)
+                                <li>
+                                    <a href="{{ route('listener', ['room' => Auth::user()->room->id]) }}">
+                                        <i class="fas fa-laptop fa-lg"></i> スタンプルーム
+                                    </a>
+                                </li>
+                            @else
+                                <li>
+                                    <a href="{{ route('room_create') }}">
+                                        <i class="fas fa-laptop fa-lg"></i> スタンプルーム作成
+                                    </a>
+                                </li>
+                            @endif
+                        @endauth
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -50,7 +65,7 @@
                         @else
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true">
-                                    {{ Auth::user()->name }} <span class="caret"></span>
+                                    <i class="fas fa-user-circle fa-lg"></i> {{ Auth::user()->name }} <span class="caret"></span>
                                 </a>
 
                                 <ul class="dropdown-menu">
@@ -76,6 +91,12 @@
 
         @yield('content')
     </div>
+
+    <footer class="footer">
+        <div class="text-center">
+            <p class="text-muted">作：会長 / Archsted ( <a href="https://twitter.com/etude_kaicho">Twitter</a> )</p>
+        </div>
+    </footer>
 
     <!-- Scripts -->
     @section('footer_script')
