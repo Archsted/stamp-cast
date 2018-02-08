@@ -44,20 +44,32 @@ class ToolController extends Controller
     public function receiver(Request $request)
     {
         $origin = $request->server('HTTP_ORIGIN');
-        $url = $request->get('url');
+        $url = $request->get('url', '');
 
         $pattern = '^' . $origin . '/([\d]+)$';
 
-        if (preg_match('#'. $pattern .'#', $url, $matches)) {
-            $roomId = $matches[1];
+        if (strlen($url) > 0) {
+            if (preg_match('#'. $pattern .'#', $url, $matches)) {
+                $roomId = $matches[1];
 
-            $room = Room::find($roomId);
+                $room = Room::find($roomId);
 
-            if (is_null($room) === false) {
-                return redirect($url . '/broadcaster');
+                if (is_null($room) === false) {
+                    return redirect($url . '/broadcaster');
+                } else {
+                    $message = '不正なURLが指定されています。';
+                }
+            } else {
+                $message = '不正なURLが指定されています。';
             }
+        } else {
+            $message = 'URLを入力してください。';
         }
 
-        return redirect()->route('tool_login')->with('message', '不正なURLが指定されています。');
+        return redirect()->route('tool_login')
+            ->with([
+                'message' => $message,
+                'url' => $url,
+            ]);
     }
 }

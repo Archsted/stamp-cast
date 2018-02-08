@@ -26,7 +26,7 @@ const app = new Vue({
             }
             setTimeout( () => {
                 this.addRandomStamp();
-            }, Math.floor(Math.random() * 3000) + 2000);
+            }, Math.floor(Math.random() * 3000) + 1000);
         },
 
         addStamp: function(stamp) {
