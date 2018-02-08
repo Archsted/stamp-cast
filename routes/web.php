@@ -18,9 +18,14 @@ Route::get('/', function () {
 Auth::routes();
 
 // 配信者用ツールの初期表示ページ
-Route::get('/broadcaster', function () {
-    return redirect('/1/broadcaster');
+Route::group(['prefix' => '/broadcaster'], function () {
+    // ツールの初期表示
+    Route::get('/', 'ToolController@toolIndex')->name('tool_login');
+
+    // ツール上で受信ページ移動
+    Route::post('/receiver', 'ToolController@receiver')->name('receiver');
 });
+
 
 // ログイン後のホーム画面
 Route::get('/home', 'HomeController@index')

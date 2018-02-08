@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -33,5 +34,30 @@ class ToolController extends Controller
         }
 
         return response()->download($toolPath);
+    }
+
+    public function toolIndex()
+    {
+        return view('tools.entrance');
+    }
+
+    public function receiver(Request $request)
+    {
+        $origin = $request->server('HTTP_ORIGIN');
+        $url = $request->get('url');
+
+        $pattern = '^' . $origin . '/([\d]+)$';
+
+        if (preg_match('#'. $pattern .'#', $url, $matches)) {
+            $roomId = $matches[1];
+
+            $room = Room::find($roomId);
+
+            if (is_null($room) === false) {
+                return redirect($url . '/broadcaster');
+            }
+        }
+
+        return redirect()->route('tool_login')->with('message', '不正なURLが指定されています。');
     }
 }
