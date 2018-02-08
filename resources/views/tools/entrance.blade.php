@@ -44,10 +44,10 @@
             <form action="{{ route('receiver') }}" method="post">
                 {{ csrf_field() }}
                 <p style="font-size:140%; margin:0;"><label for="url">スタンプルームURL</label></p>
-                <input type="text" name="url" value="" id="url" size="40" placeholder="" autofocus> <input type="submit" value="受信する"><br>
+                <input type="text" name="url" value="{{ session('url', '') }}" id="url" size="40" placeholder="" autofocus> <input type="submit" value="受信する"><br>
                 例）https://stamp.archsted.com/1
                 @if(session('message'))
-                    <p>{{ session('message') }}</p>
+                    <p style="margin:0; padding: 0; color: red;"><strong>{{ session('message') }}</strong></p>
                 @endif
             </form>
         </div>
