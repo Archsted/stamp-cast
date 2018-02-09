@@ -36,6 +36,11 @@ class CreateStampsTable extends Migration
             // IPアドレス
             $table->ipAddress('ip')->nullable();
 
+            // ハッシュ（MD5）
+            // セキュアが求められるものとは異なり、同一画像の簡易チェックに利用するだけで
+            // 最悪すり抜けても問題無いので、SHA256、512等ではなく速度重視でmd5を採用。
+            $table->string('hash', 32)->nullable();
+
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
         });
