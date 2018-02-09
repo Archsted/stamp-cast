@@ -10,6 +10,7 @@ use App\Stamp;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -113,6 +114,7 @@ class StampController extends Controller
      */
     public function create(Room $room, StoreStamp $request)
     {
+        /** @var UploadedFile $file */
         $file = $request->file('file');
 
         $stamp = new Stamp;
@@ -121,6 +123,7 @@ class StampController extends Controller
         $stamp->name = $file->store('stamps');
         $stamp->size = $file->getSize();
         $stamp->ip = $request->ip();
+        $stamp->hash = md5_file($file->getRealPath());
 
         // 画像情報の取得
         $imageSize = getimagesize($file->getRealPath());
@@ -151,6 +154,7 @@ class StampController extends Controller
         $stamp->name = $file->store('stamps');
         $stamp->size = $file->getSize();
         $stamp->ip = $request->ip();
+        $stamp->hash = md5_file($file->getRealPath());
 
         // 画像情報の取得
         $imageSize = getimagesize($file->getRealPath());
