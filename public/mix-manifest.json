@@ -1,8 +1,8 @@
 {
-    "/js/listener.js": "/js/listener.js",
-    "/js/broadcaster.js": "/js/broadcaster.js",
-    "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css",
-    "/css/top.css": "/css/top.css",
-    "/js/top.js": "/js/top.js"
+    "/js/listener.js": "/js/listener.js?id=96a2a81c692d9eb18619",
+    "/js/broadcaster.js": "/js/broadcaster.js?id=4fd40c049d857028e193",
+    "/js/app.js": "/js/app.js?id=029aa614f0a28ef1b4dc",
+    "/css/app.css": "/css/app.css?id=ad012a17f124e06f0ceb",
+    "/css/top.css": "/css/top.css?id=d8c52d76d4b0925d08aa",
+    "/js/top.js": "/js/top.js?id=4881443f658900332db7"
 }

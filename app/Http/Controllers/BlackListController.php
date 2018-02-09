@@ -18,10 +18,15 @@ class BlackListController extends Controller
 
         if (is_null($stamp->user_id)) {
             // スタンプが未登録ユーザによるアップロードだった場合
-            //$blackListIp = new BlackListIp(['ip' => $stamp->ip]);
-            $blackListIp = BlackListIp::firstOrNew(['ip' => $stamp->ip]);
 
-            $user->blackListIps()->save($blackListIp);
+            // （念のため）スタンプのアップロード者のIPが自分のIPと異なる場合
+            if ($stamp->ip !== $request->ip()) {
+                $blackListIp = BlackListIp::firstOrNew(['ip' => $stamp->ip]);
+
+                $user->blackListIps()->save($blackListIp);
+            } else {
+                abort(403, '自分のIPアドレスと同一です。');
+            }
         } else {
             // スタンプが登録済みユーザによるアップロードだった場合
             $targetIds = $user->blackListUsers->pluck('id');
