@@ -273,7 +273,7 @@
                                                         this.resetStamps();
                                                     })
                                                     .catch(error => {
-                                                        this.$toasted.error('ブラックリストへの追加に失敗しました。', {icon: 'exclamation-triangle'});
+                                                        this.$toasted.error(error.message, {icon: 'exclamation-triangle'});
                                                     })
                                                     .finally(() => {
                                                         blDialog.close();
