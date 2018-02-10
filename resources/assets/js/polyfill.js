@@ -43,3 +43,21 @@ if (!Array.prototype.includes) {
         }
     });
 }
+
+Array.prototype.findIndex = Array.prototype.findIndex || function(callback) {
+    if (this === null) {
+        throw new TypeError('Array.prototype.findIndex called on null or undefined');
+    } else if (typeof callback !== 'function') {
+        throw new TypeError('callback must be a function');
+    }
+    let list = Object(this);
+    // Makes sures is always has an positive integer as length.
+    let length = list.length >>> 0;
+    let thisArg = arguments[1];
+    for (let i = 0; i < length; i++) {
+        if ( callback.call(thisArg, list[i], i, list) ) {
+            return i;
+        }
+    }
+    return -1;
+};
