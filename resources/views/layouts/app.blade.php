@@ -10,6 +10,8 @@
     @show
     </title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
+
     <script src="//{{ Request::getHost() }}:6001/socket.io/socket.io.js"></script>
 
     <!-- Styles -->
