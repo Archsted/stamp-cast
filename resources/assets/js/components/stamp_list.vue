@@ -143,8 +143,10 @@
                     {text: '80', value: 80},
                     {text: '90', value: 90},
                     {text: '100', value: 100},
-                    {text: '150', value: 150},
                     {text: '200', value: 200},
+                    {text: '500', value: 500},
+                    {text: '1000', value: 1000},
+                    {text: '2000', value: 2000},
                 ],
                 dropzoneOptions: {
                     url: (this.userId === null) ?
@@ -218,10 +220,15 @@
             getStamps: function () {
                 let url = '/api/v1/rooms/' + this.room.id + '/stamps';
 
+                if (this.guest) {
+                    url = url + '/guest';
+                }
+
                 axios.get(url,
                     {
                         params: {
                             sort: this.stampSort,
+                            onlyFavorite: this.onlyFavorite ? 1 : 0,
                         },
                     })
                     .then(response => {
@@ -385,12 +392,18 @@
             },
             infiniteHandler: function ($state) {
                 let url = '/api/v1/rooms/' + this.room.id + '/stamps';
+
+                if (this.guest) {
+                    url = url + '/guest';
+                }
+
                 let currentPage = Math.floor(this.stamps.length / 30) + 1;
 
                 axios.get(url, {
                     params: {
                         page: currentPage,
                         sort: this.stampSort,
+                        onlyFavorite: this.onlyFavorite ? 1 : 0,
                     },
                 }).then(({ data }) => {
                     if (data.stamps.length) {
@@ -423,6 +436,12 @@
             },
             useInfinite: function (newValue) {
                 this.resetStamps();
+            },
+            onlyFavorite: function (newValue) {
+                // 無限スクロールの時のみ
+                if (this.useInfinite) {
+                    this.resetStamps();
+                }
             },
         }
     }
