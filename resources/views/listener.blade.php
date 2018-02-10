@@ -44,5 +44,6 @@
 @endsection
 
 @section('footer_script')
+    <script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
     <script src="{{ mix('js/listener.js') }}"></script>
 @endsection

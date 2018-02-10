@@ -42,3 +42,6 @@ window.animejs = require('animejs');
 
 // vuejs
 window.Vue = require('vue');
+
+// polyfill
+require('./polyfill');

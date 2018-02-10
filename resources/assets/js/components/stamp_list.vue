@@ -29,7 +29,7 @@
                 </select>
             </div>
 
-            <div class="btn-group pull-right" v-show="!useInfinite">
+            <div class="pull-right" v-show="!useInfinite">
                 <nav aria-label="Page navigation">
                     <paginate-links
                         for="paginateStamps"
