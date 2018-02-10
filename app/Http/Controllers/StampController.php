@@ -25,79 +25,150 @@ class StampController extends Controller
     {
         $stamps = [];
 
-        $page = $request->get('page', 1);
-        $offset = Room::STAMP_COUNT_PER_PAGE * ($page - 1);
-
         /** @var User $roomOwner */
         $roomOwner = $room->user;
 
         $blackListIps = $roomOwner->blackListIps->pluck('ip');
         $blackListUserIds = $roomOwner->blackListUsers->pluck('id');
 
-        switch ($request->sort) {
-            case 'latest':
-                // ルームに送信されたStampを新しい順に取得する
-                $imprints = Imprint::query()
-                    ->where('room_id', $room->id)
-                    ->withoutBlackList($blackListIps, $blackListUserIds)
-                    ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
-                        $query->withoutBlackList($blackListIps, $blackListUserIds);
-                    })
-                    ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                        $query->withoutBlackList($blackListIps, $blackListUserIds);
-                    }])
-                    ->select('stamp_id')
-                    ->latest()
-                    ->get();
+        // 無限スクロールで一部を取得するか、ページネートで全件取得するかはpageの有無で判断する
+        if ($request->exists('page')) {
+            // 無限スクロール
 
-                // 重複データを削除する
-                $imprints = $imprints->uniqueStrict('stamp_id')->values();
+            $page = $request->get('page', 1);
+            $offset = Room::STAMP_COUNT_PER_PAGE * ($page - 1);
 
-                foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
-                    $stamps[] = $imprint->stamp;
-                }
+            switch ($request->sort) {
+                case 'latest':
+                    // ルームに送信されたStampを新しい順に取得する
+                    $imprints = Imprint::query()
+                        ->where('room_id', $room->id)
+                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        })
+                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        }])
+                        ->select('stamp_id')
+                        ->latest()
+                        ->get();
 
-                break;
-            case 'count':
-                // ルームに送信されたStampを件数順に取得する
+                    // 重複データを削除する
+                    $imprints = $imprints->uniqueStrict('stamp_id')->values();
 
-                /** @var Collection $imprints */
-                $imprints = Imprint::query()
-                    ->where('room_id', $room->id)
-                    ->withoutBlackList($blackListIps, $blackListUserIds)
-                    ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
-                        $query->withoutBlackList($blackListIps, $blackListUserIds);
-                    })
-                    ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                        $query->withoutBlackList($blackListIps, $blackListUserIds);
-                    }])
-                    ->select('stamp_id')
-                    ->groupBy('stamp_id')
-                    ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
-                    ->orderBy('stamp_id', 'desc')
-                    ->get();
+                    foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
+                        $stamps[] = $imprint->stamp;
+                    }
 
-                // groupByを利用しているSQLで、limitとoffsetが利用できないので、Collection取得後のここで行う
-                foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
-                    $stamps[] = $imprint->stamp;
-                }
+                    break;
+                case 'count':
+                    // ルームに送信されたStampを件数順に取得する
 
-                break;
+                    /** @var Collection $imprints */
+                    $imprints = Imprint::query()
+                        ->where('room_id', $room->id)
+                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        })
+                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        }])
+                        ->select('stamp_id')
+                        ->groupBy('stamp_id')
+                        ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
+                        ->orderBy('stamp_id', 'desc')
+                        ->get();
 
-            default:
-                // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
-                $stamps = Stamp::query()
-                    ->where(function ($query) use ($room) {
-                        $query->where('room_id', $room->id)
-                            ->orWhereNull('room_id');
-                    })
-                    ->withoutBlackList($blackListIps, $blackListUserIds)
-                    ->limit(Room::STAMP_COUNT_PER_PAGE)
-                    ->offset($offset)
-                    ->orderBy('created_at', 'desc')
-                    ->orderBy('id', 'desc')
-                    ->get();
-                break;
+                    // groupByを利用しているSQLで、limitとoffsetが利用できないので、Collection取得後のここで行う
+                    foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
+                        $stamps[] = $imprint->stamp;
+                    }
+
+                    break;
+
+                default:
+                    // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
+                    $stamps = Stamp::query()
+                        ->where(function ($query) use ($room) {
+                            $query->where('room_id', $room->id)
+                                ->orWhereNull('room_id');
+                        })
+                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset)
+                        ->orderBy('created_at', 'desc')
+                        ->orderBy('id', 'desc')
+                        ->get();
+                    break;
+            }
+
+        } else {
+            // Pagination
+
+            switch ($request->sort) {
+                case 'latest':
+                    // ルームに送信されたStampを新しい順に取得する
+                    $imprints = Imprint::query()
+                        ->where('room_id', $room->id)
+                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        })
+                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        }])
+                        ->select('stamp_id')
+                        ->latest()
+                        ->get();
+
+                    // 重複データを削除する
+                    $imprints = $imprints->uniqueStrict('stamp_id')->values();
+
+                    foreach ($imprints as $imprint) {
+                        $stamps[] = $imprint->stamp;
+                    }
+
+                    break;
+                case 'count':
+                    // ルームに送信されたStampを件数順に取得する
+
+                    /** @var Collection $imprints */
+                    $imprints = Imprint::query()
+                        ->where('room_id', $room->id)
+                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        })
+                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        }])
+                        ->select('stamp_id')
+                        ->groupBy('stamp_id')
+                        ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
+                        ->orderBy('stamp_id', 'desc')
+                        ->get();
+
+                    foreach ($imprints as $imprint) {
+                        $stamps[] = $imprint->stamp;
+                    }
+
+                    break;
+
+                default:
+                    // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
+                    $stamps = Stamp::query()
+                        ->where(function ($query) use ($room) {
+                            $query->where('room_id', $room->id)
+                                ->orWhereNull('room_id');
+                        })
+                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->orderBy('created_at', 'desc')
+                        ->orderBy('id', 'desc')
+                        ->get();
+                    break;
+            }
         }
 
         return [

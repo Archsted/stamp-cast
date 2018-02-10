@@ -16,38 +16,79 @@
                     <span style="color: hotpink;"><i class="fas fa-heart fa-lg"></i></span> お気に入りのみ表示
                 </button>
             </div>
-        </div>
 
-        <div class="stampList">
-            <div class="stampForm" v-if="canUploadStamp">
-                <vue-dropzone
-                    ref="myVueDropzone"
-                    id="dropzone"
-                    :options="dropzoneOptions"
-                    v-on:vdropzone-success="uploadSuccessEvent"
-                />
+            <div class="btn-group pull-right" role="group">
+                <button type="button" class="btn btn-danger" @click="useInfinite = !useInfinite">{{ viewType }}</button>
             </div>
 
-            <div v-for="(stamp, index) in stampList" :key="index" class="stampWrapper" v-bind:style="cursor">
-                <div class="stampRippleWrapper" v-ripple>
-                    <img class="stamp" :src="stamp.name" @click="sendStamp(stamp.id)">
-                </div>
-                <div class="favoriteForm" @click="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
-                    <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
-                    <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
-                </div>
-                <div class="deleteForm" @click="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
-                    <i class="fas fa-trash-alt"></i>
-                </div>
+            <div class="pull-right" v-show="!useInfinite" style="padding-left:10px;">
+                <select v-model="selectedCountPerPage" title="表示件数" class="form-control">
+                    <option v-for="perPageOption in perPageOptions" v-bind:value="perPageOption.value">
+                        {{ perPageOption.value }}
+                    </option>
+                </select>
             </div>
 
-            <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading">
-                <span slot="no-results">
-                    データがありません
-                </span>
-                <span slot="no-more"></span>
-            </infinite-loading>
+            <div class="btn-group pull-right" v-show="!useInfinite">
+                <nav aria-label="Page navigation">
+                    <paginate-links
+                        for="paginateStamps"
+                        :show-step-links="true"
+                        class="pagination"
+                    >
+                    </paginate-links>
+                </nav>
+            </div>
+
         </div>
+
+        <paginate
+            name="paginateStamps"
+            :list="stampList"
+            :per="countPerPage"
+        >
+            <div class="stampList">
+                <div class="stampForm" v-if="canUploadStamp">
+                    <vue-dropzone
+                        ref="myVueDropzone"
+                        id="dropzone"
+                        :options="dropzoneOptions"
+                        v-on:vdropzone-success="uploadSuccessEvent"
+                    />
+                </div>
+
+                <div v-for="(stamp, index) in paginated('paginateStamps')" :key="index"
+                     class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)">
+                    <div class="stampRippleWrapper" v-ripple>
+                        <img class="stamp" :src="stamp.name">
+                    </div>
+                    <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
+                        <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
+                        <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
+                    </div>
+                    <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                </div>
+
+                <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading" v-if="useInfinite">
+                    <span slot="no-results">
+                        データがありません
+                    </span>
+                    <span slot="no-more"></span>
+                </infinite-loading>
+            </div>
+        </paginate>
+
+        <nav aria-label="Page navigation" class="text-center" v-show="!useInfinite">
+            <paginate-links
+                for="paginateStamps"
+                :show-step-links="true"
+                class="pagination"
+            >
+            </paginate-links>
+        </nav>
+
     </div>
 </template>
 
@@ -77,6 +118,10 @@
     Ripple.color = 'rgba(100, 213, 103, 0.5)';
     Vue.directive('ripple', Ripple);
 
+    // ページネーション
+    import VuePaginate from 'vue-paginate'
+    Vue.use(VuePaginate);
+
     export default {
         data: function () {
             return {
@@ -84,6 +129,23 @@
                 favorites: [],
                 stampSort: 'all',
                 onlyFavorite: false,
+                useInfinite: true,
+                paginate: ['paginateStamps'],
+                selectedCountPerPage: 50,
+                perPageOptions: [
+                    {text: '10', value: 10},
+                    {text: '20', value: 20},
+                    {text: '30', value: 30},
+                    {text: '40', value: 40},
+                    {text: '50', value: 50},
+                    {text: '60', value: 60},
+                    {text: '70', value: 70},
+                    {text: '80', value: 80},
+                    {text: '90', value: 90},
+                    {text: '100', value: 100},
+                    {text: '150', value: 150},
+                    {text: '200', value: 200},
+                ],
                 dropzoneOptions: {
                     url: (this.userId === null) ?
                         '/api/v1/rooms/' + this.room.id + '/stamps/guest' :
@@ -104,7 +166,6 @@
             userId: Number,
         },
         created: function () {
-            //this.getStamps();
             if (!this.guest) {
                 this.getFavorites();
             }
@@ -114,13 +175,6 @@
             InfiniteLoading,
         },
         computed: {
-            /**
-             * 未ログインユーザであるかどうか
-             * @returns {boolean}
-             */
-            guest: function () {
-                return this.userId === null;
-            },
             stampList: function () {
                 if (this.onlyFavorite) {
                     return this.stamps.filter(stamp => {
@@ -129,6 +183,13 @@
                 } else {
                     return this.stamps;
                 }
+            },
+            /**
+             * 未ログインユーザであるかどうか
+             * @returns {boolean}
+             */
+            guest: function () {
+                return this.userId === null;
             },
             canUploadStamp: function () {
                 return (this.uploaderLevel === 1 || (this.uploaderLevel === 2 && !this.guest));
@@ -146,8 +207,30 @@
             onlyFavoriteButtonClass: function () {
                 return this.onlyFavorite ? 'btn-primary' : 'btn-default';
             },
+            viewType: function () {
+                return this.useInfinite ? '無限スクロール' : 'ページ表示';
+            },
+            countPerPage: function () {
+                return this.useInfinite ? 9999999 : this.selectedCountPerPage;
+            }
         },
         methods: {
+            getStamps: function () {
+                let url = '/api/v1/rooms/' + this.room.id + '/stamps';
+
+                axios.get(url,
+                    {
+                        params: {
+                            sort: this.stampSort,
+                        },
+                    })
+                    .then(response => {
+                        this.stamps = response.data.stamps;
+                    })
+                    .catch(error => {
+
+                    });
+            },
             sendStamp: function (stamp_id) {
                 if (this.canSendStamp) {
                     // スタンプ送信
@@ -324,14 +407,21 @@
                 });
             },
             resetStamps: function () {
-                this.stamps = [];
-                this.$nextTick(() => {
-                    this.$refs.infiniteLoading.$emit('$InfiniteLoading:reset');
-                });
+                if (this.useInfinite) {
+                    this.stamps = [];
+                    this.$nextTick(() => {
+                        this.$refs.infiniteLoading.$emit('$InfiniteLoading:reset');
+                    });
+                } else {
+                    this.getStamps();
+                }
             }
         },
         watch: {
             stampSort: function (newValue) {
+                this.resetStamps();
+            },
+            useInfinite: function (newValue) {
                 this.resetStamps();
             },
         }
@@ -367,6 +457,7 @@
         -ms-user-select: none;
         user-select: none;
 
+        border: solid 2px #888;
         -webkit-border-radius: 8px;
         -moz-border-radius: 8px;
         border-radius: 8px;
@@ -391,11 +482,14 @@
 
     .stampRippleWrapper {
         height: 100%;
+        text-align: center;
     }
 
     .stamp {
         height: 100% !important;
-        border: solid 2px #888;
+
+
+        /*border: solid 2px #888;*/
         -webkit-border-radius: 8px;
         -moz-border-radius: 8px;
         border-radius: 8px;
@@ -445,5 +539,9 @@
 
     .toasted svg {
         margin-right: 10px;
+    }
+
+    .paginateStamps {
+        margin: 0;
     }
 </style>
