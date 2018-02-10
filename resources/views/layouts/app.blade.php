@@ -94,7 +94,7 @@
 
     <footer class="footer">
         <div class="text-center">
-            <p class="text-muted">作：会長 / Archsted ( <a href="https://twitter.com/etude_kaicho">Twitter</a> )</p>
+            <p class="text-muted">作：会長 / Archsted ( <a href="https://twitter.com/etude_kaicho">@etude_kaicho</a> )</p>
         </div>
     </footer>
 
