@@ -245,9 +245,9 @@
                     axios.post(url, {
                         stamp_id: stamp_id
                     }).then(response => {
-                        this.$toasted.success('スタンプを送信しました。', {icon: 'comment'});
+                        Vue.toasted.success('スタンプを送信しました。', {icon: 'comment'});
                     }).catch(error => {
-                        this.$toasted.error('スタンプ送信に失敗しました。', {icon: 'exclamation-triangle'});
+                        Vue.toasted.error('スタンプ送信に失敗しました。', {icon: 'exclamation-triangle'});
                     });
                 } else {
                     // 送れない場合の説明文章
@@ -255,7 +255,7 @@
                 }
             },
             uploadSuccessEvent: function (file, response) {
-                this.$toasted.success('アップロードが完了しました。', {icon: 'upload'});
+                Vue.toasted.success('アップロードが完了しました。', {icon: 'upload'});
                 this.stamps.unshift(response.stamp);
             },
             getFavorites: function () {
@@ -271,7 +271,7 @@
                         return favorite.id;
                     });
                 }).catch(error => {
-                    this.$toasted.error('お気に入りの読み込みに失敗しました。', {icon: 'exclamation-triangle'});
+                    Vue.toasted.error('お気に入りの読み込みに失敗しました。', {icon: 'exclamation-triangle'});
                 });
             },
             stampSortClass: function (sortType) {
@@ -294,11 +294,11 @@
                     // 追加
                     axios.post('/api/v1/favorites', {stamp_id: stampId})
                         .then(response => {
-                            this.$toasted.success('お気に入りに追加しました。', {icon: 'heart'});
+                            Vue.toasted.success('お気に入りに追加しました。', {icon: 'heart'});
                             this.favorites.push(stampId);
                         })
                         .catch(error => {
-                            this.$toasted.error('お気に入りの追加に失敗しました。', {icon: 'exclamation-triangle'});
+                            Vue.toasted.error('お気に入りの追加に失敗しました。', {icon: 'exclamation-triangle'});
                         });
                 } else {
                     // 削除
@@ -307,10 +307,10 @@
                             stamp_id: stampId
                         }
                     }).then(response => {
-                        this.$toasted.success('お気に入りを解除しました。', {icon: 'minus'});
+                        Vue.toasted.success('お気に入りを解除しました。', {icon: 'minus'});
                         this.favorites.splice(favoriteIndex, 1);
                     }).catch(error => {
-                        this.$toasted.error('お気に入りの削除に失敗しました。', {icon: 'exclamation-triangle'});
+                        Vue.toasted.error('お気に入りの削除に失敗しました。', {icon: 'exclamation-triangle'});
                     });
                 }
             },
@@ -329,12 +329,12 @@
                     .then((dialog) => {
                         axios.delete('/api/v1/stamps/' + stampId)
                             .then(response => {
-                                this.$toasted.success('スタンプを削除しました。', {icon: 'trash-alt'});
+                                Vue.toasted.success('スタンプを削除しました。', {icon: 'trash-alt'});
                                 isComplete = true;
                                 this.resetStamps();
                             })
                             .catch(error => {
-                                this.$toasted.error('スタンプの削除に失敗しました。', {icon: 'exclamation-triangle'});
+                                Vue.toasted.error('スタンプの削除に失敗しました。', {icon: 'exclamation-triangle'});
                             })
                             .finally(() => {
                                 dialog.close();
@@ -352,11 +352,11 @@
                                             .then((blDialog) => {
                                                 axios.post('/api/v1/blackLists', {stamp_id: stampId})
                                                     .then(response => {
-                                                        this.$toasted.success('ブラックリストに追加しました。', {icon: 'ban'});
+                                                        Vue.toasted.success('ブラックリストに追加しました。', {icon: 'ban'});
                                                         this.resetStamps();
                                                     })
                                                     .catch(error => {
-                                                        this.$toasted.error('ブラックリストへの追加に失敗しました。', {icon: 'exclamation-triangle'});
+                                                        Vue.toasted.error('ブラックリストへの追加に失敗しました。', {icon: 'exclamation-triangle'});
                                                     })
                                                     .finally(() => {
                                                         blDialog.close();
@@ -403,7 +403,7 @@
                         $state.complete();
                     }
                 }).catch(error => {
-                    this.$toasted.error('スタンプの読み込みに失敗しました。現在のページ番号: ' + currentPage, {icon: 'exclamation-triangle'});
+                    Vue.toasted.error('スタンプの読み込みに失敗しました。現在のページ番号: ' + currentPage, {icon: 'exclamation-triangle'});
                 });
             },
             resetStamps: function () {

@@ -22,6 +22,10 @@ class ImprintController extends Controller
             'stamp_id' => $request->stamp_id,
             'ip' => $request->ip(),
         ]);
+
+        return [
+            'imprint' => $imprint
+        ];
     }
 
     // 未ログインユーザによるスタンプ送信
@@ -35,5 +39,9 @@ class ImprintController extends Controller
             'stamp_id' => $request->stamp_id,
             'ip' => $request->ip(),
         ]);
+
+        return [
+            'imprint' => $imprint
+        ];
     }
 }
