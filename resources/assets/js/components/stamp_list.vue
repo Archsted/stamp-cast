@@ -228,7 +228,7 @@
                     {
                         params: {
                             sort: this.stampSort,
-                            onlyFavorite: this.onlyFavorite ? 1 : 0,
+                            onlyFavorite: (this.onlyFavorite && this.useInfinite) ? 1 : 0,
                         },
                     })
                     .then(response => {
