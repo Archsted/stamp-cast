@@ -26,6 +26,7 @@
         "vue-infinite-loading": "^2.2.3",
         "vue-paginate": "^3.5.1",
         "vue-ripple-directive": "^2.0.1",
+        "vue-slider-component": "^2.5.3",
         "vue-toasted": "^1.1.24",
         "vue2-dropzone": "^3.0.3",
         "vuejs-dialog": "^0.4.7"

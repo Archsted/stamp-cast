@@ -44,24 +44,29 @@
 
 
         <vue-draggable-resizable
-            :w="140"
-            :h="140"
+            ref="controlPanel"
+            :w="controlPanelWidth"
+            :h="controlPanelHeight"
             :x="100"
             :y="410"
             :z="999"
             :parent="true"
             :resizable="false"
+            v-on:dragstop="onControlDragStop"
+            v-on:resizestop="onControlResizeStop"
             :draggable="draggableSub">
-            <div id="stampAreaControl">
+            <div id="stampAreaControl" class="unselectable">
                 <button class="btn btn-primary"
+                        v-show="!minControlPanel"
                         v-on:mouseover="draggableSub = false"
                         v-on:mouseout="draggableSub = true"
                         @click="toggleDisplay"
                         v-bind:style="areaButtonStyle">
-                    <span class="glyphicon glyphicon-modal-window"></span>
+                    <i class="far fa-object-group"></i>
                 </button>
 
                 <button class="btn btn-primary"
+                        v-show="!minControlPanel"
                         v-on:mouseover="draggableSub = false"
                         v-on:mouseout="draggableSub = true"
                         @click="toggleSizeDisplay"
@@ -69,21 +74,53 @@
                     <span class="glyphicon glyphicon-picture"></span>
                 </button>
 
-                <button class="btn btn-primary"
+                <button class="btn btn-primary btn-xs"
                         v-on:mouseover="draggableSub = false"
                         v-on:mouseout="draggableSub = true"
-                        @click="isShow = !isShow">
-                    <span class="glyphicon glyphicon-eye-open" v-show="isShow"></span>
-                    <span class="glyphicon glyphicon-eye-close" v-show="!isShow"></span>
+                        @click="minControlPanel = !minControlPanel">
+                    <span v-show="!minControlPanel"><i class="fas fa-window-minimize"></i></span>
+                    <span v-show="minControlPanel"><i class="fas fa-window-maximize"></i></span>
                 </button>
 
-                <button class="btn btn-primary"
-                        v-on:mouseover="draggableSub = false"
-                        v-on:mouseout="draggableSub = true"
-                        @click="isMute = !isMute">
-                    <span class="glyphicon glyphicon-volume-off" v-show="isMute"></span>
-                    <span class="glyphicon glyphicon-volume-up" v-show="!isMute"></span>
-                </button>
+                <div class="opacityControl"
+                     v-show="!minControlPanel"
+                     v-on:mouseover="draggableSub = false"
+                     v-on:mouseout="draggableSub = true">
+                    <i class="far fa-eye-slash fa-lg fa-fw"></i>
+
+                    <div class="opacitySliderWrapper">
+                        <vue-slider
+                            ref="opacitySlider"
+                            :min="0"
+                            :max="1"
+                            :interval="0.1"
+                            :width="100"
+                            tooltip="false"
+                            v-model="stampOpacity"/>
+                    </div>
+
+                    <i class="fas fa-eye fa-lg fa-fw"></i>
+                </div>
+
+                <div class="volumeControl"
+                     v-show="!minControlPanel"
+                     v-on:mouseover="draggableSub = false"
+                     v-on:mouseout="draggableSub = true">
+                    <i class="fas fa-volume-off fa-lg fa-fw"></i>
+
+                    <div class="volumeSliderWrapper">
+                        <vue-slider
+                            ref="volumeSlider"
+                            :min="0"
+                            :max="1"
+                            :interval="0.1"
+                            :width="100"
+                            tooltip="false"
+                            v-model="stampVolume"/>
+                    </div>
+
+                    <i class="fas fa-volume-up fa-lg fa-fw"></i>
+                </div>
 
             </div>
         </vue-draggable-resizable>
@@ -92,9 +129,11 @@
 
 <script>
     import Vue from 'vue'
-    import VueDraggableResizable from 'vue-draggable-resizable'
 
+    import VueDraggableResizable from 'vue-draggable-resizable'
     Vue.component('vue-draggable-resizable', VueDraggableResizable)
+
+    import vueSlider from 'vue-slider-component'
 
     export default {
         data: function () {
@@ -115,6 +154,11 @@
                 draggableSub: true,
                 isShow: true,
                 isMute: false,
+                minControlPanel: false,
+                controlPanelWidth: 168,
+                controlPanelHeight: 121,
+                stampOpacity:1.0,
+                stampVolume: 1.0,
             }
         },
         computed: {
@@ -138,6 +182,9 @@
         props: [
             'roomId'
         ],
+        components: {
+            vueSlider
+        },
         created: function () {
             this.x = 100;
             this.y = 100;
@@ -163,6 +210,19 @@
             sizeDisplay: function (newSizeDisplay) {
                 this.stampSizeStyle = newSizeDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
             },
+            minControlPanel: function (newValue) {
+                if (newValue) {
+                    this.$refs.controlPanel.width = 52;
+                    this.$refs.controlPanel.height = 52;
+                } else {
+                    this.$refs.controlPanel.width = 168;
+                    this.$refs.controlPanel.height = 121;
+                    this.$nextTick(() => {
+                        this.$refs.opacitySlider.refresh();
+                        this.$refs.volumeSlider.refresh();
+                    });
+                }
+            },
         },
         methods: {
             onAreaResize: function (x, y, width, height) {
@@ -180,6 +240,15 @@
             onSizeResize: function (x, y, width, height) {
                 this.stampSizeWidth = width
                 this.stampSizeHeight = height
+            },
+
+            onControlDragStop: function (x, y) {
+                this.$refs.opacitySlider.refresh();
+                this.$refs.volumeSlider.refresh();
+            },
+            onControlResizeStop: function (x, y, width, height) {
+                this.$refs.opacitySlider.refresh();
+                this.$refs.volumeSlider.refresh();
             },
 
             getInvisibleStyle: function () {
@@ -229,7 +298,9 @@
                     let basicTimeLine = animejs.timeline({
                         begin: () => {
                             if (!this.isMute) {
-                                createjs.Sound.play('receiveStamp');
+                                let soundInstance = createjs.Sound.createInstance('receiveStamp');
+                                soundInstance.setVolume(this.stampVolume);
+                                soundInstance.play();
                             }
                         },
                         complete: () => {
@@ -247,7 +318,7 @@
                                 value: [0.2, 1],
                             },
                             duration: 200,
-                            opacity: 1.0,
+                            opacity: this.stampOpacity,
                             easing: 'easeInOutSine'
                         })
                         .add({
@@ -312,6 +383,13 @@
     .stampAreaInfoWrapper {
         margin: 0;
         padding: 0;
+    }
+
+    .unselectable {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
 
     .stampAreaInfo {
@@ -443,16 +521,18 @@
     #stampAreaControl {
         display: inline-flex;
         justify-content: space-around;
-        align-content: space-between;
+        align-content: space-around;
         flex-wrap: wrap;
         align-items: center;
         background-color:rgba(100, 100, 255, 0.2);
         width: 100%;
         height: 100%;
-        padding: 15px 5px;
+        /*padding: 15px 5px;*/
+        padding: 0;
         box-sizing: border-box;
         border: solid 2px rgba(0, 0, 200, 0.7);
         border-radius: 6px;
+        overflow: hidden;
     }
 
     #stampAreaControl button {
@@ -495,6 +575,24 @@
     }
     .handle-mr {
         right: 0 !important;
+    }
+
+    .volumeControl {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .volumeSliderWrapper {
+        margin: 0 6px;
+    }
+
+    .opacityControl {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .opacitySliderWrapper {
+        margin: 0 6px;
     }
 
 </style>

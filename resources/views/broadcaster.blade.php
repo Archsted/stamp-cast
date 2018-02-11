@@ -26,6 +26,7 @@
     </style>
 
     <script src="https://code.createjs.com/soundjs-0.6.2.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
 </head>
 <body>
 <div id="app">
