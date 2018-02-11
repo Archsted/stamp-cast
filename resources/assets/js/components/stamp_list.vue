@@ -144,9 +144,7 @@
                     {text: '90', value: 90},
                     {text: '100', value: 100},
                     {text: '200', value: 200},
-                    {text: '500', value: 500},
-                    {text: '1000', value: 1000},
-                    {text: '2000', value: 2000},
+                    {text: '300', value: 300},
                 ],
                 dropzoneOptions: {
                     url: (this.userId === null) ?
