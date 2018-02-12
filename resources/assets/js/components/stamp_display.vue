@@ -82,13 +82,13 @@
                     <span v-show="minControlPanel"><i class="fas fa-window-maximize"></i></span>
                 </button>
 
-                <div class="opacityControl"
+                <div class="sliderControl"
                      v-show="!minControlPanel"
                      v-on:mouseover="draggableSub = false"
                      v-on:mouseout="draggableSub = true">
                     <i class="far fa-eye-slash fa-lg fa-fw"></i>
 
-                    <div class="opacitySliderWrapper">
+                    <div class="SliderWrapper">
                         <vue-slider
                             ref="opacitySlider"
                             :min="0"
@@ -102,13 +102,13 @@
                     <i class="fas fa-eye fa-lg fa-fw"></i>
                 </div>
 
-                <div class="volumeControl"
+                <div class="sliderControl"
                      v-show="!minControlPanel"
                      v-on:mouseover="draggableSub = false"
                      v-on:mouseout="draggableSub = true">
                     <i class="fas fa-volume-off fa-lg fa-fw"></i>
 
-                    <div class="volumeSliderWrapper">
+                    <div class="SliderWrapper">
                         <vue-slider
                             ref="volumeSlider"
                             :min="0"
@@ -120,6 +120,25 @@
                     </div>
 
                     <i class="fas fa-volume-up fa-lg fa-fw"></i>
+                </div>
+
+                <div class="sliderControl"
+                     v-show="!minControlPanel"
+                     v-on:mouseover="draggableSub = false"
+                     v-on:mouseout="draggableSub = true">
+                    <i class="fas fa-clock fa-lg fa-fw"></i>
+
+                    <div class="SliderWrapper">
+                        <vue-slider
+                            ref="delaySlider"
+                            :min="0.5"
+                            :max="8"
+                            :interval="0.1"
+                            :width="122"
+                            tooltip="hover"
+                            formatter="{value}秒"
+                            v-model="stampDelay"/>
+                    </div>
                 </div>
 
             </div>
@@ -156,9 +175,10 @@
                 isMute: false,
                 minControlPanel: false,
                 controlPanelWidth: 168,
-                controlPanelHeight: 121,
+                controlPanelHeight: 178,
                 stampOpacity:1.0,
                 stampVolume: 1.0,
+                stampDelay: 3.5,
             }
         },
         computed: {
@@ -178,6 +198,9 @@
                     opacity: this.sizeDisplay ? 1 : 0.3
                 };
             },
+            delay: function () {
+                return this.stampDelay * 1000;
+            }
         },
         props: [
             'roomId'
@@ -216,10 +239,9 @@
                     this.$refs.controlPanel.height = 52;
                 } else {
                     this.$refs.controlPanel.width = 168;
-                    this.$refs.controlPanel.height = 121;
+                    this.$refs.controlPanel.height = 178;
                     this.$nextTick(() => {
-                        this.$refs.opacitySlider.refresh();
-                        this.$refs.volumeSlider.refresh();
+                        this.refreshSliders();
                     });
                 }
             },
@@ -230,6 +252,12 @@
                 this.y = y;
                 this.width = width;
                 this.height = height;
+            },
+
+            refreshSliders: function () {
+                this.$refs.opacitySlider.refresh();
+                this.$refs.volumeSlider.refresh();
+                this.$refs.delaySlider.refresh();
             },
 
             onAreaDrag: function (x, y) {
@@ -243,12 +271,10 @@
             },
 
             onControlDragStop: function (x, y) {
-                this.$refs.opacitySlider.refresh();
-                this.$refs.volumeSlider.refresh();
+                this.refreshSliders();
             },
             onControlResizeStop: function (x, y, width, height) {
-                this.$refs.opacitySlider.refresh();
-                this.$refs.volumeSlider.refresh();
+                this.refreshSliders();
             },
 
             getInvisibleStyle: function () {
@@ -326,7 +352,7 @@
                             scale: 0.5,
                             duration: 500,
                             opacity: 0,
-                            delay: 3500,
+                            delay: this.delay,
                             easing: 'easeInOutSine'
                         });
 
@@ -577,22 +603,12 @@
         right: 0 !important;
     }
 
-    .volumeControl {
+    .sliderControl {
         display: flex;
         justify-content: space-between;
     }
 
-    .volumeSliderWrapper {
+    .SliderWrapper {
         margin: 0 6px;
     }
-
-    .opacityControl {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .opacitySliderWrapper {
-        margin: 0 6px;
-    }
-
 </style>
