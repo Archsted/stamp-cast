@@ -110,7 +110,8 @@
     Vue.use(Toasted, {
         position: 'top-center',
         duration: 3000,
-        iconPack: 'fontawesome'
+        iconPack: 'fontawesome',
+        singleton: true,
     });
 
     // リップル
