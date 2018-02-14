@@ -237,12 +237,16 @@ class StampController extends Controller
         $file = $request->file('file');
 
         $stamp = new Stamp;
-        $stamp->user_id = $request->user()->id; // ログインユーザーID
         $stamp->room_id = $room->id;
         $stamp->name = $file->store('stamps');
         $stamp->size = $file->getSize();
         $stamp->ip = $request->ip();
         $stamp->hash = md5_file($file->getRealPath());
+
+        // ログイン中ユーザ情報が取得できたら
+        if ($request->user()) {
+            $stamp->user_id = $request->user()->id; // ログインユーザーID
+        }
 
         // 画像情報の取得
         $imageSize = getimagesize($file->getRealPath());
@@ -258,36 +262,10 @@ class StampController extends Controller
     }
 
     /**
-     * スタンプの登録（ゲストユーザー）
+     * トップページ用の共有スタンプを取得
      *
-     * @param Room $room
-     * @param StoreStampGuest $request
      * @return array
      */
-    public function guestCreate(Room $room, StoreStampGuest $request)
-    {
-        $file = $request->file('file');
-
-        $stamp = new Stamp;
-        $stamp->room_id = $room->id;
-        $stamp->name = $file->store('stamps');
-        $stamp->size = $file->getSize();
-        $stamp->ip = $request->ip();
-        $stamp->hash = md5_file($file->getRealPath());
-
-        // 画像情報の取得
-        $imageSize = getimagesize($file->getRealPath());
-        $stamp->width = $imageSize[0];
-        $stamp->height = $imageSize[1];
-        $stamp->mime_type = $imageSize['mime'];
-
-        $stamp->save();
-
-        return [
-            'stamp' => $stamp
-        ];
-    }
-
     public function sample()
     {
         $stamps = Stamp::query()

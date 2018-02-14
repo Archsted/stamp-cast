@@ -26,7 +26,7 @@ Route::group(['prefix' => '/v1'], function () {
         Route::get('/{room}/stamps/guest', 'StampController@index');
 
         Route::post('/{room}/stamps', 'StampController@create')->middleware('auth:api');
-        Route::post('/{room}/stamps/guest', 'StampController@guestCreate');
+        Route::post('/{room}/stamps/guest', 'StampController@create');
 
         Route::post('/{room}/imprints', 'ImprintController@create')->middleware('auth:api');
         Route::post('/{room}/imprints/guest', 'ImprintController@guestCreate');
