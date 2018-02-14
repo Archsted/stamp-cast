@@ -48,7 +48,7 @@
             :per="countPerPage"
         >
             <div class="stampList">
-                <div class="stampForm" v-if="canUploadStamp">
+                <div class="stampForm" v-show="canUploadStamp">
                     <vue-dropzone
                         ref="myVueDropzone"
                         id="dropzone"
@@ -453,6 +453,7 @@
     .stampList {
         display: flex;
         flex-wrap: wrap;
+        min-height: 140px;
     }
 
     .deleteConfirmStamp {
