@@ -33,6 +33,11 @@ class BlackListController extends Controller
             $targetIds[] = $stamp->user_id;
 
             $user->blackListUsers()->sync($targetIds);
+
+            // ユーザー登録し直しでアップされてしまうので、IPアドレスもブラックリストに追加する
+            $blackListIp = BlackListIp::firstOrNew(['ip' => $stamp->ip]);
+
+            $user->blackListIps()->save($blackListIp);
         }
     }
 
