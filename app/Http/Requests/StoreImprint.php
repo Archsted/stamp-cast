@@ -18,11 +18,8 @@ class StoreImprint extends FormRequest
         $room = $this->route('room');
 
         if ($room->imprinter_level === Room::IMPRINTER_LEVEL_USER_ONLY) {
-            if ($this->request->has('user_id') === false) {
-                return false;
-            }
 
-            $user = User::find($this->request->get('user_id'));
+            $user = request()->user();
 
             if (is_null($user)) {
                 return false;
