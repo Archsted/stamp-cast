@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIndexBlackListIpsIp extends Migration
+class AddIndexIpColumns extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,10 @@ class AddIndexBlackListIpsIp extends Migration
     public function up()
     {
         // インデックス作成
-        Schema::table('black_list_ips', function (Blueprint $table) {
+        Schema::table('stamps', function (Blueprint $table) {
+            $table->index('ip');
+        });
+        Schema::table('imprints', function (Blueprint $table) {
             $table->index('ip');
         });
     }
@@ -27,8 +30,11 @@ class AddIndexBlackListIpsIp extends Migration
     public function down()
     {
         // インデックス削除
-        Schema::table('black_list_ips', function (Blueprint $table) {
-            $table->dropIndex('black_list_ips_ip_index');
+        Schema::table('imprints', function (Blueprint $table) {
+            $table->dropIndex('imprints_ip_index');
+        });
+        Schema::table('stamps', function (Blueprint $table) {
+            $table->dropIndex('stamps_ip_index');
         });
     }
 }

@@ -13,6 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
 
 class StampController extends Controller
 {
@@ -58,7 +61,8 @@ class StampController extends Controller
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                            $query->withoutBlackList($blackListIps, $blackListUserIds)
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
                         }])
                         ->select('stamp_id')
                         ->latest();
@@ -89,7 +93,8 @@ class StampController extends Controller
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                            $query->withoutBlackList($blackListIps, $blackListUserIds)
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
                         }])
                         ->select('stamp_id')
                         ->groupBy('stamp_id')
@@ -121,7 +126,8 @@ class StampController extends Controller
                         ->limit(Room::STAMP_COUNT_PER_PAGE)
                         ->offset($offset)
                         ->orderBy('created_at', 'desc')
-                        ->orderBy('id', 'desc');
+                        ->orderBy('id', 'desc')
+                        ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
@@ -146,7 +152,8 @@ class StampController extends Controller
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                            $query->withoutBlackList($blackListIps, $blackListUserIds)
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
                         }])
                         ->select('stamp_id')
                         ->latest();
@@ -177,7 +184,8 @@ class StampController extends Controller
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                            $query->withoutBlackList($blackListIps, $blackListUserIds)
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
                         }])
                         ->select('stamp_id')
                         ->groupBy('stamp_id')
@@ -205,6 +213,7 @@ class StampController extends Controller
                                 ->orWhereNull('room_id');
                         })
                         ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail'])
                         ->orderBy('created_at', 'desc')
                         ->orderBy('id', 'desc');
 
@@ -225,7 +234,7 @@ class StampController extends Controller
     }
 
     /**
-     * スタンプの登録（ログインユーザー）
+     * スタンプの登録
      *
      * @param Room $room
      * @param StoreStamp $request
@@ -238,7 +247,11 @@ class StampController extends Controller
 
         $stamp = new Stamp;
         $stamp->room_id = $room->id;
-        $stamp->name = $file->store('stamps');
+
+        // アップロードファイルの保存とファイル名を取得
+        $stampPath = $file->store('stamps');
+        $stamp->name = $stampPath;
+
         $stamp->size = $file->getSize();
         $stamp->ip = $request->ip();
         $stamp->hash = md5_file($file->getRealPath());
@@ -254,10 +267,39 @@ class StampController extends Controller
         $stamp->height = $imageSize[1];
         $stamp->mime_type = $imageSize['mime'];
 
+        /*
+        // サムネイルの作成
+        $img = Image::make($file);
+
+        // 高さ140ピクセルに、アスペクト比を保ったままリサイズ
+        $img->resize(null, 140, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+
+        // サムネイルのファイルパス
+        $thumbnailName = preg_replace('/^stamps/', 'thumbnails', $stampPath);
+
+        // デフォルトストレージのパスを取得する
+        $storagePath  = Storage::getDriver()->getAdapter()->getPathPrefix();
+
+        // サムネイル画像の出力
+        $img->save($storagePath . $thumbnailName);
+
+        // サムネイルのパスをスタンプテーブルに設定
+        $stamp->thumbnail = $thumbnailName;
+        */
+
+        // スタンプをDBに保存
         $stamp->save();
 
         return [
-            'stamp' => $stamp
+            'stamp' => [
+                'id' => $stamp->id,
+                'user_id' => $stamp->user_id,
+                'room_id' => $stamp->room_id,
+                'name' => $stamp->name,
+                'thumbnail' => $stamp->thumbnail,
+            ]
         ];
     }
 
