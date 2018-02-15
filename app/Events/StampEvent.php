@@ -45,7 +45,7 @@ class StampEvent implements ShouldBroadcast
     {
         return [
             'stamp' => [
-                'id' => $this->stamp->id,
+//                'id' => $this->stamp->id,
                 'name' => $this->stamp->name,
                 'width' => $this->stamp->width,
                 'height' => $this->stamp->height,

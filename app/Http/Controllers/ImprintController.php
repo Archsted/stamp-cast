@@ -23,9 +23,12 @@ class ImprintController extends Controller
             'ip' => $request->ip(),
         ]);
 
+        // 転送量削減
+        /*
         return [
             'imprint' => $imprint
         ];
+        */
     }
 
     // 未ログインユーザによるスタンプ送信
@@ -40,8 +43,11 @@ class ImprintController extends Controller
             'ip' => $request->ip(),
         ]);
 
+        // 転送量削減
+        /*
         return [
             'imprint' => $imprint
         ];
+        */
     }
 }
