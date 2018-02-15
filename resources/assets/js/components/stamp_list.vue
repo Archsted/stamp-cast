@@ -474,7 +474,6 @@
         margin-bottom: 6px;
         height: 140px;
         min-width: 50px;
-        box-sizing: border-box;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;

@@ -16,6 +16,8 @@ class Stamp extends Model
         'height',
         'size',
         'hash',
+        'ip',
+        'thumbnail',
     ];
 
     /**
@@ -31,6 +33,11 @@ class Stamp extends Model
     }
 
     public function getNameAttribute($value)
+    {
+        return asset('storage/' . $value);
+    }
+
+    public function getThumbnailAttribute($value)
     {
         return asset('storage/' . $value);
     }
