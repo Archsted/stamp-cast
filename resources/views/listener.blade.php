@@ -7,6 +7,24 @@
 @section('content')
     <div class="container-fluid">
 
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <h3 class="panel-title">【重要】サーバの高負荷対策について</h3>
+            </div>
+            <div class="panel-body">
+                <p>
+                    現在夜間を中心にサーバへの負荷が高く、今後のサービス維持が困難な状況となっております。
+                    つきましてはその原因の特定と、対策による効果を調べるため、日替わりで機能の制限を行わせていただくことになりました。
+                    使いづらいと感じる事もあるかと思いますが、その結果で通常時とどの程度の違いが出るのかを調べるため、ご理解とご協力をお願いします。
+                </p>
+
+                <p>
+                    <strong>2月15日の15時頃〜2月16日の日中にかけて、スタンプのアップロード機能（新規登録）を一時停止します</strong>。
+                    ご不便をおかけしますが、よろしくお願いします。
+                </p>
+            </div>
+        </div>
+
         <div class="room-info">
             <h3>{{$room->name}}
                 @auth
