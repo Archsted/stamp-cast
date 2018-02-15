@@ -60,7 +60,7 @@
                 <div v-for="(stamp, index) in paginated('paginateStamps')" :key="index"
                      class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)">
                     <div class="stampRippleWrapper" v-ripple>
-                        <img class="stamp" :src="stamp.name">
+                        <img class="stamp" v-lazy="stamp.name">
                     </div>
                     <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
                         <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
@@ -122,6 +122,10 @@
     // ページネーション
     import VuePaginate from 'vue-paginate'
     Vue.use(VuePaginate);
+
+    // 遅延ロード
+    import VueLazyload from 'vue-lazyload'
+    Vue.use(VueLazyload);
 
     export default {
         data: function () {
