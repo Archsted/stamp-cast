@@ -35,12 +35,34 @@
             -moz-border-radius: 8px;
             border-radius: 8px;
         }
+
+
     </style>
 </head>
 <body>
 <div id="app">
     <div class="flex-center position-ref full-height">
         <div class="title m-b-md form">
+
+            <div class="panel panel-danger" style="background-color:#fcc;">
+                <div class="panel-body">
+                    <h3 class="panel-title">【重要】サーバの高負荷対策について</h3>
+                    <p>
+                        現在夜間を中心にサーバへの負荷が高く、今後のサービス維持が困難な状況となっております。<br>
+                        つきましてはその原因の特定と、対策による効果を調べるため、<br>
+                        日替わりで機能の制限を行わせていただくことになりました。<br>
+                        使いづらいと感じる事もあるかと思いますが、その結果で通常時と<br>
+                        どの程度の違いが出るのかを調べるため、ご理解とご協力をお願いします。
+                    </p>
+
+                    <p>
+                        <strong>2月15日の15時頃〜2月16日の日中にかけて、<br>
+                            スタンプのアップロード機能（新規登録）を一時停止します</strong>。<br>
+                        ご不便をおかけしますが、よろしくお願いします。
+                    </p>
+                </div>
+            </div>
+
             <form action="{{ route('receiver') }}" method="post">
                 {{ csrf_field() }}
                 <p style="font-size:140%; margin:0;"><label for="url">スタンプルームURL</label></p>
