@@ -250,8 +250,17 @@ class StampController extends Controller
 
         // アップロードファイルの保存とファイル名を取得
         $stampPath = $file->store('stamps');
-        $stamp->name = $stampPath;
 
+        // サムネイルのストレージルート以降のファイル名
+        $thumbnailName = preg_replace('/^stamps/', 'thumbnails', $stampPath);
+
+        // デフォルトストレージのパスを取得する
+        $storagePath  = Storage::getDriver()->getAdapter()->getPathPrefix();
+
+        // サムネイルのフルパス
+        $thumbnailFullPath = $storagePath . $thumbnailName;
+
+        $stamp->name = $stampPath; // ここはストレージルート以降のファイル名
         $stamp->size = $file->getSize();
         $stamp->ip = $request->ip();
         $stamp->hash = md5_file($file->getRealPath());
@@ -267,27 +276,52 @@ class StampController extends Controller
         $stamp->height = $imageSize[1];
         $stamp->mime_type = $imageSize['mime'];
 
-        /*
-        // サムネイルの作成
-        $img = Image::make($file);
+        // リサイズ後のMAX高さ
+        $maxHeight = 140;
 
-        // 高さ140ピクセルに、アスペクト比を保ったままリサイズ
-        $img->resize(null, 140, function ($constraint) {
-            $constraint->aspectRatio();
-        });
+        // サムネイルの作成を行う。アニメgifかそれ以外
+        if ($stamp->mime_type === 'image/gif') {
+            try {
+                // アニメgif
+                $image = new \Imagick();
 
-        // サムネイルのファイルパス
-        $thumbnailName = preg_replace('/^stamps/', 'thumbnails', $stampPath);
+                $image->readImage($file->getRealPath());
+                $image->setFirstIterator();
+                $image = $image->coalesceImages();
 
-        // デフォルトストレージのパスを取得する
-        $storagePath  = Storage::getDriver()->getAdapter()->getPathPrefix();
+                do {
+                    if ($stamp->height > $maxHeight) {
+                            // 横幅をオート（null）
+                            $image->adaptiveResizeImage(null, $maxHeight);
+                    }
+                } while ($image->nextImage());
 
-        // サムネイル画像の出力
-        $img->save($storagePath . $thumbnailName);
+                $image = $image->optimizeImageLayers();
+
+                $image->writeImages($thumbnailFullPath, true);
+
+                $image->clear();
+            } catch (\Exception $e) {
+                abort(500, 'アニメgifのリサイズに失敗しました。');
+            }
+        } else {
+            // 通常の画像
+            $img = Image::make($file);
+
+            // 高さがリサイズ後の高さを超える場合
+            if ($stamp->height > $maxHeight) {
+                // アスペクト比を保ったままリサイズ
+                $img->resize(null, $maxHeight, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+            }
+
+            // サムネイル画像の出力
+            $img->save($thumbnailFullPath, 20);
+        }
 
         // サムネイルのパスをスタンプテーブルに設定
         $stamp->thumbnail = $thumbnailName;
-        */
 
         // スタンプをDBに保存
         $stamp->save();
