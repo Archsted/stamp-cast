@@ -364,6 +364,12 @@ class StampController extends Controller
         return view('stamp.index', compact('stamps'));
     }
 
+    /**
+     * スタンプの削除
+     *
+     * @param Request $request
+     * @param Stamp $stamp
+     */
     public function uploadedDelete(Request $request, Stamp $stamp)
     {
         $user = $request->user();
@@ -372,8 +378,34 @@ class StampController extends Controller
             // 論理削除
             $stamp->deleted_at = Carbon::now();
             $stamp->save();
+
+            $this->deleteImage($stamp);
         } else {
             abort(403);
+        }
+    }
+
+    /**
+     * スタンプ画像を削除する
+     *
+     * @param Stamp $stamp
+     */
+    private function deleteImage(Stamp $stamp)
+    {
+        // オリジナルのファイル名を取り出す
+        $originalName = $stamp->getOriginal('name');
+
+        // サムネイルファイル名
+        $thumbnailName = preg_replace('/^stamps/', 'thumbnails', $originalName);
+
+        // ファイルが存在したら削除する
+        if (Storage::exists($originalName)) {
+            Storage::delete($originalName);
+        }
+
+        // サムネイルが存在したら削除する
+        if (Storage::exists($thumbnailName)) {
+            Storage::delete($thumbnailName);
         }
     }
 }
