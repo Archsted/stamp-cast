@@ -62,7 +62,7 @@ class DeleteDisableStampImages extends Command
         $originalName = $stamp->getOriginal('name');
 
         // サムネイルファイル名
-        $thumbnailName = 'thumbnail/' . $originalName;
+        $thumbnailName = preg_replace('/^stamps/', 'thumbnails', $originalName);
 
         // ファイルが存在したら削除する
         if (Storage::exists($originalName)) {
