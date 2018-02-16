@@ -16,78 +16,39 @@
                     <span style="color: hotpink;"><i class="fas fa-heart fa-lg"></i></span> お気に入りのみ表示
                 </button>
             </div>
-
-            <div class="btn-group pull-right" role="group">
-                <button type="button" class="btn btn-danger" @click="useInfinite = !useInfinite">{{ viewType }}</button>
-            </div>
-
-            <div class="pull-right" v-show="!useInfinite" style="padding-left:10px;">
-                <select v-model="selectedCountPerPage" title="表示件数" class="form-control">
-                    <option v-for="perPageOption in perPageOptions" v-bind:value="perPageOption.value">
-                        {{ perPageOption.value }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="pull-right" v-show="!useInfinite">
-                <nav aria-label="Page navigation">
-                    <paginate-links
-                        for="paginateStamps"
-                        :show-step-links="true"
-                        class="pagination"
-                    >
-                    </paginate-links>
-                </nav>
-            </div>
-
         </div>
 
-        <paginate
-            name="paginateStamps"
-            :list="stampList"
-            :per="countPerPage"
-        >
-            <div class="stampList">
-                <div class="stampForm" v-show="canUploadStamp">
-                    <vue-dropzone
-                        ref="myVueDropzone"
-                        id="dropzone"
-                        :options="dropzoneOptions"
-                        v-on:vdropzone-success="uploadSuccessEvent"
-                    />
-                </div>
-
-                <div v-for="(stamp, index) in paginated('paginateStamps')" :key="index"
-                     class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)">
-                    <div class="stampRippleWrapper" v-ripple>
-                        <img class="stamp" v-lazy="stamp.name">
-                    </div>
-                    <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
-                        <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
-                        <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
-                    </div>
-                    <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
-                        <i class="fas fa-trash-alt"></i>
-                    </div>
-                </div>
-
-                <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading" v-if="useInfinite">
-                    <span slot="no-results">
-                        データがありません
-                    </span>
-                    <span slot="no-more"></span>
-                </infinite-loading>
+        <div class="stampList">
+            <div class="stampForm" v-show="canUploadStamp">
+                <vue-dropzone
+                    ref="myVueDropzone"
+                    id="dropzone"
+                    :options="dropzoneOptions"
+                    v-on:vdropzone-success="uploadSuccessEvent"
+                />
             </div>
-        </paginate>
 
-        <nav aria-label="Page navigation" class="text-center" v-show="!useInfinite">
-            <paginate-links
-                for="paginateStamps"
-                :show-step-links="true"
-                class="pagination"
-            >
-            </paginate-links>
-        </nav>
+            <div v-for="(stamp, index) in stampList" :key="index"
+                 class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)">
+                <div class="stampRippleWrapper" v-ripple>
+                    <img class="stamp" :src="stamp.name">
+                </div>
+                <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
+                    <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
+                    <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
+                </div>
+                <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+            </div>
+
+            <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading" v-if="useInfinite">
+                <span slot="no-results">
+                    データがありません
+                </span>
+                <span slot="no-more"></span>
+            </infinite-loading>
+        </div>
 
     </div>
 </template>
@@ -135,22 +96,6 @@
                 stampSort: 'all',
                 onlyFavorite: false,
                 useInfinite: true,
-                paginate: ['paginateStamps'],
-                selectedCountPerPage: 50,
-                perPageOptions: [
-                    {text: '10', value: 10},
-                    {text: '20', value: 20},
-                    {text: '30', value: 30},
-                    {text: '40', value: 40},
-                    {text: '50', value: 50},
-                    {text: '60', value: 60},
-                    {text: '70', value: 70},
-                    {text: '80', value: 80},
-                    {text: '90', value: 90},
-                    {text: '100', value: 100},
-                    {text: '200', value: 200},
-                    {text: '300', value: 300},
-                ],
                 dropzoneOptions: {
                     url: (this.userId === null) ?
                         '/api/v1/rooms/' + this.room.id + '/stamps/guest' :
@@ -215,9 +160,6 @@
             viewType: function () {
                 return this.useInfinite ? '無限スクロール' : 'ページ表示';
             },
-            countPerPage: function () {
-                return this.useInfinite ? 9999999 : this.selectedCountPerPage;
-            }
         },
         methods: {
             getStamps: function () {
@@ -412,7 +354,7 @@
                     if (data.stamps.length) {
                         this.stamps = this.stamps.concat(data.stamps);
                         $state.loaded();
-                        if (data.stamps.length < 30) {
+                        if (data.stamps.length < 30 || data.stamps.length > 300) {
                             $state.complete();
                         }
                     } else {
