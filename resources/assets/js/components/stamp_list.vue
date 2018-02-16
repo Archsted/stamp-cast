@@ -31,11 +31,14 @@
             <div v-for="(stamp, index) in stampList" :key="index"
                  class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)">
                 <div class="stampRippleWrapper" v-ripple>
-                    <img class="stamp" :src="stamp.name">
+                    <img class="stamp" :src="stamp.thumbnail ? stamp.thumbnail : stamp.name">
                 </div>
                 <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
                     <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
                     <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
+                </div>
+                <div class="downloadForm" @click.stop>
+                    <a :href="stamp.name" target="_blank"><i class="fas fa-external-link-alt fa-2x"></i></a>
                 </div>
                 <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
                     <i class="fas fa-trash-alt"></i>
@@ -199,7 +202,11 @@
                     }).then(response => {
                         this.$toasted.success('スタンプを送信しました。', {icon: 'comment'});
                     }).catch(error => {
-                        this.$toasted.error('スタンプ送信に失敗しました。', {icon: 'exclamation-triangle'});
+                        if (error.response.data.message === "Too Many Attempts.") {
+                            this.$toasted.error('連投を検知しました、少し時間をおいてください。', {icon: 'exclamation-triangle'});
+                        } else {
+                            this.$toasted.error('スタンプ送信に失敗しました。', {icon: 'exclamation-triangle'});
+                        }
                     });
                 } else {
                     // 送れない場合の説明文章
@@ -415,7 +422,7 @@
         margin-right: 3px;
         margin-bottom: 6px;
         height: 140px;
-        min-width: 50px;
+        min-width: 90px;
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -472,6 +479,16 @@
 
     .containsFavorite {
         opacity: 1 !important;
+    }
+
+    .downloadForm {
+        opacity: 0;
+        transition: .5s ease;
+        position: absolute;
+        left: 6px;
+        bottom: 4px;
+        text-align: left;
+        color: #4c4cff;
     }
 
     .deleteForm {

@@ -39,7 +39,11 @@ class Stamp extends Model
 
     public function getThumbnailAttribute($value)
     {
-        return asset('storage/' . $value);
+        if (is_null($value)) {
+            return $value;
+        } else {
+            return asset('storage/' . $value);
+        }
     }
 
     public function scopeAvailable($query, $roomId)
