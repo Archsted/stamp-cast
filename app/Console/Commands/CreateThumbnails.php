@@ -21,7 +21,7 @@ class CreateThumbnails extends Command
      *
      * @var string
      */
-    protected $description = 'サムネイル画像が無いスタンプのサムネイルを作成';
+    protected $description = 'スタンプのサムネイルを作成';
 
     /**
      * Create a new command instance.
@@ -40,19 +40,21 @@ class CreateThumbnails extends Command
      */
     public function handle()
     {
-        $stamps = Stamp::query()
-//            ->whereNull('thumbnail')
+        $count = Stamp::query()
+            ->where('mime_type', 'image/gif')
+            ->count();
+
+        $bar = $this->output->createProgressBar($count);
+
+        Stamp::query()
             ->where('mime_type', 'image/gif')
             ->orderBy('id')
-            ->get();
-
-        $bar = $this->output->createProgressBar(count($stamps));
-
-        foreach ($stamps as $stamp) {
-            $this->createThumbnail($stamp);
-
-            $bar->advance();
-        }
+            ->chunk(200, function ($stamps) use ($bar) {
+                foreach ($stamps as $stamp) {
+                    $this->createThumbnail($stamp);
+                    $bar->advance();
+                }
+            });
 
         $bar->finish();
 
@@ -62,7 +64,7 @@ class CreateThumbnails extends Command
     private function createThumbnail(Stamp $stamp)
     {
         // リサイズ後のMAX高さ
-        $maxHeight = 140;
+        $maxHeight = env('THUMBNAIL_HEIGHT');
 
         // アップロードファイルの保存とファイル名を取得
         $stampPath = $stamp->getOriginal('name');
