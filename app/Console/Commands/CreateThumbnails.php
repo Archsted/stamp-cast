@@ -14,7 +14,7 @@ class CreateThumbnails extends Command
      *
      * @var string
      */
-    protected $signature = 'thumbnail:create';
+    protected $signature = 'thumbnail:create {start?}';
 
     /**
      * The console command description.
@@ -40,21 +40,30 @@ class CreateThumbnails extends Command
      */
     public function handle()
     {
+        $start = $this->argument('start');
+        if (!$start) {
+            $start = 0;
+        }
+
         $count = Stamp::query()
             ->where('mime_type', 'image/gif')
+            ->where('is_animation', 0)
+            ->where('id', '>', $start)
             ->count();
 
         $bar = $this->output->createProgressBar($count);
 
-        Stamp::query()
+        $stamps = Stamp::query()
             ->where('mime_type', 'image/gif')
+            ->where('is_animation', 0)
+            ->where('id', '>', $start)
             ->orderBy('id')
-            ->chunk(200, function ($stamps) use ($bar) {
-                foreach ($stamps as $stamp) {
-                    $this->createThumbnail($stamp);
-                    $bar->advance();
-                }
-            });
+            ->get();
+
+        foreach ($stamps as $stamp) {
+            $this->createThumbnail($stamp);
+            $bar->advance();
+        }
 
         $bar->finish();
 
