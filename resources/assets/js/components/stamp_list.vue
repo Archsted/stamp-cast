@@ -29,9 +29,15 @@
             </div>
 
             <div v-for="(stamp, index) in stampList" :key="index"
-                 class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)">
+                 class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)"
+                 @mouseover="hoverStampId = stamp.id" @mouseleave="hoverStampId = null">
                 <div class="stampRippleWrapper" v-ripple>
-                    <img class="stamp" :src="stamp.thumbnail ? stamp.thumbnail : stamp.name">
+                    <div class="animationFlagWrapper" v-if="stamp.is_animation">
+                        <div class="animationFlag">
+                            <i class="fas fa-film fa-3x" style="color: #f00"></i>
+                        </div>
+                    </div>
+                    <img class="stamp" :src="(stamp.is_animation && hoverStampId === stamp.id) ? stamp.name : (stamp.thumbnail ? stamp.thumbnail : stamp.name)">
                 </div>
                 <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
                     <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
@@ -99,6 +105,7 @@
                 stampSort: 'all',
                 onlyFavorite: false,
                 useInfinite: true,
+                hoverStampId: null,
                 dropzoneOptions: {
                     url: (this.userId === null) ?
                         '/api/v1/rooms/' + this.room.id + '/stamps/guest' :
@@ -452,6 +459,7 @@
     }
 
     .stampRippleWrapper {
+        position: relative;
         height: 100%;
         text-align: center;
     }
@@ -514,8 +522,11 @@
         cursor: pointer;
     }
 
-    .stampWrapper:hover div {
+    .stampWrapper:hover > div {
         opacity: 1;
+    }
+    .stampWrapper:hover .animationFlagWrapper {
+        opacity: 0;
     }
 
     .toasted svg {
@@ -525,4 +536,26 @@
     .paginateStamps {
         margin: 0;
     }
+
+    .animationFlagWrapper {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .animationFlag {
+        background-color: rgba(255, 255, 255, 0.7);
+        box-sizing: border-box;
+        border: solid 2px rgba(255, 0, 0, 0.5);
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        border-radius: 6px;
+        padding: 4px 13px;
+    }
+
+
 </style>

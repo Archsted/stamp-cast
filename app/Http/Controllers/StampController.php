@@ -62,7 +62,7 @@ class StampController extends Controller
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                         }])
                         ->select('stamp_id')
                         ->latest();
@@ -94,7 +94,7 @@ class StampController extends Controller
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                         }])
                         ->select('stamp_id')
                         ->groupBy('stamp_id')
@@ -127,7 +127,7 @@ class StampController extends Controller
                         ->offset($offset)
                         ->orderBy('created_at', 'desc')
                         ->orderBy('id', 'desc')
-                        ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
+                        ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
@@ -153,7 +153,7 @@ class StampController extends Controller
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                         }])
                         ->select('stamp_id')
                         ->latest();
@@ -185,7 +185,7 @@ class StampController extends Controller
                         })
                         ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail']);
+                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                         }])
                         ->select('stamp_id')
                         ->groupBy('stamp_id')
@@ -213,7 +213,7 @@ class StampController extends Controller
                                 ->orWhereNull('room_id');
                         })
                         ->withoutBlackList($blackListIps, $blackListUserIds)
-                        ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail'])
+                        ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation'])
                         ->orderBy('created_at', 'desc')
                         ->orderBy('id', 'desc');
 
@@ -276,58 +276,42 @@ class StampController extends Controller
         $stamp->height = $imageSize[1];
         $stamp->mime_type = $imageSize['mime'];
 
-        // リサイズ後のMAX高さ
-        $maxHeight = 140;
-
         // サムネイルの作成を行う。アニメgifかそれ以外
         if ($stamp->mime_type === 'image/gif') {
-            /*
             try {
                 // アニメgif
                 $image = new \Imagick();
 
                 $image->readImage($file->getRealPath());
+                $frameCount = $image->getNumberImages();
+
+                // 1フレーム目のみを使って静止画のサムネイルを作成する
+
                 $image->setFirstIterator();
-                $image = $image->coalesceImages();
+                $image->nextImage();
+                if ($stamp->height > env('THUMBNAIL_HEIGHT')) {
+                    // 横幅をオート（null）
+                    $image->adaptiveResizeImage(null, env('THUMBNAIL_HEIGHT'));
+                }
 
-                do {
-                    if ($stamp->height > $maxHeight) {
-                            // 横幅をオート（null）
-                            $image->adaptiveResizeImage(null, $maxHeight);
-                    }
-                } while ($image->nextImage());
-
-                $image = $image->optimizeImageLayers();
-
-                $image->writeImages($thumbnailFullPath, true);
+                $image->writeImage($thumbnailFullPath);
 
                 $image->clear();
+
+                // アニメーションがついていた場合（フレーム数が2枚以上あった場合）
+                if ($frameCount > 1) {
+                    // アニメーションフラグをセット
+                    $stamp->is_animation = 1;
+                }
             } catch (\Exception $e) {
                 abort(500, 'アニメgifのリサイズに失敗しました。');
             }
-            */
         } else {
-            // 通常の画像
-            $img = Image::make($file);
-
-            // 高さがリサイズ後の高さを超える場合
-            if ($stamp->height > $maxHeight) {
-                // アスペクト比を保ったままリサイズ
-                $img->resize(null, $maxHeight, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-            }
-
-            // サムネイル画像の出力
-            $img->save($thumbnailFullPath, 20);
-
-            // サムネイルのパスをスタンプテーブルに設定
-            $stamp->thumbnail = $thumbnailName;
+            $this->createThumbnail($file, $stamp, $thumbnailFullPath);
         }
 
-
         // サムネイルのパスをスタンプテーブルに設定
-        //$stamp->thumbnail = $thumbnailName;
+        $stamp->thumbnail = $thumbnailName;
 
         // スタンプをDBに保存
         $stamp->save();
@@ -339,8 +323,26 @@ class StampController extends Controller
                 'room_id' => $stamp->room_id,
                 'name' => $stamp->name,
                 'thumbnail' => $stamp->thumbnail,
+                'is_animation' => $stamp->is_animation,
             ]
         ];
+    }
+
+    private function createThumbnail(UploadedFile $file, $stamp, $savePath)
+    {
+        // 通常の画像
+        $img = Image::make($file);
+
+        // 高さがリサイズ後の高さを超える場合
+        if ($stamp->height > env('THUMBNAIL_HEIGHT')) {
+            // アスペクト比を保ったままリサイズ
+            $img->resize(null, env('THUMBNAIL_HEIGHT'), function ($constraint) {
+                $constraint->aspectRatio();
+            });
+        }
+
+        // サムネイル画像の出力
+        $img->save($savePath, 20);
     }
 
     /**

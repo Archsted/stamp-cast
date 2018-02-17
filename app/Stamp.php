@@ -15,6 +15,7 @@ class Stamp extends Model
         'width',
         'height',
         'size',
+        'is_animation',
         'hash',
         'ip',
         'thumbnail',
