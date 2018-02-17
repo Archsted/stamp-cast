@@ -108,7 +108,7 @@
                     headers: {
                         'X-CSRF-TOKEN': window.axios.defaults.headers.common['X-CSRF-TOKEN']
                     },
-                    dictDefaultMessage: '<p>好きな画像をアップ</p><p><i class="fas fa-upload fa-2x" style="color:#000;"></i></p><p>アニメgifは1つずつ<br>10秒前後かかります</p>'
+                    dictDefaultMessage: '<p>好きな画像をアップ</p><p><i class="fas fa-upload fa-2x" style="color:#000;"></i></p><p>この枠内にD&Dでも可</p>'
                 },
             };
         },

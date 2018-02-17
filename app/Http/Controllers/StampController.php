@@ -281,6 +281,7 @@ class StampController extends Controller
 
         // サムネイルの作成を行う。アニメgifかそれ以外
         if ($stamp->mime_type === 'image/gif') {
+            /*
             try {
                 // アニメgif
                 $image = new \Imagick();
@@ -304,6 +305,7 @@ class StampController extends Controller
             } catch (\Exception $e) {
                 abort(500, 'アニメgifのリサイズに失敗しました。');
             }
+            */
         } else {
             // 通常の画像
             $img = Image::make($file);
@@ -318,10 +320,14 @@ class StampController extends Controller
 
             // サムネイル画像の出力
             $img->save($thumbnailFullPath, 20);
+
+            // サムネイルのパスをスタンプテーブルに設定
+            $stamp->thumbnail = $thumbnailName;
         }
 
+
         // サムネイルのパスをスタンプテーブルに設定
-        $stamp->thumbnail = $thumbnailName;
+        //$stamp->thumbnail = $thumbnailName;
 
         // スタンプをDBに保存
         $stamp->save();
