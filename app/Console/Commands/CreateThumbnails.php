@@ -41,9 +41,8 @@ class CreateThumbnails extends Command
     public function handle()
     {
         $stamps = Stamp::query()
-            ->whereNull('thumbnail')
-//            ->where('mime_type', '!=','image/gif')
-//            ->limit(3)
+//            ->whereNull('thumbnail')
+            ->where('mime_type', 'image/gif')
             ->orderBy('id')
             ->get();
 
@@ -80,6 +79,9 @@ class CreateThumbnails extends Command
         // オリジナルファイルのフルパス
         $originalFullPath = $storagePath . $stampPath;
 
+        // 初期設定
+        $stamp->is_animation = 0;
+
         // サムネイルの作成を行う。アニメgifかそれ以外
         if ($stamp->mime_type === 'image/gif') {
             try {
@@ -87,21 +89,25 @@ class CreateThumbnails extends Command
                 $image = new \Imagick();
 
                 $image->readImage($originalFullPath);
+                $frameCount = $image->getNumberImages();
+                // 1フレーム目のみを使って静止画のサムネイルを作成する
+
                 $image->setFirstIterator();
-                $image = $image->coalesceImages();
+                $image->nextImage();
+                if ($stamp->height > env('THUMBNAIL_HEIGHT')) {
+                    // 横幅をオート（null）
+                    $image->adaptiveResizeImage(null, env('THUMBNAIL_HEIGHT'));
+                }
 
-                do {
-                    if ($stamp->height > $maxHeight) {
-                        // 横幅をオート（null）
-                        $image->adaptiveResizeImage(null, $maxHeight);
-                    }
-                } while ($image->nextImage());
-
-                $image = $image->optimizeImageLayers();
-
-                $image->writeImages($thumbnailFullPath, true);
+                $image->writeImage($thumbnailFullPath);
 
                 $image->clear();
+
+                // アニメーションフラグをセット
+                if ($frameCount > 1) {
+                    $stamp->is_animation = 1;
+                }
+
             } catch (\Exception $e) {
                 abort(500, 'アニメgifのリサイズに失敗しました。');
             }
