@@ -25,6 +25,7 @@
                     id="dropzone"
                     :options="dropzoneOptions"
                     v-on:vdropzone-success="uploadSuccessEvent"
+                    v-on:vdropzone-error="uploadErrorEvent"
                 />
             </div>
 
@@ -223,6 +224,9 @@
             uploadSuccessEvent: function (file, response) {
                 this.$toasted.success('アップロードが完了しました。', {icon: 'upload'});
                 this.stamps.unshift(response.stamp);
+            },
+            uploadErrorEvent: function () {
+                this.$toasted.error('アップロードに失敗しました。', {icon: 'exclamation-triangle'});
             },
             getFavorites: function () {
                 // お気に入り一覧
