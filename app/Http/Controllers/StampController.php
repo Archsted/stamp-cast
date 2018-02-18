@@ -204,7 +204,6 @@ class StampController extends Controller
                     }
 
                     break;
-
                 default:
                     // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
                     $query = Stamp::query()
@@ -286,9 +285,9 @@ class StampController extends Controller
                 $frameCount = $image->getNumberImages();
 
                 // 1フレーム目のみを使って静止画のサムネイルを作成する
-
                 $image->setFirstIterator();
-                $image->nextImage();
+                $image = $image->getImage();
+
                 if ($stamp->height > env('THUMBNAIL_HEIGHT')) {
                     // 横幅をオート（null）
                     $image->adaptiveResizeImage(null, env('THUMBNAIL_HEIGHT'));

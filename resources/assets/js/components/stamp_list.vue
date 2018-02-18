@@ -41,7 +41,7 @@
                 </div>
                 <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
                     <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
-                    <span v-show="isContainsFavorite(stamp.id)"><i class="fas fa-heart fa-2x"></i></span>
+                    <span v-show="isContainsFavorite(stamp.id)" style="opacity: 0.8"><i class="fas fa-heart fa-2x"></i></span>
                 </div>
                 <div class="downloadForm" @click.stop>
                     <a :href="stamp.name" target="_blank"><i class="fas fa-external-link-alt fa-2x"></i></a>

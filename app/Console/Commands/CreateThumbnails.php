@@ -99,12 +99,18 @@ class CreateThumbnails extends Command
                 // アニメgif
                 $image = new \Imagick();
 
-                $image->readImage($originalFullPath);
-                $frameCount = $image->getNumberImages();
-                // 1フレーム目のみを使って静止画のサムネイルを作成する
+                // $image->readImage($originalFullPath);
 
+                $handle = fopen($originalFullPath, 'a+');
+                $image->readImageFile($handle);
+                fclose($handle);
+
+                $frameCount = $image->getNumberImages();
+
+                // 1フレーム目のみを使って静止画のサムネイルを作成する
                 $image->setFirstIterator();
-                $image->nextImage();
+                $image = $image->getImage();
+
                 if ($stamp->height > env('THUMBNAIL_HEIGHT')) {
                     // 横幅をオート（null）
                     $image->adaptiveResizeImage(null, env('THUMBNAIL_HEIGHT'));
@@ -114,13 +120,13 @@ class CreateThumbnails extends Command
 
                 $image->clear();
 
-                // アニメーションフラグをセット
+                // アニメーションがついていた場合（フレーム数が2枚以上あった場合）
                 if ($frameCount > 1) {
+                    // アニメーションフラグをセット
                     $stamp->is_animation = 1;
                 }
-
             } catch (\Exception $e) {
-                abort(500, 'アニメgifのリサイズに失敗しました。');
+                abort(500, 'アニメgifのリサイズに失敗しました。 / id => ' . $stamp->id);
             }
         } else {
             // 通常の画像
