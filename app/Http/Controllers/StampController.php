@@ -26,6 +26,8 @@ class StampController extends Controller
      */
     public function index(Request $request, Room $room)
     {
+        ini_set('memory_limit', '512M');
+
         $stamps = [];
 
         /** @var User $roomOwner */
