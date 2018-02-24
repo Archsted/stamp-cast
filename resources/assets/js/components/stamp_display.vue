@@ -177,7 +177,7 @@
                 controlPanelWidth: 168,
                 controlPanelHeight: 178,
                 stampOpacity:1.0,
-                stampVolume: 1.0,
+                stampVolume: 0.4,
                 stampDelay: 3.5,
             }
         },
