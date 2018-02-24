@@ -372,7 +372,7 @@
                     if (data.stamps.length) {
                         this.stamps = this.stamps.concat(data.stamps);
                         $state.loaded();
-                        if (data.stamps.length < 30 || this.stamps.length > 300) {
+                        if (data.stamps.length < 30 || this.stamps.length > 500) {
                             $state.complete();
                         }
                     } else {
