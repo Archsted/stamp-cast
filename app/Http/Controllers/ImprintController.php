@@ -22,7 +22,10 @@ class ImprintController extends Controller
             ->selectRaw('max(id) as imprint_id, count(*) as cnt, stamp_id, user_id, ip')
             ->where('created_at', '>', Carbon::now()->subMinutes( env('IMPRINTS_LOG_MINUTE', 5 )))
             ->groupBy(['stamp_id', 'user_id', 'ip'])
-            ->with('stamp:id,name,thumbnail,is_animation')
+            ->with(['stamp' => function ($query) {
+                $query->select(['id', 'name', 'thumbnail', 'is_animation'])
+                    ->withoutGlobalScope('softDelete');
+            }])
             ->get();
 
         $list = [];
