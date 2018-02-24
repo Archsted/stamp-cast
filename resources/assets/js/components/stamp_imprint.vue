@@ -47,7 +47,7 @@
         methods: {
             addBlackList: function (imprintId) {
                 this.$dialog.confirm(
-                    '<div style="text-align: center"><p>このスタンプを削除しますか？</p></div>',
+                    '<div style="text-align: center"><p>これらのスタンプを送信したユーザを<br>ブラックリストに追加しますか？</p></div>',
                     {
                         html: true,
                         okText: '削除する',
