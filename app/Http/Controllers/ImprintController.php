@@ -7,10 +7,44 @@ use App\Http\Requests\StoreImprint;
 use App\Http\Requests\StoreImprintGuest;
 use App\Imprint;
 use App\Room;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ImprintController extends Controller
 {
+    public function index(Room $room)
+    {
+        if ($room->user_id !== request()->user()->id) {
+            abort(403, 'ルームの持ち主以外はアクセスできません。');
+        }
+
+        $imprints = $room->imprints()
+            ->selectRaw('max(id) as imprint_id, count(*) as cnt, stamp_id, user_id, ip')
+            ->where('created_at', '>', Carbon::now()->subMinutes( env('IMPRINTS_LOG_MINUTE', 5 )))
+            ->groupBy(['stamp_id', 'user_id', 'ip'])
+            ->with('stamp:id,name,thumbnail,is_animation')
+            ->get();
+
+        $list = [];
+        foreach ($imprints as $imprint) {
+            $key = $imprint['user_id'] ?: $imprint['ip'];
+
+            if (empty($list[$key])) {
+                $list[$key] = [];
+            };
+
+            $list[$key][] = [
+                'id' => $imprint['imprint_id'],
+                'count' => $imprint['cnt'],
+                'stamp' => $imprint->stamp->toArray()
+            ];
+        }
+
+        $list = array_values($list);
+
+        return view('imprint.index', compact('list'));
+    }
+
     // ログインユーザによるスタンプ送信
     public function create(Room $room, StoreImprint $request)
     {
@@ -22,13 +56,6 @@ class ImprintController extends Controller
             'stamp_id' => $request->stamp_id,
             'ip' => $request->ip(),
         ]);
-
-        // 転送量削減
-        /*
-        return [
-            'imprint' => $imprint
-        ];
-        */
     }
 
     // 未ログインユーザによるスタンプ送信
@@ -42,12 +69,5 @@ class ImprintController extends Controller
             'stamp_id' => $request->stamp_id,
             'ip' => $request->ip(),
         ]);
-
-        // 転送量削減
-        /*
-        return [
-            'imprint' => $imprint
-        ];
-        */
     }
 }

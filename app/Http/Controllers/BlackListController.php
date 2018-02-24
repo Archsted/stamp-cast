@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BlackListIp;
+use App\Imprint;
 use App\Stamp;
 use App\User;
 use Illuminate\Http\Request;
@@ -38,6 +39,38 @@ class BlackListController extends Controller
             $blackListIp = BlackListIp::firstOrNew(['ip' => $stamp->ip]);
 
             $user->blackListIps()->save($blackListIp);
+        }
+    }
+
+    /**
+     * スタンプ送信履歴からブラックリストに追加する
+     *
+     * @param Request $request
+     * @param Imprint $imprint
+     */
+    public function storeByImprint(Request $request, Imprint $imprint)
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        if ($imprint->room->user_id !== $user->id) {
+            abort(403);
+        }
+
+        // （念のため）スタンプの送信者のIPが自分のIPと異なる場合
+        if ($imprint->ip !== $request->ip()) {
+            $blackListIp = BlackListIp::firstOrNew(['ip' => $imprint->ip]);
+            $user->blackListIps()->save($blackListIp);
+
+            if (!is_null($imprint->user_id) && $user->id !== $imprint->user_id) {
+                // スタンプが登録済みユーザによるアップロードだった場合
+                $targetIds = $user->blackListUsers->pluck('id');
+                $targetIds[] = $imprint->user_id;
+
+                $user->blackListUsers()->sync($targetIds);
+            }
+        } else {
+            abort(403, '自分のIPアドレスと同一です。');
         }
     }
 

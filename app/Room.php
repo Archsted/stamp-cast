@@ -28,4 +28,9 @@ class Room extends Model
     {
         return $this->belongsTo('App\User');
     }
+
+    public function imprints()
+    {
+        return $this->hasMany('App\Imprint');
+    }
 }
