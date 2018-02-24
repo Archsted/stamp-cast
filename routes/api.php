@@ -51,5 +51,8 @@ Route::group(['prefix' => '/v1'], function () {
     Route::group(['prefix' => '/blackLists', 'middleware' => ['auth:api']], function () {
         Route::post('/', 'BlackListController@store');
         Route::delete('/', 'BlackListController@destroy');
+
+        // 送信一覧から送信者をブラックリストに入れる
+        Route::post('/imprints/{imprint}', 'BlackListController@storeByImprint');
     });
 });

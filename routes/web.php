@@ -34,16 +34,29 @@ Route::get('/home', 'HomeController@index')
 
 // ルーム関連
 Route::group(['prefix' => '/rooms', 'middleware' => ['auth']], function () {
-    Route::get('/create', 'RoomController@create')->name('room_create');
-    Route::post('/', 'RoomController@store')->name('room_store');
+    // ルーム新規作成画面
+    Route::get('/create', 'RoomController@create')
+        ->name('room_create');
 
+    // ルーム新規作成処理
+    Route::post('/', 'RoomController@store')
+        ->name('room_store');
+
+    // ルーム編集画面
     Route::get('/{room}/edit', 'RoomController@edit')
         ->name('room_edit')
         ->where('room', '^[\d]+$');
 
+    // ルーム編集処理
     Route::put('/{room}', 'RoomController@update')
         ->name('room_update')
         ->where('room', '^[\d]+$');
+
+    // スタンプ送信一覧画面
+    Route::get('/{room}/imprints', 'ImprintController@index')
+        ->name('room_imprint')
+        ->where('room', '^[\d]+$');
+
 });
 
 // リスナー用ルームURL
