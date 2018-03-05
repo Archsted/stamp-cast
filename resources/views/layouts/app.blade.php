@@ -61,6 +61,7 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Authentication Links -->
+                        <li><a href="/documents"><i class="fas fa-book fa-lg"></i> ドキュメント</a></li>
                         @guest
                             <li><a href="{{ route('login') }}"><i class="fas fa-sign-in-alt fa-lg"></i> ログイン</a></li>
                             <li><a href="{{ route('register') }}"><i class="fas fa-user-plus fa-lg"></i> 新規登録</a></li>

@@ -4,7 +4,7 @@
     
     <url>
      <loc>https://stamp.archsted.com/</loc>
-     <lastmod>2018-02-20</lastmod>
+     <lastmod>2018-03-05</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -12,7 +12,39 @@
     
     <url>
      <loc>https://stamp.archsted.com/read1st/</loc>
-     <lastmod>2018-02-20</lastmod>
+     <lastmod>2018-03-05</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>https://stamp.archsted.com/forBroadcaster/</loc>
+     <lastmod>2018-03-05</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>https://stamp.archsted.com/forListener/</loc>
+     <lastmod>2018-03-05</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>https://stamp.archsted.com/tool/</loc>
+     <lastmod>2018-03-05</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>https://stamp.archsted.com/faq/</loc>
+     <lastmod>2018-03-05</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
