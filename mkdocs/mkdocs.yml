@@ -1,15 +1,25 @@
 site_name: StampCast
 site_url: https://stamp.archsted.com
 site_author: '会長 / Archsted (@etude_kaicho)'
+markdown_extensions:
+  - admonition
 theme:
   name: 'material'
+  language: 'ja'
 extra_css:
   - "//fonts.googleapis.com/earlyaccess/notosansjp.css"
   - "//fonts.googleapis.com/css?family=Open+Sans:600,800"
+  - "css/custom.css"
 extra:
+  search:
+    language: 'jp'
   font:
     text: "Noto Sans JP"
     code: "Consolas"
 pages:
   - ホーム: index.md
   - はじめに: read1st.md
+  - 配信者向け: forBroadcaster.md
+  - リスナー向け: forListener.md
+  - ツールの使い方: tool.md
+  - よくある質問: faq.md

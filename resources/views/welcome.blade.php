@@ -14,6 +14,7 @@
             <div class="logo flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
+                    <a href="/documents"><i class="fas fa-book fa-lg"></i> ドキュメント</a>
                 @auth
                     <a href="{{ url('/home') }}"><i class="fas fa-home fa-lg"></i> ホーム</a>
                 @else

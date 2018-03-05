@@ -44,6 +44,7 @@
     <div class="flex-center position-ref full-height">
         <div class="title m-b-md form">
 
+            <!--
             <div class="panel panel-danger" style="background-color:#fcc;">
                 <div class="panel-body">
                     <h3 class="panel-title">【重要】サーバの高負荷対策について</h3>
@@ -63,6 +64,7 @@
                     </p>
                 </div>
             </div>
+            -->
 
             <form action="{{ route('receiver') }}" method="post">
                 {{ csrf_field() }}
