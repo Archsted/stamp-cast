@@ -481,7 +481,7 @@
     }
 
     .sidebar {
-        flex-basis: 300px;
+        min-width: 300px;
     }
 
     .tag {
