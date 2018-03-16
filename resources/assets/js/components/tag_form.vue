@@ -65,7 +65,7 @@
         },
         mounted: function () {
             // タグ入力フォームの入力上限を設定
-            $('input[type="text"]').attr('maxlength', 64);
+
         },
         components: {
 
@@ -92,6 +92,11 @@
                     .then(response => {
                         this.oldTags = response.data.tags;
                         this.oldTagsLoad = true;
+                        this.$nextTick(() => {
+                            let tagInput = $('input[type="text"]', '.message-content').eq(0);
+                            tagInput.attr('maxlength', 64);
+                            tagInput.focus();
+                        });
                     })
                     .catch(error => {
                         this.$toasted.error('スタンプのタグ取得に失敗しました。', {icon: 'exclamation-triangle'});

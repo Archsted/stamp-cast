@@ -6,7 +6,7 @@
             <h3>タグ一覧</h3>
 
             <div class="tagList">
-                <ul class="list-unstyled">
+                <ul>
                     <li v-for="tag in allTags">
                         <a class="tag" @click.stop="setSearchTag(tag.text)">{{ tag.text }} <span class="badge">{{ tag.count }}</span></a>
                     </li>
