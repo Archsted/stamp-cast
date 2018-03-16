@@ -7,6 +7,7 @@
 
             <div class="tagList">
                 <ul>
+                    <li><a class="tag" @click.stop="setSearchNoTag">（タグが設定されていないもの） </a></li>
                     <li v-for="tag in allTags">
                         <a class="tag" @click.stop="setSearchTag(tag.text)">{{ tag.text }} <span class="badge">{{ tag.count }}</span></a>
                     </li>
@@ -34,7 +35,10 @@
             </div>
 
             <div class="tagViewInformation" v-show="searchTag !== ''">
-                <strong>「{{ searchTag }}」</strong>タグが付いたスタンプのみ表示中 <button class="btn btn-danger" @click="setSearchTag('')">解除する</button>
+                <strong>「{{ searchTag }}」</strong>タグが付いたスタンプのみ表示中 <button class="btn btn-danger" @click="resetSearchTag">解除する</button>
+            </div>
+            <div class="tagViewInformation" v-show="onlyNoTags">
+                タグが設定されていないスタンプのみ表示中 <button class="btn btn-danger" @click="resetSearchTag">解除する</button>
             </div>
 
             <div class="stampList">
@@ -138,6 +142,7 @@
                 useInfinite: true,
                 hoverStampId: null,
                 searchTag: '',
+                onlyNoTags: false,
                 dropzoneOptions: {
                     url: (this.userId === null) ?
                         '/api/v1/rooms/' + this.room.id + '/stamps/guest' :
@@ -214,13 +219,19 @@
                     url = url + '/guest';
                 }
 
+                let params = {
+                    sort: this.stampSort,
+                    onlyFavorite: (this.onlyFavorite && this.useInfinite) ? 1 : 0,
+                    tag: this.searchTag,
+                };
+
+                if (this.onlyNoTags) {
+                    params.onlyNoTags = 1;
+                }
+
                 axios.get(url,
                     {
-                        params: {
-                            sort: this.stampSort,
-                            onlyFavorite: (this.onlyFavorite && this.useInfinite) ? 1 : 0,
-                            tag: this.searchTag,
-                        },
+                        params: params,
                     })
                     .then(response => {
                         this.stamps = response.data.stamps;
@@ -397,13 +408,19 @@
 
                 let currentPage = Math.floor(this.stamps.length / 30) + 1;
 
+                let params = {
+                    page: currentPage,
+                    sort: this.stampSort,
+                    onlyFavorite: this.onlyFavorite ? 1 : 0,
+                    tag: this.searchTag,
+                };
+
+                if (this.onlyNoTags) {
+                    params.onlyNoTags = 1;
+                }
+
                 axios.get(url, {
-                    params: {
-                        page: currentPage,
-                        sort: this.stampSort,
-                        onlyFavorite: this.onlyFavorite ? 1 : 0,
-                        tag: this.searchTag,
-                    },
+                    params: params,
                 }).then(({ data }) => {
                     if (data.stamps.length) {
                         this.stamps = this.stamps.concat(data.stamps);
@@ -440,6 +457,12 @@
                     // 今更新したスタンプのタグ更新
                     if (stampIndex >= 0) {
                         this.stamps[stampIndex].tags = newTags;
+
+                        // タグが設定されていないものを表示中にタグを設定した結果、
+                        // タグが1つ以上になった場合はリストから削除する
+                        if (this.onlyNoTags && newTags.length > 0) {
+                            this.stamps.splice(stampIndex, 1);
+                        }
                     }
                 }
             },
@@ -455,6 +478,17 @@
             },
             setSearchTag: function (tagName) {
                 this.searchTag = tagName;
+                this.onlyNoTags = false;
+                this.resetStamps();
+            },
+            setSearchNoTag: function () {
+                this.searchTag = '';
+                this.onlyNoTags = true;
+                this.resetStamps();
+            },
+            resetSearchTag: function () {
+                this.onlyNoTags = false;
+                this.searchTag = '';
                 this.resetStamps();
             }
         },
