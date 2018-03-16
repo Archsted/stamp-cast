@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRoomRequest;
 use App\Http\Requests\UpdateRoomRequest;
 use App\Room;
+use App\StampTag;
+use App\Tag;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
@@ -48,5 +50,50 @@ class RoomController extends Controller
         ]));
 
         return redirect()->route('listener', ['room' => $room->id]);
+    }
+
+    public function indexTagNamesWithCount(Room $room)
+    {
+        $stampTags = StampTag::query()
+            ->where('room_id', $room->id)
+            ->groupBy('tag_id')
+            ->selectRaw('tag_id, count(*) as cnt')
+            ->orderBy('cnt', 'desc')
+            ->with('tag')
+            ->get();
+
+        $tagList = [];
+
+        foreach ($stampTags as $stampTag) {
+            $tagList[] = [
+                'text' => $stampTag->tag->text,
+                'count' => $stampTag->cnt,
+            ];
+        }
+
+        return $tagList;
+    }
+
+    public function indexTagNames(Room $room)
+    {
+        $tags = Tag::query()
+            ->whereHas('stampTags', function ($query) use ($room) {
+                $query->where('room_id', $room->id);
+            })
+            ->orderBy('text')
+            ->select('text')
+            ->get();
+
+        $tagNames = [];
+
+        foreach ($tags as $tag) {
+            $tagNames[] = $tag->text;
+        }
+
+        $result = [
+            'tags' => $tagNames,
+        ];
+
+        return $result;
     }
 }

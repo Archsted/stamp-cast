@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStamp;
 use App\Http\Requests\StoreStampGuest;
+use App\Http\Requests\UpdateTags;
 use App\Imprint;
 use App\Room;
 use App\Stamp;
+use App\Tag;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -39,6 +41,9 @@ class StampController extends Controller
         // お気に入りのみを表示するかどうか
         $onlyFavorite = $request->get('onlyFavorite', 0);
 
+        // キーワード（タグ）
+        $tag = $request->get('tag');
+
         $requestUser = $request->user();
         if ($requestUser) {
             $favoriteStampIds = $requestUser->favorites->pluck('id')->toArray();
@@ -59,19 +64,32 @@ class StampController extends Controller
                     $query = Imprint::query()
                         ->where('room_id', $room->id)
                         ->withoutBlackList($blackListIps, $blackListUserIds)
-                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps, $tag) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
-                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
-                        }])
+                        ->with([
+                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                                $query
+                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
+                            },
+                            'stamp.tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
                         ->select('stamp_id')
                         ->latest();
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
                         $query->whereIn('stamp_id', $favoriteStampIds);
+                    }
+
+                    // タグ指定があった場合
+                    if (!is_null($tag)) {
+                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
+                           $query->where('text', $tag);
+                        });
                     }
 
                     $imprints = $query->get();
@@ -94,10 +112,16 @@ class StampController extends Controller
                         ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
-                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
-                        }])
+                        ->with([
+                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                                $query
+                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
+                            },
+                            'stamp.tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
                         ->select('stamp_id')
                         ->groupBy('stamp_id')
                         ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
@@ -106,6 +130,13 @@ class StampController extends Controller
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
                         $query->whereIn('stamp_id', $favoriteStampIds);
+                    }
+
+                    // タグ指定があった場合
+                    if (!is_null($tag)) {
+                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
+                            $query->where('text', $tag);
+                        });
                     }
 
                     $imprints = $query->get();
@@ -125,6 +156,11 @@ class StampController extends Controller
                                 ->orWhereNull('room_id');
                         })
                         ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->with([
+                            'tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
                         ->limit(Room::STAMP_COUNT_PER_PAGE)
                         ->offset($offset)
                         ->orderBy('created_at', 'desc')
@@ -134,6 +170,13 @@ class StampController extends Controller
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
                         $query->whereIn('id', $favoriteStampIds);
+                    }
+
+                    // タグ指定があった場合
+                    if (!is_null($tag)) {
+                        $query->whereHas('tags', function ($query) use ($tag) {
+                            $query->where('text', $tag);
+                        });
                     }
 
                     $stamps = $query->get();
@@ -153,16 +196,29 @@ class StampController extends Controller
                         ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
-                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
-                        }])
+                        ->with([
+                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                                $query
+                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
+                            },
+                            'stamp.tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
                         ->select('stamp_id')
                         ->latest();
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
                         $query->whereIn('stamp_id', $favoriteStampIds);
+                    }
+
+                    // タグ指定があった場合
+                    if (!is_null($tag)) {
+                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
+                            $query->where('text', $tag);
+                        });
                     }
 
                     $imprints = $query->get();
@@ -185,10 +241,16 @@ class StampController extends Controller
                         ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
-                        ->with(['stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds)
-                                ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
-                        }])
+                        ->with([
+                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                                $query
+                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
+                            },
+                            'stamp.tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
                         ->select('stamp_id')
                         ->groupBy('stamp_id')
                         ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
@@ -197,6 +259,13 @@ class StampController extends Controller
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
                         $query->whereIn('stamp_id', $favoriteStampIds);
+                    }
+
+                    // タグ指定があった場合
+                    if (!is_null($tag)) {
+                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
+                            $query->where('text', $tag);
+                        });
                     }
 
                     $imprints = $query->get();
@@ -214,6 +283,11 @@ class StampController extends Controller
                                 ->orWhereNull('room_id');
                         })
                         ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->with([
+                            'tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
                         ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation'])
                         ->orderBy('created_at', 'desc')
                         ->orderBy('id', 'desc');
@@ -221,6 +295,13 @@ class StampController extends Controller
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
                         $query->whereIn('id', $favoriteStampIds);
+                    }
+
+                    // タグ指定があった場合
+                    if (!is_null($tag)) {
+                        $query->whereHas('tags', function ($query) use ($tag) {
+                            $query->where('text', $tag);
+                        });
                     }
 
                     $stamps = $query->get();
@@ -325,10 +406,18 @@ class StampController extends Controller
                 'name' => $stamp->name,
                 'thumbnail' => $stamp->thumbnail,
                 'is_animation' => $stamp->is_animation,
+                'tags' => [], // 作成直後にタグはまだ無いため
             ]
         ];
     }
 
+    /**
+     * サムネイル作成処理
+     *
+     * @param UploadedFile $file
+     * @param $stamp
+     * @param $savePath
+     */
     private function createThumbnail(UploadedFile $file, $stamp, $savePath)
     {
         // 通常の画像
@@ -392,6 +481,70 @@ class StampController extends Controller
         } else {
             abort(403);
         }
+    }
+
+    /**
+     * 対象のスタンプに紐づくタグ名の配列を返す
+     *
+     * @param Room $room
+     * @param Stamp $stamp
+     * @return array
+     */
+    public function indexTags(Room $room, Stamp $stamp)
+    {
+        $tags = $stamp->tags()
+            ->wherePivot('room_id', $room->id)
+            ->get();
+
+        $tagNames = [];
+        foreach ($tags as $tag) {
+            $tagNames[] = $tag->text;
+        }
+
+        $result = [
+            'tags' => $tagNames,
+        ];
+
+        return $result;
+    }
+
+    /**
+     * タグの修正を行う
+     *
+     * @param UpdateTags $request
+     * @param Room $room
+     * @param Stamp $stamp
+     * @return array
+     */
+    public function updateTags(UpdateTags $request, Room $room, Stamp $stamp)
+    {
+        // 入力したタグ文字列の配列
+        $tagNames = $request->get('tags');
+
+        $tagIds = [];
+        foreach ($tagNames as $tagName) {
+            $tag = Tag::firstOrNew(['text' => $tagName]);
+
+            // 新規レコードの場合、IPをセットして保存
+            if (!$tag->exists) {
+                $tag->ip = $request->ip();
+                $tag->save();
+            }
+
+            $tagIds[$tag->id] = [
+                'ip' => $request->ip(),
+                'room_id' => $room->id,
+            ];
+        }
+
+        // 保存
+        $stamp->tags()->wherePivot('room_id', $room->id)->sync($tagIds);
+
+        $result = [
+            'tags' => $stamp->tags()->wherePivot('room_id', $room->id)->get()
+        ];
+
+        return $result;
     }
 
     /**

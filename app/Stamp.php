@@ -72,4 +72,9 @@ class Stamp extends Model
     {
         return $this->belongsTo('App\Room');
     }
+
+    public function tags()
+    {
+        return $this->belongsToMany('App\Tag')->withTimestamps();
+    }
 }

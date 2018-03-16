@@ -25,11 +25,25 @@ Route::group(['prefix' => '/v1'], function () {
         Route::get('/{room}/stamps', 'StampController@index')->middleware('auth:api');
         Route::get('/{room}/stamps/guest', 'StampController@index');
 
-        Route::post('/{room}/stamps', 'StampController@create')->middleware('auth:api');
-        Route::post('/{room}/stamps/guest', 'StampController@create');
+        Route::group(['middleware' => ['throttle:20,1']], function () {
+            Route::post('/{room}/stamps', 'StampController@create')->middleware('auth:api');
+            Route::post('/{room}/stamps/guest', 'StampController@create');
 
-        Route::post('/{room}/imprints', 'ImprintController@create')->middleware('auth:api');
-        Route::post('/{room}/imprints/guest', 'ImprintController@guestCreate');
+            Route::post('/{room}/imprints', 'ImprintController@create')->middleware('auth:api');
+            Route::post('/{room}/imprints/guest', 'ImprintController@guestCreate');
+        });
+
+        // スタンプのタグ
+        Route::get('/{room}/stamps/{stamp}/tags', 'StampController@indexTags');
+
+        Route::put('/{room}/stamps/{stamp}/tags', 'StampController@updateTags');
+
+        // ルーム内のタグ
+        // 名称一覧（タグ入力画面のオートコンプリート用）
+        Route::get('/{room}/tags/names', 'RoomController@indexTagNames');
+
+        // タグ名と件数
+        Route::get('/{room}/tags', 'RoomController@indexTagNamesWithCount');
     });
 
     // Stamp

@@ -7,6 +7,21 @@
 @section('content')
     <div class="container-fluid">
 
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title">更新情報</h3>
+            </div>
+
+            <div class="panel-body">
+                <p>
+                    (3/16 09:00) タグ機能を試験的に追加しました。（細部や外観はあとで調整します）<br>
+                    各スタンプの左上にある緑のタグアイコンから、スタンプに対してタグを設定できます。<br>
+                    スタンプ一覧の左側に並ぶタグ名を選択すると、そのタグが付与されたスタンプを表示できます。
+                </p>
+            </div>
+        </div>
+
+        {{--
         <div class="row">
             <div class="col-md-6">
                 <div class="panel panel-info">
@@ -25,7 +40,6 @@
                         </ul>
                     </div>
                 </div>
-
             </div>
             <div class="col-md-6">
                 <div class="panel panel-success">
@@ -48,9 +62,7 @@
 
             </div>
         </div>
-
-
-
+        --}}
 
         <div class="room-info">
             <h3>{{$room->name}}
