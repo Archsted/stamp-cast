@@ -44,6 +44,9 @@ class StampController extends Controller
         // キーワード（タグ）
         $tag = $request->get('tag');
 
+        // タグがついていないもののみ
+        $onlyNoTags = $request->get('onlyNoTags');
+
         $requestUser = $request->user();
         if ($requestUser) {
             $favoriteStampIds = $requestUser->favorites->pluck('id')->toArray();
@@ -85,13 +88,20 @@ class StampController extends Controller
                         $query->whereIn('stamp_id', $favoriteStampIds);
                     }
 
-                    // タグ指定があった場合
-                    if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
-                           $query
-                               ->where('text', $tag)
-                               ->where('room_id', $room->id);
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('stamp.tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
                         });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+                            $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                                $query
+                                    ->where('text', $tag)
+                                    ->where('room_id', $room->id);
+                            });
+                        }
                     }
 
                     $imprints = $query->get();
@@ -134,13 +144,20 @@ class StampController extends Controller
                         $query->whereIn('stamp_id', $favoriteStampIds);
                     }
 
-                    // タグ指定があった場合
-                    if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
-                            $query
-                                ->where('text', $tag)
-                                ->where('room_id', $room->id);
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('stamp.tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
                         });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+                            $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                                $query
+                                    ->where('text', $tag)
+                                    ->where('room_id', $room->id);
+                            });
+                        }
                     }
 
                     $imprints = $query->get();
@@ -176,13 +193,21 @@ class StampController extends Controller
                         $query->whereIn('id', $favoriteStampIds);
                     }
 
-                    // タグ指定があった場合
-                    if (!is_null($tag)) {
-                        $query->whereHas('tags', function ($tagsQuery) use ($tag, $room) {
-                            $tagsQuery
-                                ->where('text', $tag)
-                                ->where('room_id', $room->id);
+
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
                         });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+                            $query->whereHas('tags', function ($tagsQuery) use ($tag, $room) {
+                                $tagsQuery
+                                    ->where('text', $tag)
+                                    ->where('room_id', $room->id);
+                            });
+                        }
                     }
 
                     $stamps = $query->get();
@@ -220,13 +245,20 @@ class StampController extends Controller
                         $query->whereIn('stamp_id', $favoriteStampIds);
                     }
 
-                    // タグ指定があった場合
-                    if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
-                            $query
-                                ->where('text', $tag)
-                                ->where('room_id', $room->id);
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('stamp.tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
                         });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+                            $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                                $query
+                                    ->where('text', $tag)
+                                    ->where('room_id', $room->id);
+                            });
+                        }
                     }
 
                     $imprints = $query->get();
@@ -269,14 +301,22 @@ class StampController extends Controller
                         $query->whereIn('stamp_id', $favoriteStampIds);
                     }
 
-                    // タグ指定があった場合
-                    if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
-                            $query
-                                ->where('text', $tag)
-                                ->where('room_id', $room->id);
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('stamp.tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
                         });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+                            $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                                $query
+                                    ->where('text', $tag)
+                                    ->where('room_id', $room->id);
+                            });
+                        }
                     }
+
 
                     $imprints = $query->get();
 
@@ -307,13 +347,20 @@ class StampController extends Controller
                         $query->whereIn('id', $favoriteStampIds);
                     }
 
-                    // タグ指定があった場合
-                    if (!is_null($tag)) {
-                        $query->whereHas('tags', function ($query) use ($tag, $room) {
-                            $query
-                                ->where('text', $tag)
-                                ->where('room_id', $room->id);
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
                         });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+                            $query->whereHas('tags', function ($query) use ($tag, $room) {
+                                $query
+                                    ->where('text', $tag)
+                                    ->where('room_id', $room->id);
+                            });
+                        }
                     }
 
                     $stamps = $query->get();
