@@ -87,8 +87,10 @@ class StampController extends Controller
 
                     // タグ指定があった場合
                     if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
-                           $query->where('text', $tag);
+                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                           $query
+                               ->where('text', $tag)
+                               ->where('room_id', $room->id);
                         });
                     }
 
@@ -134,8 +136,10 @@ class StampController extends Controller
 
                     // タグ指定があった場合
                     if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
-                            $query->where('text', $tag);
+                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                            $query
+                                ->where('text', $tag)
+                                ->where('room_id', $room->id);
                         });
                     }
 
@@ -174,8 +178,10 @@ class StampController extends Controller
 
                     // タグ指定があった場合
                     if (!is_null($tag)) {
-                        $query->whereHas('tags', function ($query) use ($tag) {
-                            $query->where('text', $tag);
+                        $query->whereHas('tags', function ($tagsQuery) use ($tag, $room) {
+                            $tagsQuery
+                                ->where('text', $tag)
+                                ->where('room_id', $room->id);
                         });
                     }
 
@@ -216,8 +222,10 @@ class StampController extends Controller
 
                     // タグ指定があった場合
                     if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
-                            $query->where('text', $tag);
+                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                            $query
+                                ->where('text', $tag)
+                                ->where('room_id', $room->id);
                         });
                     }
 
@@ -263,8 +271,10 @@ class StampController extends Controller
 
                     // タグ指定があった場合
                     if (!is_null($tag)) {
-                        $query->whereHas('stamp.tags', function ($query) use ($tag) {
-                            $query->where('text', $tag);
+                        $query->whereHas('stamp.tags', function ($query) use ($tag, $room) {
+                            $query
+                                ->where('text', $tag)
+                                ->where('room_id', $room->id);
                         });
                     }
 
@@ -299,8 +309,10 @@ class StampController extends Controller
 
                     // タグ指定があった場合
                     if (!is_null($tag)) {
-                        $query->whereHas('tags', function ($query) use ($tag) {
-                            $query->where('text', $tag);
+                        $query->whereHas('tags', function ($query) use ($tag, $room) {
+                            $query
+                                ->where('text', $tag)
+                                ->where('room_id', $room->id);
                         });
                     }
 
