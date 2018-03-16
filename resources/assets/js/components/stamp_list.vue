@@ -1,64 +1,88 @@
 <template>
-    <div class="litener">
-        <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-warning" @click="resetStamps">
-                    <i class="fas fa-redo fa-lg"></i>
-                </button>
-            </div>
-            <div class="btn-group" role="group">
-                <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click="stampSort = 'all'">全て</button>
-                <button type="button" class="btn" v-bind:class="stampSortClass('latest')" @click="stampSort = 'latest'">送信された順</button>
-                <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click="stampSort = 'count'">回数順</button>
-            </div>
-            <div class="btn-group" role="group" v-if="!guest">
-                <button type="button" class="btn" v-bind:class="onlyFavoriteButtonClass" @click="onlyFavorite = !onlyFavorite">
-                    <span style="color: hotpink;"><i class="fas fa-heart fa-lg"></i></span> お気に入りのみ表示
-                </button>
+    <div class="stampListWrapper">
+        <dialogs-wrapper tag="div" transition-name="fade"></dialogs-wrapper>
+
+        <div class="sidebar">
+            <h3>タグ一覧</h3>
+
+            <div class="tagList">
+                <ul class="list-unstyled">
+                    <li v-for="tag in allTags">
+                        <a class="tag" @click.stop="setSearchTag(tag.text)">{{ tag.text }} <span class="badge">{{ tag.count }}</span></a>
+                    </li>
+                </ul>
             </div>
         </div>
 
-        <div class="stampList">
-            <div class="stampForm" v-show="canUploadStamp">
-                <vue-dropzone
-                    ref="myVueDropzone"
-                    id="dropzone"
-                    :options="dropzoneOptions"
-                    v-on:vdropzone-success="uploadSuccessEvent"
-                    v-on:vdropzone-error="uploadErrorEvent"
-                />
+        <div class="main">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-warning" @click="resetStamps">
+                        <i class="fas fa-redo fa-lg"></i>
+                    </button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click="stampSort = 'all'">全て</button>
+                    <button type="button" class="btn" v-bind:class="stampSortClass('latest')" @click="stampSort = 'latest'">送信された順</button>
+                    <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click="stampSort = 'count'">回数順</button>
+                </div>
+                <div class="btn-group" role="group" v-if="!guest">
+                    <button type="button" class="btn" v-bind:class="onlyFavoriteButtonClass" @click="onlyFavorite = !onlyFavorite">
+                        <span style="color: hotpink;"><i class="fas fa-heart fa-lg"></i></span> お気に入りのみ表示
+                    </button>
+                </div>
             </div>
 
-            <div v-for="(stamp, index) in stampList" :key="index"
-                 class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)"
-                 @mouseover="hoverStampId = stamp.id" @mouseleave="hoverStampId = null">
-                <div class="stampRippleWrapper" v-ripple>
-                    <div class="animationFlagWrapper" v-if="stamp.is_animation">
-                        <div class="animationFlag">
-                            <i class="fas fa-film fa-3x" style="color: #f00"></i>
+            <div class="tagViewInformation" v-show="searchTag !== ''">
+                <strong>「{{ searchTag }}」</strong>タグが付いたスタンプのみ表示中 <button class="btn btn-danger" @click="setSearchTag('')">解除する</button>
+            </div>
+
+            <div class="stampList">
+                <div class="stampForm" v-show="canUploadStamp && searchTag === ''">
+                    <vue-dropzone
+                        ref="myVueDropzone"
+                        id="dropzone"
+                        :options="dropzoneOptions"
+                        v-on:vdropzone-success="uploadSuccessEvent"
+                        v-on:vdropzone-error="uploadErrorEvent"
+                    />
+                </div>
+
+                <div v-for="(stamp, index) in stampList" :key="index"
+                     class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)"
+                     @mouseover="hoverStampId = stamp.id" @mouseleave="hoverStampId = null">
+                    <div class="stampRippleWrapper" v-ripple>
+                        <div class="animationFlagWrapper" v-if="stamp.is_animation">
+                            <div class="animationFlag">
+                                <i class="fas fa-film fa-3x" style="color: #f00"></i>
+                            </div>
                         </div>
+                        <img class="stamp" :src="(stamp.is_animation && hoverStampId === stamp.id) ? stamp.name : (stamp.thumbnail ? stamp.thumbnail : stamp.name)">
                     </div>
-                    <img class="stamp" :src="(stamp.is_animation && hoverStampId === stamp.id) ? stamp.name : (stamp.thumbnail ? stamp.thumbnail : stamp.name)">
+                    <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
+                        <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
+                        <span v-show="isContainsFavorite(stamp.id)" style="opacity: 0.8"><i class="fas fa-heart fa-2x"></i></span>
+                    </div>
+                    <div class="downloadForm" @click.stop>
+                        <a :href="stamp.name" target="_blank"><i class="fas fa-external-link-alt fa-2x"></i></a>
+                    </div>
+                    <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div class="tagForm" @click.stop="openTagForm(stamp.id, stamp.name)">
+                        <i class="fas fa-tags fa-2x"></i><span class="badge" v-if="stamp.tags.length > 0">{{ stamp.tags.length }}</span>
+                    </div>
                 </div>
-                <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
-                    <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
-                    <span v-show="isContainsFavorite(stamp.id)" style="opacity: 0.8"><i class="fas fa-heart fa-2x"></i></span>
-                </div>
-                <div class="downloadForm" @click.stop>
-                    <a :href="stamp.name" target="_blank"><i class="fas fa-external-link-alt fa-2x"></i></a>
-                </div>
-                <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
-                    <i class="fas fa-trash-alt"></i>
-                </div>
-            </div>
 
-            <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading" v-if="useInfinite">
+                <infinite-loading @infinite="infiniteHandler" ref="infiniteLoading" v-if="useInfinite">
                 <span slot="no-results">
                     データがありません
                 </span>
-                <span slot="no-more"></span>
-            </infinite-loading>
+                    <span slot="no-more"></span>
+                </infinite-loading>
+            </div>
         </div>
+
 
     </div>
 </template>
@@ -72,6 +96,12 @@
     // ダイアログ
     import VuejsDialog from "vuejs-dialog"
     Vue.use(VuejsDialog);
+
+    // ダイアログ（タグ用）
+    import ModalDialogs from 'vue-modal-dialogs'
+    Vue.use(ModalDialogs);
+    import MessageComponent from './tag_form'
+    const message = ModalDialogs.makeDialog(MessageComponent, 'image', 'roomId', 'stampId', 'allTags');
 
     // 無限スクロール
     import InfiniteLoading from 'vue-infinite-loading'
@@ -107,6 +137,7 @@
                 onlyFavorite: false,
                 useInfinite: true,
                 hoverStampId: null,
+                searchTag: '',
                 dropzoneOptions: {
                     url: (this.userId === null) ?
                         '/api/v1/rooms/' + this.room.id + '/stamps/guest' :
@@ -118,6 +149,7 @@
                     },
                     dictDefaultMessage: '<p>好きな画像をアップ</p><p><i class="fas fa-upload fa-2x" style="color:#000;"></i></p><p>この枠内にD&Dでも可</p>'
                 },
+                allTags: {},
             };
         },
         props: {
@@ -130,6 +162,7 @@
             if (!this.guest) {
                 this.getFavorites();
             }
+            this.getAllTags();
         },
         components: {
             vueDropzone: vue2Dropzone,
@@ -171,6 +204,7 @@
             viewType: function () {
                 return this.useInfinite ? '無限スクロール' : 'ページ表示';
             },
+
         },
         methods: {
             getStamps: function () {
@@ -185,6 +219,7 @@
                         params: {
                             sort: this.stampSort,
                             onlyFavorite: (this.onlyFavorite && this.useInfinite) ? 1 : 0,
+                            tag: this.searchTag,
                         },
                     })
                     .then(response => {
@@ -226,7 +261,7 @@
                 this.stamps.unshift(response.stamp);
             },
             uploadErrorEvent: function () {
-                this.$toasted.error('アップロードに失敗しました。', {icon: 'exclamation-triangle'});
+                this.$toasted.error('【エラー】2MBまでの画像のみアップ可能です。ファイルに問題無い場合、少し待ってからやり直して下さい。', {icon: 'exclamation-triangle'});
             },
             getFavorites: function () {
                 // お気に入り一覧
@@ -367,6 +402,7 @@
                         page: currentPage,
                         sort: this.stampSort,
                         onlyFavorite: this.onlyFavorite ? 1 : 0,
+                        tag: this.searchTag,
                     },
                 }).then(({ data }) => {
                     if (data.stamps.length) {
@@ -391,6 +427,35 @@
                 } else {
                     this.getStamps();
                 }
+            },
+            openTagForm: async function (stampId, stampName) {
+                let newTags;
+                if (newTags = await message(stampName, this.room.id, stampId, this.allTags)) {
+                    this.getAllTags();
+
+                    let stampIndex = this.stamps.findIndex(el => {
+                        return stampId === el.id;
+                    });
+
+                    // 今更新したスタンプのタグ更新
+                    if (stampIndex >= 0) {
+                        this.stamps[stampIndex].tags = newTags;
+                    }
+                }
+            },
+            getAllTags: function () {
+                let url = '/api/v1/rooms/' + this.room.id + '/tags';
+                axios.get(url)
+                    .then(response => {
+                        this.allTags = response.data;
+                    })
+                    .catch(error => {
+                        this.$toasted.error('タグ一覧の読み込みに失敗しました。', {icon: 'exclamation-triangle'});
+                    });
+            },
+            setSearchTag: function (tagName) {
+                this.searchTag = tagName;
+                this.resetStamps();
             }
         },
         watch: {
@@ -411,6 +476,31 @@
 </script>
 
 <style>
+    .stampListWrapper {
+        display: flex;
+    }
+
+    .sidebar {
+        flex-basis: 300px;
+    }
+
+    .tag {
+        cursor: pointer;
+    }
+
+    .main {
+        flex-basis: 100%;
+    }
+
+    .tagViewInformation {
+        margin-bottom : 10px;
+    }
+
+    .tagViewInformation strong {
+        color: #aa0000;
+        font-weight: bold;
+    }
+
     .btn-group {
         margin-bottom: 12px;
     }
@@ -526,6 +616,24 @@
         cursor: pointer;
     }
 
+    .tagForm {
+        opacity: 0;
+        transition: .5s ease;
+        position: absolute;
+        left: 6px;
+        top: 4px;
+        text-align: left;
+        color: #0caa0c;
+    }
+
+    .tagForm .badge {
+        background-color: #ff3c3c;
+        position:relative;
+        left: -12px;
+        top: -7px;
+        border: solid 1px #ffffff;
+    }
+
     .stampWrapper:hover > div {
         opacity: 1;
     }
@@ -559,6 +667,17 @@
         -moz-border-radius: 6px;
         border-radius: 6px;
         padding: 4px 13px;
+    }
+
+
+    /* modal */
+
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity 0.33s;
+    }
+
+    .fade-enter, .fade-leave-active {
+        opacity: 0;
     }
 
 
