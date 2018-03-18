@@ -95,7 +95,8 @@
                             :max="1"
                             :interval="0.1"
                             :width="100"
-                            tooltip="false"
+                            tooltip="hover"
+                            :formatter="(v) => `${v * 100}%`"
                             v-model="stampOpacity"/>
                     </div>
 
@@ -115,8 +116,10 @@
                             :max="1"
                             :interval="0.1"
                             :width="100"
-                            tooltip="false"
-                            v-model="stampVolume"/>
+                            tooltip="hover"
+                            :formatter="(v) => `${v * 100}%`"
+                            v-model="stampVolume"
+                        />
                     </div>
 
                     <i class="fas fa-volume-up fa-lg fa-fw"></i>
@@ -140,6 +143,11 @@
                             v-model="stampDelay"/>
                     </div>
                 </div>
+<!--
+                <div>
+                    <input type="file" @change="soundFileChange">
+                </div>
+-->
 
             </div>
         </vue-draggable-resizable>
@@ -175,10 +183,13 @@
                 isMute: false,
                 minControlPanel: false,
                 controlPanelWidth: 168,
+//                controlPanelWidth: 168,
                 controlPanelHeight: 178,
+//                controlPanelHeight: 300,
                 stampOpacity:1.0,
                 stampVolume: 0.4,
                 stampDelay: 3.5,
+                audio: null,
             }
         },
         computed: {
@@ -213,6 +224,31 @@
             this.y = 100;
 
             createjs.Sound.registerSound("/button16.mp3", 'receiveStamp');
+
+            /*
+            let stampSe = localStorage.getItem("SE_stamp_received");
+            if (stampSe) {
+                this.audio = new Audio(stampSe);
+                this.audio.volume = this.stampVolume;
+            } else {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', '/button16.mp3', true);
+                xhr.responseType = 'blob';
+                xhr.onload = (e) => {
+                    let fileReader = new FileReader();
+
+                    let file = (window.URL || window.webkitURL).createObjectURL(xhr.response);
+                    this.audio = new Audio(file);
+                    this.audio.volume = this.stampVolume;
+
+                    fileReader.onload = (ev) => {
+                        localStorage.setItem("SE_stamp_received", ev.target.result);
+                    };
+                    fileReader.readAsDataURL(xhr.response);
+                };
+                xhr.send();
+            }
+            */
 
             // チャンネル接続
             echo.channel('room.' + this.roomId)
@@ -327,6 +363,8 @@
                                 let soundInstance = createjs.Sound.createInstance('receiveStamp');
                                 soundInstance.setVolume(this.stampVolume);
                                 soundInstance.play();
+
+                            //    this.audio.play();
                             }
                         },
                         complete: () => {
@@ -386,6 +424,29 @@
                     };
                 }
             },
+
+            /*
+            soundFileChange: function (event) {
+                let file = (window.URL || window.webkitURL).createObjectURL(event.target.files[0]);
+                this.audio = new Audio(file);
+                this.audio.volume = this.stampVolume;
+
+                let fileReader = new FileReader();
+                fileReader.onload = (ev) => {
+                    localStorage.setItem("SE_stamp_received", ev.target.result);
+                };
+                fileReader.readAsDataURL(event.target.files[0]);
+            },
+            */
+
+            /*
+            changeVolume: function (volume) {
+                // volumeはバインディングされているため、代入せずとも良い
+                this.$nextTick(() => {
+                   this.audio.volume = this.stampVolume;
+                });
+            }
+            */
         }
     }
 </script>
