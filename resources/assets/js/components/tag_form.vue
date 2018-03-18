@@ -33,7 +33,7 @@
     import Vue from "vue"
 
     // タグ入力
-    import TagsInput from '@voerro/vue-tagsinput';
+    import TagsInput from './TagsInput';
     Vue.component('tags-input', TagsInput);
 
     export default {
