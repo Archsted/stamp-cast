@@ -53,6 +53,9 @@
             </div>
 
             <div class="stampList">
+
+                <div style="margin:0; padding:0; height:140px; width:1px;"></div>
+
                 <div class="stampForm" v-show="canUploadStamp && searchTag === ''">
                     <vue-dropzone
                         ref="myVueDropzone"
