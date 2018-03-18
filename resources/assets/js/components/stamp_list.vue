@@ -637,7 +637,7 @@
 
     .stamp {
         height: 100% !important;
-
+        max-width: 100%;
 
         /*border: solid 2px #888;*/
         -webkit-border-radius: 8px;
