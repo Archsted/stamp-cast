@@ -2,7 +2,13 @@
     <div class="stampListWrapper">
         <dialogs-wrapper tag="div" transition-name="fade"></dialogs-wrapper>
 
-        <div class="sidebar">
+        <div class="sidebar" v-show="showSideBar">
+            <div class="pull-right">
+                <button class="btn btn-default" style="margin-right: 10px;" @click="toggleShowSideBar">
+                    <i class="fas fa-angle-double-left fa-lg"></i> 閉じる
+                </button>
+            </div>
+
             <h3>タグ一覧</h3>
 
             <div class="tagList">
@@ -16,6 +22,11 @@
         </div>
 
         <div class="main">
+            <div class="pull-left" v-show="!showSideBar" style="position:relative; left:-12px;">
+                <span style="line-height:36px; cursor: pointer;" @click="toggleShowSideBar">
+                    <i class="fas fa-angle-double-right fa-lg"></i>
+                </span>
+            </div>
             <div class="btn-toolbar" role="toolbar">
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-warning" @click="resetStamps">
@@ -23,7 +34,7 @@
                     </button>
                 </div>
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click="stampSort = 'all'">全て</button>
+                    <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click="stampSort = 'all'">アップロード順</button>
                     <button type="button" class="btn" v-bind:class="stampSortClass('latest')" @click="stampSort = 'latest'">送信された順</button>
                     <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click="stampSort = 'count'">回数順</button>
                 </div>
@@ -155,6 +166,7 @@
                     dictDefaultMessage: '<p>好きな画像をアップ</p><p><i class="fas fa-upload fa-2x" style="color:#000;"></i></p><p>この枠内にD&Dでも可</p>'
                 },
                 allTags: {},
+                showSideBar: true,
             };
         },
         props: {
@@ -164,9 +176,12 @@
             userId: Number,
         },
         created: function () {
+            this.readSettings();
+
             if (!this.guest) {
                 this.getFavorites();
             }
+
             this.getAllTags();
         },
         components: {
@@ -490,7 +505,32 @@
                 this.onlyNoTags = false;
                 this.searchTag = '';
                 this.resetStamps();
-            }
+            },
+            toggleShowSideBar: function () {
+                this.showSideBar = !this.showSideBar;
+
+                let showSideBarSetting = localStorage.getItem('showSideBar');
+                if (!showSideBarSetting) {
+                    showSideBarSetting = {};
+                } else {
+                    showSideBarSetting = JSON.parse(showSideBarSetting);
+                }
+
+                showSideBarSetting[this.room.id] = this.showSideBar ? 1 : 0;
+                localStorage.setItem('showSideBar', JSON.stringify(showSideBarSetting));
+            },
+            readSettings: function () {
+                // サイドバーの開閉状態
+                let showSideBarSetting = localStorage.getItem('showSideBar');
+                if (showSideBarSetting) {
+                    showSideBarSetting = JSON.parse(showSideBarSetting);
+                    let showSideBar = showSideBarSetting[this.room.id];
+
+                    if (showSideBar !== undefined) {
+                        this.showSideBar = showSideBar;
+                    }
+                }
+            },
         },
         watch: {
             stampSort: function (newValue) {
