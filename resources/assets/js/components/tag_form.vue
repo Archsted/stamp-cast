@@ -8,7 +8,7 @@
                         <div class="stampWrapper"><img :src="image" class="stamp"></div>
                     </div>
                 </div>
-                <p>タグ名は1つにつき64文字まで、合計6個まで設定できます。</p>
+                <p>タグ名は1つにつき64文字まで、合計6個まで設定できます。<br>入力候補は↑↓キーで選択、Enterで決定、Escキーでキャンセルできます。</p>
                 <div v-if="oldTagsLoad">
                     <tags-input element-id="tags"
                                 v-model="tags"
