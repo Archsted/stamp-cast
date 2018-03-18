@@ -13,6 +13,8 @@
             <input type="text"
                 :placeholder="placeholder"
                 v-model="input"
+                @compositionstart="composing=true"
+                @compositionend="composing=false"
                 @keydown.enter.prevent="tagFromInput"
                 @keydown.backspace="removeLastTag"
                 @keydown.down="nextSearchResult"
@@ -95,7 +97,9 @@ export default {
             input: '',
             oldInput: '',
             hiddenInput: '',
-            
+
+            composing: false,
+
             searchResults: [],
             searchSelection: 0,
         };
@@ -128,28 +132,31 @@ export default {
 
     methods: {
         tagFromInput(e) {
-            // If we're choosing a tag from the search results
-            if (this.searchResults.length && this.searchSelection >= 0) {
-                this.tagFromSearch(this.searchResults[this.searchSelection]);
+            // 日本語入力中で無い時のみ
+            if (!this.composing) {
+                // If we're choosing a tag from the search results
+                if (this.searchResults.length && this.searchSelection >= 0) {
+                    this.tagFromSearch(this.searchResults[this.searchSelection]);
 
-                this.input = '';
-            } else {
-                // If we're adding an unexisting tag
-                let text = this.input.trim();
-
-                // If the new tag is not an empty string
-                if (!this.onlyExistingTags && text.length) {
                     this.input = '';
+                } else {
+                    // If we're adding an unexisting tag
+                    let text = this.input.trim();
 
-                    // Determine the tag's slug and text depending on if the tag exists
-                    // on the site already or not
-                    let slug = this.makeSlug(text);
-                    let existingTag = this.existingTags[slug];
+                    // If the new tag is not an empty string
+                    if (!this.onlyExistingTags && text.length) {
+                        this.input = '';
 
-                    slug = existingTag ? slug : text;
-                    text = existingTag ? existingTag : text;
+                        // Determine the tag's slug and text depending on if the tag exists
+                        // on the site already or not
+                        let slug = this.makeSlug(text);
+                        let existingTag = this.existingTags[slug];
 
-                    this.addTag(slug, text);
+                        slug = existingTag ? slug : text;
+                        text = existingTag ? existingTag : text;
+
+                        this.addTag(slug, text);
+                    }
                 }
             }
         },
