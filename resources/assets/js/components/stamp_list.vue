@@ -13,15 +13,15 @@
 
             <div class="tagList">
                 <ul>
-                    <li><a class="tag" @click.stop="setSearchNoTag">（タグが設定されていないもの） </a></li>
+                    <li><a class="tag" href="#list" @click="setSearchNoTag">（タグが設定されていないもの） </a></li>
                     <li v-for="tag in allTags">
-                        <a class="tag" @click.stop="setSearchTag(tag.text)">{{ tag.text }} <span class="badge">{{ tag.count }}</span></a>
+                        <a class="tag" href="#list" @click="setSearchTag(tag.text)">{{ tag.text }} <span class="badge">{{ tag.count }}</span></a>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <div class="main">
+        <div class="main" id="list">
             <div class="pull-left" v-show="!showSideBar" style="position:relative; left:-12px;">
                 <span style="line-height:36px; cursor: pointer;" @click="toggleShowSideBar">
                     <i class="fas fa-angle-double-right fa-lg"></i>
