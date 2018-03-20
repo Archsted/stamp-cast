@@ -69,6 +69,9 @@
                 <div v-for="(stamp, index) in stampList" :key="index"
                      class="stampWrapper" v-bind:style="cursor" @click="sendStamp(stamp.id)"
                      @mouseover="hoverStampId = stamp.id" @mouseleave="hoverStampId = null">
+                    <div class="preview" v-if="hoverPreviewStampId == stamp.id">
+                        <img class="stamp" :src="stamp.name">
+                    </div>
                     <div class="stampRippleWrapper" v-ripple>
                         <div class="animationFlagWrapper" v-if="stamp.is_animation">
                             <div class="animationFlag">
@@ -81,7 +84,9 @@
                         <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
                         <span v-show="isContainsFavorite(stamp.id)" style="opacity: 0.8"><i class="fas fa-heart fa-2x"></i></span>
                     </div>
-                    <div class="downloadForm" @click.stop>
+                    <div class="downloadForm"
+                         @mouseover="hoverPreviewStampId = stamp.id" @mouseleave="hoverPreviewStampId = null"
+                         @click.stop>
                         <a :href="stamp.name" target="_blank"><i class="fas fa-external-link-alt fa-2x"></i></a>
                     </div>
                     <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
@@ -155,6 +160,7 @@
                 onlyFavorite: false,
                 useInfinite: true,
                 hoverStampId: null,
+                hoverPreviewStampId: null,
                 searchTag: '',
                 onlyNoTags: false,
                 dropzoneOptions: {
@@ -678,6 +684,20 @@
         bottom: 4px;
         text-align: right;
         color: #ff4c4c;
+    }
+
+    .preview {
+        position: absolute;
+        top: -110px;
+        z-index: 10;
+        left: 0;
+        height: 140px;
+        transform: scale(2.0);
+        border: solid 1px #000;
+    }
+
+    .preview img {
+        border-radius: 0;
     }
 
     .stampForm {
