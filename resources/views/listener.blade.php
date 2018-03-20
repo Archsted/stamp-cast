@@ -12,17 +12,21 @@
                 <h3 class="panel-title">更新情報</h3>
             </div>
 
-            <div class="panel-body">
+            <div class="panel-body" style="height:126px; overflow-y: scroll;">
                 <p>
-                    (3/18 18:13) タグ一覧が表示されているサイドバーを開閉できるようになりました。開閉状態はルーム別に保存されます。
+                    (3/20) ルーム名の右に、スタンプ追加とスタンプ送信が可能なユーザ種別を表示するようにしました。（各ルームの持ち主が設定してある値です）
                 </p>
 
                 <p>
-                    (3/17 00:10) タグ一覧に「タグが設定されていないもの」を追加しました。まだスタンプが一つも設定されていないスタンプを表示できます。
+                    (3/18) タグ一覧が表示されているサイドバーを開閉できるようになりました。開閉状態はルーム別に保存されます。
                 </p>
 
                 <p>
-                    (3/16 09:00) タグ機能を試験的に追加しました。（細部や外観はあとで調整します）<br>
+                    (3/17) タグ一覧に「タグが設定されていないもの」を追加しました。まだスタンプが一つも設定されていないスタンプを表示できます。
+                </p>
+
+                <p>
+                    (3/16) タグ機能を試験的に追加しました。（細部や外観はあとで調整します）<br>
                     各スタンプの左上にある緑のタグアイコンから、スタンプに対してタグを設定できます。スタンプ一覧の左側に並ぶタグ名を選択すると、そのタグが付与されたスタンプを表示できます。
                 </p>
             </div>
@@ -73,6 +77,27 @@
 
         <div class="room-info">
             <h3>{{$room->name}}
+                <div style="margin-left: 20px; display: inline-block">
+                    @switch($room->uploader_level)
+                        @case(1)
+                        <span class="badge badge-success">追加: 誰でも可能</span>
+                        @break
+                        @case(2)
+                        <span class="badge badge-warning">追加: 会員のみ可能</span>
+                        @break
+                        @case(9)
+                        <span class="badge badge-danger">追加: 全員不可能</span>
+                        @break
+                    @endswitch
+                    @switch($room->imprinter_level)
+                        @case(1)
+                        <span class="badge badge-success">送信: 誰でも可能</span>
+                        @break
+                        @case(2)
+                        <span class="badge badge-warning">送信: 会員のみ可能</span>
+                        @break
+                    @endswitch
+                </div>
                 @auth
                     @if( auth()->user()->id === $room->user_id )
                         <div class="pull-right">
