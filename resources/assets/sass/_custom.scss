@@ -18,3 +18,15 @@
 .footer {
   margin-top: 6px;
 }
+
+.badge-success {
+  background-color: $brand-success !important;
+}
+
+.badge-warning {
+  background-color: $brand-warning !important;
+}
+
+.badge-danger {
+  background-color: $brand-danger !important;
+}
