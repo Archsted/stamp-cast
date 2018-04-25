@@ -1,12 +1,12 @@
 <template>
     <div class="stampAreaWrapper">
         <vue-draggable-resizable
-            :w="400"
-            :h="300"
+            :w="300"
+            :h="225"
             :minw="120"
             :minh="120"
-            :x="100"
-            :y="100"
+            :x="74"
+            :y="0"
             :z="areaZ"
             v-on:dragging="onAreaDrag"
             v-on:resizing="onAreaResize"
@@ -29,8 +29,8 @@
             :h="200"
             :minw="120"
             :minh="120"
-            :x="150"
-            :y="150"
+            :x="80"
+            :y="0"
             :z="sizeZ"
             v-on:resizing="onSizeResize"
             :parent="true"
@@ -47,8 +47,8 @@
             ref="controlPanel"
             :w="controlPanelWidth"
             :h="controlPanelHeight"
-            :x="100"
-            :y="410"
+            :x="0"
+            :y="0"
             :z="999"
             :parent="true"
             :resizable="false"
@@ -57,6 +57,7 @@
             :draggable="draggableSub">
             <div id="stampAreaControl" class="unselectable">
                 <button class="btn btn-primary"
+                        title="スタンプ表示場所調整。枠内のどこかにランダムで表示。"
                         v-show="!minControlPanel"
                         v-on:mouseover="draggableSub = false"
                         v-on:mouseout="draggableSub = true"
@@ -66,6 +67,7 @@
                 </button>
 
                 <button class="btn btn-primary"
+                        title="スタンプ大きさ調整。この枠に収まる大きさまで比率を保ち縮小。"
                         v-show="!minControlPanel"
                         v-on:mouseover="draggableSub = false"
                         v-on:mouseout="draggableSub = true"
@@ -75,6 +77,7 @@
                 </button>
 
                 <button class="btn btn-primary btn-xs"
+                        title="コントロールパネルの表示サイズ切り替え"
                         v-on:mouseover="draggableSub = false"
                         v-on:mouseout="draggableSub = true"
                         @click="minControlPanel = !minControlPanel">
@@ -181,11 +184,11 @@
                 draggableSub: true,
                 isShow: true,
                 isMute: false,
-                minControlPanel: false,
-                controlPanelWidth: 168,
-//                controlPanelWidth: 168,
-                controlPanelHeight: 178,
-//                controlPanelHeight: 300,
+                minControlPanel: true,
+                controlPanelWidth: 52, // min
+//                controlPanelWidth: 168, // max
+                controlPanelHeight: 52, // min
+//                controlPanelHeight: 178, // max
                 stampOpacity:1.0,
                 stampVolume: 0.4,
                 stampDelay: 3.5,
