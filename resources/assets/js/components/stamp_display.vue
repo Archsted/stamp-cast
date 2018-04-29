@@ -190,7 +190,7 @@
                 controlPanelHeight: 52, // min
 //                controlPanelHeight: 178, // max
                 stampOpacity:1.0,
-                stampVolume: 0.4,
+                stampVolume: 0.2,
                 stampDelay: 3.5,
                 audio: null,
             }
@@ -226,7 +226,7 @@
             this.x = 100;
             this.y = 100;
 
-            createjs.Sound.registerSound("/button16.mp3", 'receiveStamp');
+            createjs.Sound.registerSound("/button16.mp3?id=2", 'receiveStamp');
 
             /*
             let stampSe = localStorage.getItem("SE_stamp_received");
