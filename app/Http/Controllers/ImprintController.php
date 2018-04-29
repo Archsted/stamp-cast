@@ -6,6 +6,7 @@ use App\Events\StampEvent;
 use App\Http\Requests\StoreImprint;
 use App\Http\Requests\StoreImprintGuest;
 use App\Imprint;
+use App\ImprintLog;
 use App\Room;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -59,6 +60,18 @@ class ImprintController extends Controller
             'stamp_id' => $request->stamp_id,
             'ip' => $request->ip(),
         ]);
+
+        $imprintLog = ImprintLog::firstOrNew([
+            'stamp_id' => $request->stamp_id,
+            'room_id' => $room->id,
+        ]);
+
+        $imprintLog->fill([
+            'count' => $imprintLog->count + 1,
+            'imprint_id' => $imprint->id,
+        ]);
+
+        $imprintLog->save();
     }
 
     // 未ログインユーザによるスタンプ送信
@@ -72,5 +85,17 @@ class ImprintController extends Controller
             'stamp_id' => $request->stamp_id,
             'ip' => $request->ip(),
         ]);
+
+        $imprintLog = ImprintLog::firstOrNew([
+            'stamp_id' => $request->stamp_id,
+            'room_id' => $room->id,
+        ]);
+
+        $imprintLog->fill([
+            'count' => $imprintLog->count + 1,
+            'imprint_id' => $imprint->id,
+        ]);
+
+        $imprintLog->save();
     }
 }
