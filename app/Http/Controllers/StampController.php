@@ -6,6 +6,7 @@ use App\Http\Requests\StoreStamp;
 use App\Http\Requests\StoreStampGuest;
 use App\Http\Requests\UpdateTags;
 use App\Imprint;
+use App\ImprintLog;
 use App\Room;
 use App\Stamp;
 use App\Tag;
@@ -54,19 +55,18 @@ class StampController extends Controller
             $favoriteStampIds = [];
         }
 
+        $page = $request->get('page', 1);
+        $offset = Room::STAMP_COUNT_PER_PAGE * ($page - 1);
+
         // 無限スクロールで一部を取得するか、ページネートで全件取得するかはpageの有無で判断する
         if ($request->exists('page')) {
             // 無限スクロール
 
-            $page = $request->get('page', 1);
-            $offset = Room::STAMP_COUNT_PER_PAGE * ($page - 1);
-
             switch ($request->sort) {
                 case 'latest':
                     // ルームに送信されたStampを新しい順に取得する
-                    $query = Imprint::query()
+                    $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->withoutBlackList($blackListIps, $blackListUserIds)
                         ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps, $tag) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
@@ -81,7 +81,9 @@ class StampController extends Controller
                             }
                         ])
                         ->select('stamp_id')
-                        ->latest();
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset)
+                        ->orderBy('imprint_id', 'desc');
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
@@ -104,23 +106,17 @@ class StampController extends Controller
                         }
                     }
 
-                    $imprints = $query->get();
+                    $imprintLogs = $query->get();
 
-                    // 重複データを削除する
-                    $imprints = $imprints->uniqueStrict('stamp_id')->values();
-
-                    foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
-                        $stamps[] = $imprint->stamp;
+                    foreach ($imprintLogs as $imprintLog) {
+                        $stamps[] = $imprintLog->stamp;
                     }
 
                     break;
                 case 'count':
                     // ルームに送信されたStampを件数順に取得する
-
-                    /** @var Collection $imprints */
-                    $query = Imprint::query()
+                    $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->withoutBlackList($blackListIps, $blackListUserIds)
                         ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
@@ -135,9 +131,10 @@ class StampController extends Controller
                             }
                         ])
                         ->select('stamp_id')
-                        ->groupBy('stamp_id')
-                        ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
-                        ->orderBy('stamp_id', 'desc');
+                        ->orderBy('count', 'desc')
+                        ->orderBy('imprint_id', 'desc')
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset);
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
@@ -160,11 +157,10 @@ class StampController extends Controller
                         }
                     }
 
-                    $imprints = $query->get();
+                    $imprintLogs = $query->get();
 
-                    // groupByを利用しているSQLで、limitとoffsetが利用できないので、Collection取得後のここで行う
-                    foreach ($imprints->splice($offset, Room::STAMP_COUNT_PER_PAGE) as $imprint) {
-                        $stamps[] = $imprint->stamp;
+                    foreach ($imprintLogs as $imprintLog) {
+                        $stamps[] = $imprintLog->stamp;
                     }
 
                     break;
@@ -193,7 +189,6 @@ class StampController extends Controller
                         $query->whereIn('id', $favoriteStampIds);
                     }
 
-
                     // タグが無いもののみを表示する場合
                     if ($onlyNoTags) {
                         $query->whereDoesntHave('tags', function ($query) use ($room) {
@@ -221,10 +216,10 @@ class StampController extends Controller
             switch ($request->sort) {
                 case 'latest':
                     // ルームに送信されたStampを新しい順に取得する
-                    $query = Imprint::query()
+
+                    $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->withoutBlackList($blackListIps, $blackListUserIds)
-                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
+                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps, $tag) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
                         ->with([
@@ -238,7 +233,9 @@ class StampController extends Controller
                             }
                         ])
                         ->select('stamp_id')
-                        ->latest();
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset)
+                        ->orderBy('imprint_id', 'desc');
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
@@ -261,23 +258,18 @@ class StampController extends Controller
                         }
                     }
 
-                    $imprints = $query->get();
+                    $imprintLogs = $query->get();
 
-                    // 重複データを削除する
-                    $imprints = $imprints->uniqueStrict('stamp_id')->values();
-
-                    foreach ($imprints as $imprint) {
-                        $stamps[] = $imprint->stamp;
+                    foreach ($imprintLogs as $imprintLog) {
+                        $stamps[] = $imprintLog->stamp;
                     }
 
                     break;
                 case 'count':
                     // ルームに送信されたStampを件数順に取得する
 
-                    /** @var Collection $imprints */
-                    $query = Imprint::query()
+                    $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->withoutBlackList($blackListIps, $blackListUserIds)
                         ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
                             $query->withoutBlackList($blackListIps, $blackListUserIds);
                         })
@@ -292,9 +284,10 @@ class StampController extends Controller
                             }
                         ])
                         ->select('stamp_id')
-                        ->groupBy('stamp_id')
-                        ->orderBy(DB::raw('COUNT(stamp_id)'), 'desc')
-                        ->orderBy('stamp_id', 'desc');
+                        ->orderBy('count', 'desc')
+                        ->orderBy('imprint_id', 'desc')
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset);
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
@@ -317,11 +310,10 @@ class StampController extends Controller
                         }
                     }
 
+                    $imprintLogs = $query->get();
 
-                    $imprints = $query->get();
-
-                    foreach ($imprints as $imprint) {
-                        $stamps[] = $imprint->stamp;
+                    foreach ($imprintLogs as $imprintLog) {
+                        $stamps[] = $imprintLog->stamp;
                     }
 
                     break;
@@ -340,7 +332,9 @@ class StampController extends Controller
                         ])
                         ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation'])
                         ->orderBy('created_at', 'desc')
-                        ->orderBy('id', 'desc');
+                        ->orderBy('id', 'desc')
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset);
 
                     // お気に入りのみを取得する場合
                     if ($onlyFavorite && $requestUser) {
