@@ -44,27 +44,16 @@
     <div class="flex-center position-ref full-height">
         <div class="title m-b-md form">
 
-            <!--
-            <div class="panel panel-danger" style="background-color:#fcc;">
+            <div class="panel panel-success" style="background-color:#cfc;">
                 <div class="panel-body">
-                    <h3 class="panel-title">【重要】サーバの高負荷対策について</h3>
+                    <h3 class="panel-title"></h3>
                     <p>
-                        現在夜間を中心にサーバへの負荷が高く、今後のサービス維持が困難な状況となっております。<br>
-                        つきましてはその原因の特定と、対策による効果を調べるため、<br>
-                        日替わりで機能の制限を行わせていただくことになりました。<br>
-                        使いづらいと感じる事もあるかと思いますが、その結果で通常時と<br>
-                        どの程度の違いが出るのかを調べるため、ご理解とご協力をお願いします。
-                    </p>
-
-                    <p>
-                        (2/16 17:47) 現在、試験的に以下の制限を行っています。<br>
-                        転送量が増えており、対策を行うまでの暫定処置です。<br>
-                        <strong>・ページ表示を削除</strong><br>
-                        <strong>・無限スクロールでのスタンプ表示上限を300前後に</strong>
+                        (5/2) スタンプの表示領域やサイズなどの設定を記憶するようにしました。<br>
+                        リセットしたい場合は、設定変更のボタンやスライダーがあるウィンドウを<br>
+                        右クリックして「初期設定に戻す」を選択して下さい。
                     </p>
                 </div>
             </div>
-            -->
 
             <form action="{{ route('receiver') }}" method="post">
                 {{ csrf_field() }}
