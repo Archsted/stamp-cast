@@ -1,47 +1,52 @@
 <template>
-    <div class="stampAreaWrapper">
+    <div id="stampAreaWrapper">
         <vue-draggable-resizable
-            :w="300"
-            :h="225"
-            :minw="120"
-            :minh="120"
-            :x="74"
-            :y="0"
+            ref="stampAreaDr"
+            :w="stampArea.w"
+            :h="stampArea.h"
+            :minw="minStampAreaW"
+            :minh="minStampAreaH"
+            :x="stampArea.x"
+            :y="stampArea.y"
             :z="areaZ"
             v-on:dragging="onAreaDrag"
             v-on:resizing="onAreaResize"
+            v-on:dragstop="saveSettings"
+            v-on:resizestop="saveSettings"
             :parent="true"
             :resizable="areaDisplay"
             :draggable="areaDisplay"
             :active="areaDisplay">
+            <vue-draggable-resizable
+                ref="stampSizeDr"
+                :w="stampSize.w"
+                :h="stampSize.h"
+                :minw="minStampAreaW"
+                :minh="minStampAreaH"
+                :x="stampSize.x"
+                :y="stampSize.y"
+                :z="sizeZ"
+                v-on:dragging="onSizeDrag"
+                v-on:resizing="onSizeResize"
+                v-on:dragstop="saveSettings"
+                v-on:resizestop="saveSettings"
+                :parent="true"
+                :resizable="sizeDisplay"
+                :draggable="sizeDisplay"
+                :active="sizeDisplay">
+                <div class="stampArea" v-bind:style="stampSizeStyle">
+
+                </div>
+            </vue-draggable-resizable>
             <div class="stampArea" id="display" v-bind:style="stampAreaStyle">
                 <div class="stampAreaInfoWrapper" v-bind:style="{ display: informationDisplay }">
-                    <div class="stampAreaInfo stampAreaTop"><span>{{ width }}</span></div>
-                    <div class="stampAreaInfo stampAreaRight"><span>{{ height }}</span></div>
-                    <div class="stampAreaInfo stampAreaBottom"><span>{{ width }}</span></div>
-                    <div class="stampAreaInfo stampAreaLeft"><span>{{ height }}</span></div>
+                    <div class="stampAreaInfo stampAreaTop"><span>{{ stampArea.w }}</span></div>
+                    <div class="stampAreaInfo stampAreaRight"><span>{{ stampArea.h }}</span></div>
+                    <div class="stampAreaInfo stampAreaBottom"><span>{{ stampArea.w }}</span></div>
+                    <div class="stampAreaInfo stampAreaLeft"><span>{{ stampArea.h }}</span></div>
                 </div>
             </div>
         </vue-draggable-resizable>
-
-        <vue-draggable-resizable
-            :w="200"
-            :h="200"
-            :minw="120"
-            :minh="120"
-            :x="80"
-            :y="0"
-            :z="sizeZ"
-            v-on:resizing="onSizeResize"
-            :parent="true"
-            :resizable="sizeDisplay"
-            :draggable="sizeDisplay"
-            :active="sizeDisplay">
-            <div class="stampArea" v-bind:style="stampSizeStyle">
-
-            </div>
-        </vue-draggable-resizable>
-
 
         <vue-draggable-resizable
             ref="controlPanel"
@@ -55,113 +60,138 @@
             v-on:dragstop="onControlDragStop"
             v-on:resizestop="onControlResizeStop"
             :draggable="draggableSub">
-            <div id="stampAreaControl" class="unselectable">
-                <button class="btn btn-primary"
-                        title="スタンプ表示場所調整。枠内のどこかにランダムで表示。"
-                        v-show="!minControlPanel"
-                        v-on:mouseover="draggableSub = false"
-                        v-on:mouseout="draggableSub = true"
-                        @click="toggleDisplay"
-                        v-bind:style="areaButtonStyle">
-                    <i class="far fa-object-group"></i>
-                </button>
+            <hsc-menu-style-white>
+                <hsc-menu-context-menu>
+                    <div class="menuWrapper">
+                        <div id="stampAreaControl" class="unselectable">
+                            <div class="buttonControl">
+                                <button class="btn btn-primary"
+                                        title="スタンプ表示場所調整。枠内のどこかにランダムで表示。"
+                                        v-show="!minControlPanel"
+                                        v-on:mouseover="draggableSub = false"
+                                        v-on:mouseout="draggableSub = true"
+                                        @click="toggleDisplay"
+                                        v-bind:style="areaButtonStyle">
+                                    位置
+                                </button>
 
-                <button class="btn btn-primary"
-                        title="スタンプ大きさ調整。この枠に収まる大きさまで比率を保ち縮小。"
-                        v-show="!minControlPanel"
-                        v-on:mouseover="draggableSub = false"
-                        v-on:mouseout="draggableSub = true"
-                        @click="toggleSizeDisplay"
-                        v-bind:style="sizeButtonStyle">
-                    <span class="glyphicon glyphicon-picture"></span>
-                </button>
+                                <button class="btn btn-primary"
+                                        title="スタンプ大きさ調整。この枠に収まる大きさまで比率を保ち縮小。"
+                                        v-show="!minControlPanel"
+                                        v-on:mouseover="draggableSub = false"
+                                        v-on:mouseout="draggableSub = true"
+                                        @click="toggleSizeDisplay"
+                                        v-bind:style="sizeButtonStyle">
+                                    大きさ
+                                </button>
 
-                <button class="btn btn-primary btn-xs"
-                        title="コントロールパネルの表示サイズ切り替え"
-                        v-on:mouseover="draggableSub = false"
-                        v-on:mouseout="draggableSub = true"
-                        @click="minControlPanel = !minControlPanel">
-                    <span v-show="!minControlPanel"><i class="fas fa-window-minimize"></i></span>
-                    <span v-show="minControlPanel"><i class="fas fa-window-maximize"></i></span>
-                </button>
+                                <button class="btn btn-primary btn-xs"
+                                        title="コントロールパネルの表示サイズ切り替え"
+                                        v-on:mouseover="draggableSub = false"
+                                        v-on:mouseout="draggableSub = true"
+                                        @click="minControlPanel = !minControlPanel">
+                                    <span v-show="!minControlPanel"><i class="fas fa-window-minimize"></i></span>
+                                    <span v-show="minControlPanel"><i class="fas fa-window-maximize"></i></span>
+                                </button>
+                            </div>
 
-                <div class="sliderControl"
-                     v-show="!minControlPanel"
-                     v-on:mouseover="draggableSub = false"
-                     v-on:mouseout="draggableSub = true">
-                    <i class="far fa-eye-slash fa-lg fa-fw"></i>
+                            <div class="sliderControl"
+                                 v-show="!minControlPanel"
+                                 v-on:mouseover="draggableSub = false"
+                                 v-on:mouseout="draggableSub = true">
+                                <i class="far fa-eye-slash fa-lg fa-fw"></i>
 
-                    <div class="SliderWrapper">
-                        <vue-slider
-                            ref="opacitySlider"
-                            :min="0"
-                            :max="1"
-                            :interval="0.1"
-                            :width="100"
-                            tooltip="hover"
-                            :formatter="(v) => `${v * 100}%`"
-                            v-model="stampOpacity"/>
+                                <div class="SliderWrapper">
+                                    <vue-slider
+                                        ref="opacitySlider"
+                                        :min="0"
+                                        :max="1"
+                                        :interval="0.1"
+                                        :width="100"
+                                        tooltip="hover"
+                                        :formatter="(v) => `${v * 100}%`"
+                                        v-model="stampOpacity"
+                                        v-on:drag-end="saveSettings"
+                                    />
+                                </div>
+
+                                <i class="fas fa-eye fa-lg fa-fw"></i>
+                            </div>
+
+                            <div class="sliderControl"
+                                 v-show="!minControlPanel"
+                                 v-on:mouseover="draggableSub = false"
+                                 v-on:mouseout="draggableSub = true">
+                                <i class="fas fa-volume-off fa-lg fa-fw"></i>
+
+                                <div class="SliderWrapper">
+                                    <vue-slider
+                                        ref="volumeSlider"
+                                        :min="0"
+                                        :max="1"
+                                        :interval="0.1"
+                                        :width="100"
+                                        tooltip="hover"
+                                        :formatter="(v) => `${v * 100}%`"
+                                        v-model="stampVolume"
+                                        v-on:drag-end="saveSettings"
+                                    />
+                                </div>
+
+                                <i class="fas fa-volume-up fa-lg fa-fw"></i>
+                            </div>
+
+                            <div class="sliderControl"
+                                 v-show="!minControlPanel"
+                                 v-on:mouseover="draggableSub = false"
+                                 v-on:mouseout="draggableSub = true">
+                                <i class="fas fa-clock fa-lg fa-fw"></i>
+
+                                <div class="SliderWrapper">
+                                    <vue-slider
+                                        ref="delaySlider"
+                                        :min="0.5"
+                                        :max="8"
+                                        :interval="0.1"
+                                        :width="122"
+                                        tooltip="hover"
+                                        formatter="{value}秒"
+                                        v-model="stampDelay"
+                                        v-on:drag-end="saveSettings"
+                                    />
+                                </div>
+                            </div>
+                            <!--
+                                            <div>
+                                                <input type="file" @change="soundFileChange">
+                                            </div>
+                            -->
+                        </div>
                     </div>
-
-                    <i class="fas fa-eye fa-lg fa-fw"></i>
-                </div>
-
-                <div class="sliderControl"
-                     v-show="!minControlPanel"
-                     v-on:mouseover="draggableSub = false"
-                     v-on:mouseout="draggableSub = true">
-                    <i class="fas fa-volume-off fa-lg fa-fw"></i>
-
-                    <div class="SliderWrapper">
-                        <vue-slider
-                            ref="volumeSlider"
-                            :min="0"
-                            :max="1"
-                            :interval="0.1"
-                            :width="100"
-                            tooltip="hover"
-                            :formatter="(v) => `${v * 100}%`"
-                            v-model="stampVolume"
-                        />
-                    </div>
-
-                    <i class="fas fa-volume-up fa-lg fa-fw"></i>
-                </div>
-
-                <div class="sliderControl"
-                     v-show="!minControlPanel"
-                     v-on:mouseover="draggableSub = false"
-                     v-on:mouseout="draggableSub = true">
-                    <i class="fas fa-clock fa-lg fa-fw"></i>
-
-                    <div class="SliderWrapper">
-                        <vue-slider
-                            ref="delaySlider"
-                            :min="0.5"
-                            :max="8"
-                            :interval="0.1"
-                            :width="122"
-                            tooltip="hover"
-                            formatter="{value}秒"
-                            v-model="stampDelay"/>
-                    </div>
-                </div>
-<!--
-                <div>
-                    <input type="file" @change="soundFileChange">
-                </div>
--->
-
-            </div>
+                    <template slot="contextmenu">
+                        <hsc-menu-item label="初期設定に戻す" @click="resetSettings" />
+                    </template>
+                </hsc-menu-context-menu>
+            </hsc-menu-style-white>
         </vue-draggable-resizable>
     </div>
 </template>
 
 <script>
-    import Vue from 'vue'
+    import Vue from 'vue';
 
-    import VueDraggableResizable from 'vue-draggable-resizable'
-    Vue.component('vue-draggable-resizable', VueDraggableResizable)
+    import Storage from 'vue-ls';
+    Vue.use(Storage, {
+        namespace: 'broadcaster__', // key prefix
+        name: 'ls', // name variable Vue.[ls] or this.[$ls],
+        storage: 'local', // storage name session, local, memory
+    });
+
+    import VueDraggableResizable from 'vue-draggable-resizable';
+    Vue.component('vue-draggable-resizable', VueDraggableResizable);
+
+    import * as VueMenu from '@hscmap/vue-menu';
+    Vue.use(VueMenu);
 
     import vueSlider from 'vue-slider-component'
 
@@ -173,12 +203,7 @@
                 stampAreaStyle: this.getVisibleStyle(),
                 stampSizeStyle: this.getInvisibleStyle(),
                 informationDisplay: 'block',
-                width: 0,
-                height: 0,
-                x: 0,
-                y: 0,
-                stampSizeWidth: 0,
-                stampSizeHeight: 0,
+
                 counter: 0,
                 displayEl: null,
                 draggableSub: true,
@@ -189,10 +214,31 @@
 //                controlPanelWidth: 168, // max
                 controlPanelHeight: 52, // min
 //                controlPanelHeight: 178, // max
-                stampOpacity:1.0,
-                stampVolume: 0.2,
-                stampDelay: 3.5,
                 audio: null,
+
+                minStampAreaW: 120,
+                minStampAreaH: 120,
+
+                // コントロールパネル設定値
+                stampOpacity: 0.0,
+                stampVolume: 0.0,
+                stampDelay: 0.0,
+
+                // スタンプ表示領域
+                stampArea: {
+                    w: 0,
+                    h: 0,
+                    x: 0,
+                    y: 0,
+                },
+
+                // スタンプサイズ領域
+                stampSize: {
+                    w: 0,
+                    h: 0,
+                    x: 0,
+                    y: 0,
+                },
             }
         },
         computed: {
@@ -223,8 +269,9 @@
             vueSlider
         },
         created: function () {
-            this.x = 100;
-            this.y = 100;
+            // 初期値設定読み込み
+            this.setDefaultSettings();
+            this.loadSettings();
 
             createjs.Sound.registerSound("/button16.mp3?id=2", 'receiveStamp');
 
@@ -277,8 +324,9 @@
                     this.$refs.controlPanel.width = 52;
                     this.$refs.controlPanel.height = 52;
                 } else {
-                    this.$refs.controlPanel.width = 168;
-                    this.$refs.controlPanel.height = 178;
+//                    this.$refs.controlPanel.width = 168;
+                    this.$refs.controlPanel.width = 180;
+                    this.$refs.controlPanel.height = 200;
                     this.$nextTick(() => {
                         this.refreshSliders();
                     });
@@ -286,11 +334,137 @@
             },
         },
         methods: {
+
+            setDefaultSettings: function () {
+                this.stampOpacity = 1.0;
+                this.stampVolume = 0.2;
+                this.stampDelay = 3.5;
+
+                this.stampArea.w = 300;
+                this.stampArea.h = 225;
+                this.stampArea.x = 74;
+                this.stampArea.y = 0;
+
+                this.stampSize.w = 140;
+                this.stampSize.h = 140;
+                this.stampSize.x = 174;
+                this.stampSize.y = 0;
+            },
+
+            loadSettings: function () {
+                let data = JSON.parse(Vue.ls.get('setting', '{}'));
+
+                // ホワイトリスト形式で設定値を上書き
+
+                // スタンプ透過値
+                if (data.hasOwnProperty('stampOpacity')) {
+                    if (data.stampOpacity >= 0 && data.stampOpacity <= 1) {
+                        this.stampOpacity = data.stampOpacity;
+                    }
+                }
+
+                // スタンプ通知音量
+                if (data.hasOwnProperty('stampVolume')) {
+                    if (data.stampVolume >= 0 && data.stampVolume <= 1) {
+                        this.stampVolume = data.stampVolume;
+                    }
+                }
+
+                // スタンプ表示時間
+                if (data.hasOwnProperty('stampDelay')) {
+                    if (data.stampDelay >= 0.5 && data.stampDelay <= 8) {
+                        this.stampDelay = data.stampDelay;
+                    }
+                }
+
+                // スタンプ表示領域
+                if (data.hasOwnProperty('stampArea')) {
+                    if (data.stampArea.hasOwnProperty('x') &&
+                        data.stampArea.hasOwnProperty('y') &&
+                        data.stampArea.hasOwnProperty('w') &&
+                        data.stampArea.hasOwnProperty('h')) {
+
+                        let wrapper = document.querySelector('#stampAreaWrapper');
+
+                        if (data.stampArea.w >= this.minStampAreaW && data.stampArea.h >= this.minStampAreaH &&
+                            data.stampArea.x >= 0 && data.stampArea.y >= 0
+                        ) {
+                            // 反映
+                            this.stampArea.w = data.stampArea.w;
+                            this.stampArea.h = data.stampArea.h;
+                            this.stampArea.x = data.stampArea.x;
+                            this.stampArea.y = data.stampArea.y;
+                        }
+                    }
+                }
+
+                if (data.hasOwnProperty('stampSize')) {
+                    if (data.stampSize.hasOwnProperty('x') &&
+                        data.stampSize.hasOwnProperty('y') &&
+                        data.stampSize.hasOwnProperty('w') &&
+                        data.stampSize.hasOwnProperty('h')) {
+
+                        let wrapper = document.querySelector('#stampAreaWrapper');
+
+                        // 表示領域が全て画面内に収まる場合のみ
+                        if (data.stampSize.w >= this.minStampAreaW && data.stampArea.h >= this.minStampAreaH &&
+                            data.stampSize.x >= 0 && data.stampSize.y >= 0
+                        // &&
+                        // data.stampSize.w + data.stampSize.x <=  wrapper.clientWidth &&
+                        // data.stampSize.h + data.stampSize.y <= wrapper.clientHeight
+                        ) {
+
+                            // 反映
+                            this.stampSize.w = data.stampSize.w;
+                            this.stampSize.h = data.stampSize.h;
+                            this.stampSize.x = data.stampSize.x;
+                            this.stampSize.y = data.stampSize.y;
+                        }
+                    }
+                }
+
+            },
+
+            saveSettings: function () {
+                let data = {
+                    stampOpacity: this.stampOpacity,
+                    stampVolume: this.stampVolume,
+                    stampDelay: this.stampDelay,
+                    stampArea: {
+                        w: this.stampArea.w,
+                        h: this.stampArea.h,
+                        x: this.stampArea.x,
+                        y: this.stampArea.y,
+                    },
+                    stampSize: {
+                        w: this.stampSize.w,
+                        h: this.stampSize.h,
+                        x: this.stampSize.x,
+                        y: this.stampSize.y,
+                    },
+                };
+
+                Vue.ls.set('setting', JSON.stringify(data));
+            },
+
+            resetSettings: function () {
+                this.setDefaultSettings();
+                this.saveSettings();
+                location.reload();
+            },
+
             onAreaResize: function (x, y, width, height) {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
+                this.stampArea.x = x;
+                this.stampArea.y = y;
+                this.stampArea.w = width;
+                this.stampArea.h = height;
+            },
+
+            onSizeResize: function (x, y, width, height) {
+                this.stampSize.x = x;
+                this.stampSize.y = y;
+                this.stampSize.w = width;
+                this.stampSize.h = height;
             },
 
             refreshSliders: function () {
@@ -300,13 +474,13 @@
             },
 
             onAreaDrag: function (x, y) {
-                this.x = x;
-                this.y = y;
+                this.stampArea.x = x;
+                this.stampArea.y = y;
             },
 
-            onSizeResize: function (x, y, width, height) {
-                this.stampSizeWidth = width
-                this.stampSizeHeight = height
+            onSizeDrag: function (x, y) {
+                this.stampSize.x = x;
+                this.stampSize.y = y;
             },
 
             onControlDragStop: function (x, y) {
@@ -345,7 +519,7 @@
 
                 img.onload = () => {
                     // 領域を超えないようにサイズ調整
-                    let size = this.calculateAspectRatioFit(stamp.width, stamp.height, this.stampSizeWidth, this.stampSizeHeight);
+                    let size = this.calculateAspectRatioFit(stamp.width, stamp.height, this.stampSize.w, this.stampSize.h);
                     img.width = size.width;
                     img.height = size.height;
 
@@ -367,7 +541,7 @@
                                 soundInstance.setVolume(this.stampVolume);
                                 soundInstance.play();
 
-                            //    this.audio.play();
+                                //    this.audio.play();
                             }
                         },
                         complete: () => {
@@ -403,11 +577,11 @@
             },
 
             getRandomTop: function (offset) {
-                return Math.floor(Math.random() * (this.height - offset));
+                return Math.floor(Math.random() * (this.stampArea.h - offset));
             },
 
             getRandomLeft: function (offset) {
-                return Math.floor(Math.random() * (this.width - offset));
+                return Math.floor(Math.random() * (this.stampArea.w - offset));
             },
 
             calculateAspectRatioFit: function (srcWidth, srcHeight, maxWidth, maxHeight) {
@@ -460,7 +634,7 @@
         height: 100%;
     }
 
-    .stampAreaWrapper {
+    #stampAreaWrapper {
         position: absolute;
         top: 0;
         right: 0;
@@ -667,12 +841,35 @@
         right: 0 !important;
     }
 
+    .buttonControl {
+        width: 100%;
+        margin: 6px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .buttonControl > button {
+        font-size: 1em !important;
+    }
+
     .sliderControl {
+        margin: 10px 6px;
         display: flex;
         justify-content: space-between;
     }
 
     .SliderWrapper {
         margin: 0 6px;
+    }
+
+    #stampAreaWrapper .label {
+        font-size: 100%;
+        font-weight: normal;
+        line-height: 1;
+        color: inherit;
+    }
+
+    .fixed {
+        z-index: 10000;
     }
 </style>
