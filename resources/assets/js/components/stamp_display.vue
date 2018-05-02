@@ -812,6 +812,15 @@
         user-select: none;
     }
 
+
+    .handle {
+        z-index: 1;
+    }
+
+    #stampAreaWrapper + .draggable + .handle {
+        z-index: 2;
+    }
+
     .handle-tl {
         top: 0 !important;
         left: 0 !important;
