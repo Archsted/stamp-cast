@@ -17,6 +17,7 @@ mix.js('resources/assets/js/app.js', 'public/js')
     .js('resources/assets/js/broadcaster.js', 'public/js')
     .js('resources/assets/js/broadcaster_beta.js', 'public/js')
     .js('resources/assets/js/imprint.js', 'public/js')
+    .js('resources/assets/js/bookList.js', 'public/js')
     .sass('resources/assets/sass/app.scss', 'public/css')
     .sass('resources/assets/sass/top.scss', 'public/css');
 

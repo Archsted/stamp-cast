@@ -6,4 +6,5 @@
 * [配信者向け](./forBroadcaster.md)
     * [ツールの使い方](./tool.md)
 * [リスナー向け](./forListener.md)
+    * [スタンプ帳](./book.md)
 * [よくある質問](./faq.md)

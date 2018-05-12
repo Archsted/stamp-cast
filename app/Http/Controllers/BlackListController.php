@@ -54,7 +54,7 @@ class BlackListController extends Controller
         $user = $request->user();
 
         if ($imprint->room->user_id !== $user->id) {
-            abort(403);
+            abort(403, '自分のルームへの送信履歴ではありません。');
         }
 
         // （念のため）スタンプの送信者のIPが自分のIPと異なる場合

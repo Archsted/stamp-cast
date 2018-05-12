@@ -34,14 +34,31 @@
                     </button>
                 </div>
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click="stampSort = 'all'">アップロード順</button>
-                    <button type="button" class="btn" v-bind:class="stampSortClass('latest')" @click="stampSort = 'latest'">送信された順</button>
-                    <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click="stampSort = 'count'">回数順</button>
-                </div>
-                <div class="btn-group" role="group" v-if="!guest">
-                    <button type="button" class="btn" v-bind:class="onlyFavoriteButtonClass" @click="onlyFavorite = !onlyFavorite">
-                        <span style="color: hotpink;"><i class="fas fa-heart fa-lg"></i></span> お気に入りのみ表示
-                    </button>
+                    <button type="button" class="btn" v-bind:class="stampSortClass('all')" @click.prevent="stampSort = 'all'">アップロード順</button>
+                    <button type="button" class="btn" v-bind:class="stampSortClass('latest')" @click.prevent="stampSort = 'latest'">送信された順</button>
+                    <button type="button" class="btn" v-bind:class="stampSortClass('count')" @click.prevent="stampSort = 'count'">回数順</button>
+                    <div class="btn-group" role="group" v-if="!guest && books.length > 0">
+                        <button type="button"
+                                class="btn"
+                                @click.prevent="stampSort = 'book'"
+                                v-bind:class="stampSortClass('book')">
+                            {{ selectedBookName }}
+                        </button>
+                        <button type="button"
+                                class="btn dropdown-toggle"
+                                v-bind:class="stampSortClass('book')"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li v-for="book in books">
+                                <a href="#" @click.prevent="setSelectedBook(book.id)">{{ book.name }}</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -80,16 +97,15 @@
                         </div>
                         <img class="stamp" :src="(stamp.is_animation && hoverStampId === stamp.id) ? stamp.name : (stamp.thumbnail ? stamp.thumbnail : stamp.name)">
                     </div>
-                    <div class="favoriteForm" @click.stop="toggleFavorite(stamp.id)" v-if="!guest" v-bind:class="{containsFavorite: isContainsFavorite(stamp.id)}">
-                        <span v-show="!isContainsFavorite(stamp.id)"><i class="far fa-heart fa-2x"></i></span>
-                        <span v-show="isContainsFavorite(stamp.id)" style="opacity: 0.8"><i class="fas fa-heart fa-2x"></i></span>
+                    <div class="favoriteForm" @click.stop="openBookForm(stamp.id, stamp.name)" v-if="!guest">
+                        <i class="fas fa-book fa-2x"></i>
                     </div>
                     <div class="downloadForm"
                          @mouseover="hoverPreviewStampId = stamp.id" @mouseleave="hoverPreviewStampId = null"
                          @click.stop>
                         <a :href="stamp.name" target="_blank"><i class="fas fa-external-link-alt fa-2x"></i></a>
                     </div>
-                    <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name)" v-if="stamp.room_id && canDelete(stamp.user_id)">
+                    <div class="deleteForm" @click.stop="deleteStamp(stamp.id, stamp.user_id, stamp.name, stamp.room_id)" v-if="stamp.room_id && canDelete(stamp.user_id)">
                         <i class="fas fa-trash-alt"></i>
                     </div>
                     <div class="tagForm" @click.stop="openTagForm(stamp.id, stamp.name)">
@@ -124,7 +140,10 @@
     import ModalDialogs from 'vue-modal-dialogs'
     Vue.use(ModalDialogs);
     import MessageComponent from './tag_form'
+    import AddBookMessageComponent from './book_select';
+
     const message = ModalDialogs.makeDialog(MessageComponent, 'image', 'roomId', 'stampId', 'allTags');
+    const addBookMessage = ModalDialogs.makeDialog(AddBookMessageComponent, 'image', 'stampId');
 
     // 無限スクロール
     import InfiniteLoading from 'vue-infinite-loading'
@@ -155,9 +174,9 @@
         data: function () {
             return {
                 stamps: [],
-                favorites: [],
+                books: [],
+                selectedBook: null,
                 stampSort: 'all',
-                onlyFavorite: false,
                 useInfinite: true,
                 hoverStampId: null,
                 hoverPreviewStampId: null,
@@ -188,7 +207,7 @@
             this.readSettings();
 
             if (!this.guest) {
-                this.getFavorites();
+                this.getBooks();
             }
 
             this.getAllTags();
@@ -199,13 +218,7 @@
         },
         computed: {
             stampList: function () {
-                if (this.onlyFavorite) {
-                    return this.stamps.filter(stamp => {
-                        return this.favorites.includes(stamp.id);
-                    });
-                } else {
-                    return this.stamps;
-                }
+                return this.stamps;
             },
             /**
              * 未ログインユーザであるかどうか
@@ -227,13 +240,20 @@
                     cursor: 'not-allowed'
                 };
             },
-            onlyFavoriteButtonClass: function () {
-                return this.onlyFavorite ? 'btn-primary' : 'btn-default';
-            },
             viewType: function () {
                 return this.useInfinite ? '無限スクロール' : 'ページ表示';
             },
+            selectedBookName: function () {
+                if (this.selectedBook) {
+                    let book = this.books.find((book) => {
+                        return book.id === this.selectedBook;
+                    });
 
+                    return book.name;
+                } else {
+                    return '(スタンプ帳を選択)';
+                }
+            },
         },
         methods: {
             getStamps: function () {
@@ -245,8 +265,8 @@
 
                 let params = {
                     sort: this.stampSort,
-                    onlyFavorite: (this.onlyFavorite && this.useInfinite) ? 1 : 0,
                     tag: this.searchTag,
+                    book_id: this.selectedBook,
                 };
 
                 if (this.onlyNoTags) {
@@ -298,63 +318,27 @@
             uploadErrorEvent: function () {
                 this.$toasted.error('【エラー】2MBまでの画像のみアップ可能です。ファイルに問題無い場合、少し待ってからやり直して下さい。', {icon: 'exclamation-triangle'});
             },
-            getFavorites: function () {
+            getBooks: function () {
                 // お気に入り一覧
-                let url = '/api/v1/favorites';
+                let url = '/api/v1/books';
 
-                axios.get(url, {
-                    params: {
-                        room_id: this.room.id
-                    }
-                }).then(response => {
-                    this.favorites = response.data.favorites.map(favorite => {
-                        return favorite.id;
+                axios.get(url)
+                    .then(response => {
+                        this.books = response.data;
+
+                        // スタンプ帳があった場合、最初のデータを初期選択しておく
+                        if (this.books.length > 0) {
+                            this.selectedBook = this.books[0].id;
+                        }
+                    })
+                    .catch(error => {
+                        this.$toasted.error('スタンプ帳の読み込みに失敗しました。', {icon: 'exclamation-triangle'});
                     });
-                }).catch(error => {
-                    this.$toasted.error('お気に入りの読み込みに失敗しました。', {icon: 'exclamation-triangle'});
-                });
             },
             stampSortClass: function (sortType) {
                 return this.stampSort === sortType ? 'btn-primary' : 'btn-default';
             },
-            isContainsFavorite: function (stampId) {
-                let favoriteIndex = this.favorites.findIndex((el, index) => {
-                    return stampId === el;
-                });
-
-                return favoriteIndex >= 0;
-            },
-            toggleFavorite: function (stampId) {
-                // 現在のお気に入りに含んでいるか確認、含んでいた場合はそのインデックスを取得
-                let favoriteIndex = this.favorites.findIndex((el) => {
-                    return stampId === el;
-                });
-
-                if (favoriteIndex === -1) {
-                    // 追加
-                    axios.post('/api/v1/favorites', {stamp_id: stampId})
-                        .then(response => {
-                            this.favorites.push(stampId);
-                            this.$toasted.success('お気に入りに追加しました。', {icon: 'heart'});
-                        })
-                        .catch(error => {
-                            this.$toasted.error('お気に入りの追加に失敗しました。', {icon: 'exclamation-triangle'});
-                        });
-                } else {
-                    // 削除
-                    axios.delete('/api/v1/favorites', {
-                        params: {
-                            stamp_id: stampId
-                        }
-                    }).then(response => {
-                        this.favorites.splice(favoriteIndex, 1);
-                        this.$toasted.success('お気に入りを解除しました。', {icon: 'minus'});
-                    }).catch(error => {
-                        this.$toasted.error('お気に入りの削除に失敗しました。', {icon: 'exclamation-triangle'});
-                    });
-                }
-            },
-            deleteStamp: function (stampId, uploadedUserId, stampName) {
+            deleteStamp: function (stampId, uploadedUserId, stampName, roomId) {
                 let isComplete = false;
 
                 this.$dialog.confirm(
@@ -367,7 +351,7 @@
                         animation: 'fade',
                     })
                     .then((dialog) => {
-                        axios.delete('/api/v1/stamps/' + stampId)
+                        axios.delete('/api/v1/rooms/'+ this.room.id +'/stamps/' + stampId)
                             .then(response => {
                                 isComplete = true;
                                 this.resetStamps();
@@ -379,7 +363,7 @@
                             .finally(() => {
                                 dialog.close();
 
-                                if (this.userId !== uploadedUserId && this.userId === this.room.userId && isComplete) {
+                                if (this.userId !== uploadedUserId && this.userId === this.room.userId && isComplete && this.room.id === roomId) {
                                     setTimeout(() => {
                                         this.$dialog.confirm(
                                             "今のスタンプを投稿したユーザーをブラックリストに入れますか？",
@@ -435,8 +419,8 @@
                 let params = {
                     page: currentPage,
                     sort: this.stampSort,
-                    onlyFavorite: this.onlyFavorite ? 1 : 0,
                     tag: this.searchTag,
+                    book_id: this.selectedBook,
                 };
 
                 if (this.onlyNoTags) {
@@ -449,7 +433,13 @@
                     if (data.stamps.length) {
                         this.stamps = this.stamps.concat(data.stamps);
                         $state.loaded();
+                        /*
+                        // 件数制限あり
                         if (data.stamps.length < 30 || this.stamps.length > 500) {
+                            $state.complete();
+                        }
+                        */
+                        if (data.stamps.length < 30) {
                             $state.complete();
                         }
                     } else {
@@ -457,6 +447,7 @@
                     }
                 }).catch(error => {
                     this.$toasted.error('スタンプの読み込みに失敗しました。現在のページ番号: ' + currentPage, {icon: 'exclamation-triangle'});
+                    this.$toasted.error('少し時間をおいても改善しない場合、リロードして下さい。', {icon: 'exclamation-triangle'});
                 });
             },
             resetStamps: function () {
@@ -490,9 +481,17 @@
                     }
                 }
             },
+            openBookForm: async function (stampId, stampName) {
+                let bookForm;
+                if (bookForm = await addBookMessage(stampName, stampId)) {
+
+                }
+            },
             getAllTags: function () {
                 let url = '/api/v1/rooms/' + this.room.id + '/tags';
-                axios.get(url)
+                axios.get(url, {
+                    params: this.stampSort === 'book' ? {bookId: this.selectedBook} : {}
+                })
                     .then(response => {
                         this.allTags = response.data;
                     })
@@ -540,19 +539,30 @@
                     }
                 }
             },
+            setSelectedBook: function (bookId) {
+                let oldSelectedBook = this.selectedBook;
+                this.selectedBook = bookId;
+
+                if (this.stampSort !== 'book') {
+                    this.stampSort = 'book'; // watchでスタンプ取得発火
+                } else {
+                    // スタンプソートがスタンプ帳で、スタンプ帳の選択が変わった時
+                    if (oldSelectedBook !== bookId) {
+                        this.resetStamps(); // 手動でスタンプ取得発火
+                        this.getAllTags(); // 手動でタグ取得発火
+                    }
+                }
+            },
         },
         watch: {
-            stampSort: function (newValue) {
+            stampSort: function (newValue, oldValue) {
                 this.resetStamps();
+                if ((newValue === 'book' && oldValue !== 'book') || (newValue !== 'book' && oldValue === 'book')) {
+                    this.getAllTags();
+                }
             },
             useInfinite: function (newValue) {
                 this.resetStamps();
-            },
-            onlyFavorite: function (newValue) {
-                // 無限スクロールの時のみ
-                if (this.useInfinite) {
-                    this.resetStamps();
-                }
             },
         }
     }
@@ -660,10 +670,6 @@
         top: 4px;
         text-align: right;
         color: hotpink;
-    }
-
-    .containsFavorite {
-        opacity: 1 !important;
     }
 
     .downloadForm {

@@ -62,4 +62,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\BlackListIp');
     }
+
+    public function books()
+    {
+        return $this->hasMany('App\Book');
+    }
 }

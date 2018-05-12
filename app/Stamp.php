@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Stamp extends Model
 {
+    protected $hidden = [
+        'pivot',
+        'ip',
+    ];
+
     protected $fillable = [
         'user_id',
         'room_id',
@@ -76,5 +81,10 @@ class Stamp extends Model
     public function tags()
     {
         return $this->belongsToMany('App\Tag')->withTimestamps();
+    }
+
+    public function books()
+    {
+        return $this->belongsToMany('App\Book')->withPivot('order')->withTimestamps();
     }
 }

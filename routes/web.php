@@ -56,7 +56,6 @@ Route::group(['prefix' => '/rooms', 'middleware' => ['auth']], function () {
     Route::get('/{room}/imprints', 'ImprintController@index')
         ->name('room_imprint')
         ->where('room', '^[\d]+$');
-
 });
 
 // リスナー用ルームURL
@@ -73,7 +72,6 @@ Route::get('/{room}/broadcasterBeta', 'HomeController@broadcasterBeta')
     ->name('broadcasterBeta')
     ->where('room', '^[\d]+$');
 
-
 Route::group(['prefix' => '/stamps'], function () {
     Route::get('/', 'StampController@uploadedIndex')->name('my_stamps');
 });
@@ -82,4 +80,25 @@ Route::group(['prefix' => '/stamps'], function () {
 Route::group(['prefix' => '/tools', 'middleware' => ['auth']], function () {
     Route::get('/', 'ToolController@index')->name('tool_top');
     Route::get('/download/{platform}', 'ToolController@download')->name('tool_download');
+});
+
+// スタンプ帳関連
+Route::group(['prefix' => '/books'], function () {
+    Route::get('/', 'BookController@index')->name('book_index');
+
+    Route::get('/create', 'BookController@create')->name('book_create');
+
+    Route::post('/', 'BookController@store')->name('book_store');
+
+    Route::get('/{book}', 'BookController@show')
+        ->where('book', '^[\d]+$')
+        ->name('book_show');
+
+    Route::get('/{book}/edit', 'BookController@edit')
+        ->where('book', '^[\d]+$')
+        ->name('book_edit');
+
+    Route::put('/{book}', 'BookController@update')
+        ->where('book', '^[\d]+$')
+        ->name('book_update');
 });

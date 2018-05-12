@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateRoomRequest;
 use App\Room;
 use App\StampTag;
 use App\Tag;
+use App\User;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
@@ -52,15 +53,39 @@ class RoomController extends Controller
         return redirect()->route('listener', ['room' => $room->id]);
     }
 
-    public function indexTagNamesWithCount(Room $room)
+    public function indexTagNamesWithCount(Room $room, Request $request)
     {
-        $stampTags = StampTag::query()
+        /** @var User $roomOwner */
+        $roomOwner = $room->user;
+
+        $blackListIps = $roomOwner->blackListIps->pluck('ip');
+        $blackListUserIds = $roomOwner->blackListUsers->pluck('id');
+
+        $query = StampTag::query()
             ->where('room_id', $room->id)
+            ->whereHas('stamp', function ($sql) use ($blackListIps, $blackListUserIds, $request, $room) {
+                $sql->withoutBlackList($blackListIps, $blackListUserIds);
+
+                if ($request->bookId) {
+                    $sql->whereHas('books', function ($sql) use ($request) {
+                        $sql->where('books.id', $request->bookId);
+                    });
+
+                    // アップロード禁止設定の場合、ルームに属すスタンプかnullのものだけ返す
+                    if ($room->uploader_level === Room::UPLOADER_LEVEL_NOBODY) {
+                        $sql->where(function ($sql) use ($room) {
+                            $sql->where('room_id', $room->id)
+                                ->orWhereNull('room_id');
+                        });
+                    }
+                }
+            })
             ->groupBy('tag_id')
             ->selectRaw('tag_id, count(*) as cnt')
             ->orderBy('cnt', 'desc')
-            ->with('tag')
-            ->get();
+            ->with('tag');
+
+        $stampTags = $query->get();
 
         $tagList = [];
 

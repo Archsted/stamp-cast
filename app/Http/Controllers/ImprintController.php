@@ -8,6 +8,7 @@ use App\Http\Requests\StoreImprintGuest;
 use App\Imprint;
 use App\ImprintLog;
 use App\Room;
+use App\Stamp;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
