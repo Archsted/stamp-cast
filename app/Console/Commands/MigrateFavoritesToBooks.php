@@ -61,9 +61,16 @@ class MigrateFavoritesToBooks extends Command
 
             $stampIds = [];
 
-            foreach ($favoritesByHash as $groupByHash) {
-                // hashでグループ化したもののうち、1つ目だけを使う
-                $stampIds[] = $groupByHash[0]['stamp_id'];
+            foreach ($favoritesByHash as $hash => $groupByHash) {
+                if ($hash === null) {
+                    foreach ($groupByHash as $groupByHashValue) {
+                        // hashでグループ化したもののうち、1つ目だけを使う
+                        $stampIds[] = $groupByHashValue['stamp_id'];
+                    }
+                } else {
+                    // hashでグループ化したもののうち、1つ目だけを使う
+                    $stampIds[] = $groupByHash[0]['stamp_id'];
+                }
             }
 
             /** @var Book $book */
