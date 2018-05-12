@@ -18,7 +18,7 @@
         "laravel-mix": "^1.0",
         "lodash": "^4.17.5",
         "vue": "^2.5.16",
-        "vue-lazyload": "^1.2.2",
+        "vue-lazyload": "^1.2.3",
         "vue-template-compiler": "^2.5.16"
     },
     "dependencies": {
@@ -32,9 +32,12 @@
         "vue-modal-dialogs": "^2.0.0",
         "vue-paginate": "^3.5.1",
         "vue-ripple-directive": "^2.0.1",
+        "vue-select": "^2.4.0",
+        "vue-slicksort": "^0.1.6",
         "vue-slider-component": "^2.5.8",
         "vue-toasted": "^1.1.24",
         "vue2-dropzone": "^3.0.6",
+        "vuedraggable": "^2.16.0",
         "vuejs-dialog": "^0.4.7"
     }
 }

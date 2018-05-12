@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Book;
 use App\Http\Requests\StoreStamp;
 use App\Http\Requests\StoreStampGuest;
 use App\Http\Requests\UpdateTags;
@@ -39,21 +40,11 @@ class StampController extends Controller
         $blackListIps = $roomOwner->blackListIps->pluck('ip');
         $blackListUserIds = $roomOwner->blackListUsers->pluck('id');
 
-        // お気に入りのみを表示するかどうか
-        $onlyFavorite = $request->get('onlyFavorite', 0);
-
         // キーワード（タグ）
         $tag = $request->get('tag');
 
         // タグがついていないもののみ
         $onlyNoTags = $request->get('onlyNoTags');
-
-        $requestUser = $request->user();
-        if ($requestUser) {
-            $favoriteStampIds = $requestUser->favorites->pluck('id')->toArray();
-        } else {
-            $favoriteStampIds = [];
-        }
 
         $page = $request->get('page', 1);
         $offset = Room::STAMP_COUNT_PER_PAGE * ($page - 1);
@@ -84,11 +75,6 @@ class StampController extends Controller
                         ->limit(Room::STAMP_COUNT_PER_PAGE)
                         ->offset($offset)
                         ->orderBy('imprint_id', 'desc');
-
-                    // お気に入りのみを取得する場合
-                    if ($onlyFavorite && $requestUser) {
-                        $query->whereIn('stamp_id', $favoriteStampIds);
-                    }
 
                     // タグが無いもののみを表示する場合
                     if ($onlyNoTags) {
@@ -136,11 +122,6 @@ class StampController extends Controller
                         ->limit(Room::STAMP_COUNT_PER_PAGE)
                         ->offset($offset);
 
-                    // お気に入りのみを取得する場合
-                    if ($onlyFavorite && $requestUser) {
-                        $query->whereIn('stamp_id', $favoriteStampIds);
-                    }
-
                     // タグが無いもののみを表示する場合
                     if ($onlyNoTags) {
                         $query->whereDoesntHave('stamp.tags', function ($query) use ($room) {
@@ -165,6 +146,97 @@ class StampController extends Controller
 
                     break;
 
+                case 'book':
+                    // 選択されたスタンプ帳に紐づくStampを取得する
+                    // アップロード禁止設定になっているルームは、他ルームに属するスタンプは除外する。
+
+                    $query = Book::query()
+                        ->where('id', $request->book_id)
+                        ->where('user_id', $request->user()->id)
+                        ->whereHas('stamps', function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        })
+                        ->with([
+                            'stamps' => function ($query) use ($blackListUserIds, $blackListIps, $tag, $room, $onlyNoTags) {
+                                $query
+                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->select([
+                                        'stamps.id',
+                                        'stamps.user_id',
+                                        'stamps.room_id',
+                                        'stamps.name',
+                                        'stamps.thumbnail',
+                                        'stamps.is_animation'
+                                    ])
+                                    ->orderBy('pivot_order');
+
+                                // アップロード禁止の場合
+                                if ($room->uploader_level === Room::UPLOADER_LEVEL_NOBODY) {
+                                    $query->where(function ($sql) use ($room) {
+                                        $sql->where('room_id', $room->id)
+                                            ->orWhereNull('room_id');
+                                    });
+                                }
+
+                                // タグが無いもののみを表示する場合
+                                if ($onlyNoTags) {
+                                    $query->whereDoesntHave('tags', function ($query) use ($room) {
+                                        $query->where('room_id', $room->id);
+                                    });
+                                } else {
+                                    // タグ指定があった場合
+                                    if (!is_null($tag)) {
+                                        $query->whereHas('tags', function ($sql) use ($tag, $room) {
+                                            $sql->where('text', $tag)
+                                                ->where('room_id', $room->id);
+                                        });
+                                    }
+                                }
+                            },
+                            'stamps.tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
+                        ->select('books.id')
+                        ->orderBy('order')
+                        ->orderBy('id')
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset);
+
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('stamps.tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
+                        });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+
+                            $query->whereHas('stamps', function ($sql) use ($tag, $room) {
+                                $sql->whereHas('tags', function ($sql) use ($tag, $room) {
+                                    $sql->where('text', $tag)
+                                        ->where('room_id', $room->id);
+                                });
+                            });
+                        }
+                    }
+
+                    // アップロード禁止の場合
+                    if ($room->uploader_level === Room::UPLOADER_LEVEL_NOBODY) {
+                        $query->whereHas('stamps', function ($sql) use ($room) {
+                            $sql->where(function ($sql) use ($room) {
+                                $sql->where('room_id', $room->id)
+                                    ->orWhereNull('room_id');
+                            });
+                        });
+                    }
+
+                    $book = $query->first();
+
+                    $stamps = $book ? $book->stamps : [];
+
+                    break;
+
                 default:
                     // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
                     $query = Stamp::query()
@@ -183,11 +255,6 @@ class StampController extends Controller
                         ->orderBy('created_at', 'desc')
                         ->orderBy('id', 'desc')
                         ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
-
-                    // お気に入りのみを取得する場合
-                    if ($onlyFavorite && $requestUser) {
-                        $query->whereIn('id', $favoriteStampIds);
-                    }
 
                     // タグが無いもののみを表示する場合
                     if ($onlyNoTags) {
@@ -237,11 +304,6 @@ class StampController extends Controller
                         ->offset($offset)
                         ->orderBy('imprint_id', 'desc');
 
-                    // お気に入りのみを取得する場合
-                    if ($onlyFavorite && $requestUser) {
-                        $query->whereIn('stamp_id', $favoriteStampIds);
-                    }
-
                     // タグが無いもののみを表示する場合
                     if ($onlyNoTags) {
                         $query->whereDoesntHave('stamp.tags', function ($query) use ($room) {
@@ -289,11 +351,6 @@ class StampController extends Controller
                         ->limit(Room::STAMP_COUNT_PER_PAGE)
                         ->offset($offset);
 
-                    // お気に入りのみを取得する場合
-                    if ($onlyFavorite && $requestUser) {
-                        $query->whereIn('stamp_id', $favoriteStampIds);
-                    }
-
                     // タグが無いもののみを表示する場合
                     if ($onlyNoTags) {
                         $query->whereDoesntHave('stamp.tags', function ($query) use ($room) {
@@ -317,6 +374,88 @@ class StampController extends Controller
                     }
 
                     break;
+
+                case 'book':
+                    // 選択されたスタンプ帳に紐づくStampを取得する
+
+                    $query = Book::query()
+                        ->where('id', $request->book_id)
+                        ->where('user_id', $request->user()->id)
+                        ->whereHas('stamps', function ($query) use ($blackListUserIds, $blackListIps) {
+                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        })
+                        ->with([
+                            'stamps' => function ($query) use ($blackListUserIds, $blackListIps, $tag, $room, $onlyNoTags) {
+                                $query
+                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->select([
+                                        'stamps.id',
+                                        'stamps.user_id',
+                                        'stamps.room_id',
+                                        'stamps.name',
+                                        'stamps.thumbnail',
+                                        'stamps.is_animation'
+                                    ]);
+
+                                // タグが無いもののみを表示する場合
+                                if ($onlyNoTags) {
+                                    $query->whereDoesntHave('tags', function ($query) use ($room) {
+                                        $query->where('room_id', $room->id);
+                                    });
+                                } else {
+                                    // タグ指定があった場合
+                                    if (!is_null($tag)) {
+                                        $query->whereHas('tags', function ($sql) use ($tag, $room) {
+                                            $sql->where('text', $tag)
+                                                ->where('room_id', $room->id);
+                                        });
+                                    }
+                                }
+                            },
+                            'stamps.tags' => function ($query) use ($room) {
+                                $query->where('room_id', $room->id);
+                            }
+                        ])
+                        ->select('books.id')
+                        ->orderBy('order')
+                        ->orderBy('id')
+                        ->limit(Room::STAMP_COUNT_PER_PAGE)
+                        ->offset($offset);
+
+                    // タグが無いもののみを表示する場合
+                    if ($onlyNoTags) {
+                        $query->whereDoesntHave('stamps.tags', function ($query) use ($room) {
+                            $query->where('room_id', $room->id);
+                        });
+                    } else {
+                        // タグ指定があった場合
+                        if (!is_null($tag)) {
+
+                            $query->whereHas('stamps', function ($sql) use ($tag, $room) {
+                                $sql->whereHas('tags', function ($sql) use ($tag, $room) {
+                                    $sql->where('text', $tag)
+                                        ->where('room_id', $room->id);
+                                });
+                            });
+                        }
+                    }
+
+                    // アップロード禁止の場合
+                    if ($room->uploader_level === Room::UPLOADER_LEVEL_NOBODY) {
+                        $query->whereHas('stamps', function ($sql) use ($room) {
+                            $sql->where(function ($sql) use ($room) {
+                                $sql->where('room_id', $room->id)
+                                    ->orWhereNull('room_id');
+                            });
+                        });
+                    }
+
+                    $books = $query->first();
+
+                    $stamps = $books ? $books->stamps : [];
+
+                    break;
+
                 default:
                     // 現在表示中のRoomに紐付いたStampか、何のルームにも紐付いていないStampを取得する
                     $query = Stamp::query()
@@ -335,11 +474,6 @@ class StampController extends Controller
                         ->orderBy('id', 'desc')
                         ->limit(Room::STAMP_COUNT_PER_PAGE)
                         ->offset($offset);
-
-                    // お気に入りのみを取得する場合
-                    if ($onlyFavorite && $requestUser) {
-                        $query->whereIn('id', $favoriteStampIds);
-                    }
 
                     // タグが無いもののみを表示する場合
                     if ($onlyNoTags) {
@@ -521,17 +655,34 @@ class StampController extends Controller
      * @param Request $request
      * @param Stamp $stamp
      */
-    public function uploadedDelete(Request $request, Stamp $stamp)
+    public function uploadedDelete(Request $request, Room $room, Stamp $stamp)
     {
         $user = $request->user();
 
+        // スタンプの投稿者自身か、スタンプがアップロードされたルームの持ち主の場合は削除OK
         if (($stamp->user_id === $user->id) || ($stamp->room->user_id === $user->id)) {
             // 論理削除
             $stamp->deleted_at = Carbon::now();
             $stamp->save();
 
             $this->deleteImage($stamp);
-        } else {
+        } else if ($room->user_id === $user->id) {
+            // スタンプの投稿者自身では無く、スタンプがアップロードされたルームの持ち主でも無いが
+            // スタンプが送信されたルームの持ち主の場合、（他ルームのスタンプを、スタンプ帳経由で送信された持ち主を想定）
+
+            // スタンプ自身を消すのと引き換えに、送信ログから削除する。
+            // スタンプ自身はアップロードされていないため、アップロード一覧には表示されず、
+            // 送信ログから削除することで、送信された順と回数順にも表示されなくなる。
+
+            $log = ImprintLog::query()
+                ->where('room_id', $room->id)
+                ->where('stamp_id', $stamp->id)
+                ->first();
+
+            if ($log) {
+                $log->delete();
+            }
+        }  else {
             abort(403);
         }
     }

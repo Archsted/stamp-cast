@@ -42,11 +42,7 @@
                         </div>
                         <div>
                             <h3><i class="fas fa-ban fa-fw"></i> ブラックリスト管理</h3>
-                            <p>ブラックリストに追加したユーザーやIPアドレスの管理ができます。</p>
-                        </div>
-                        <div>
-                            <h3><i class="fas fa-book fa-fw"></i> マニュアル</h3>
-                            <p>配信者向けの使い方を表示します。</p>
+                            <p>ブラックリストに追加したユーザーの管理ができます。</p>
                         </div>
                     </div>
                 </div>
@@ -60,12 +56,8 @@
                 <div class="panel-body">
                     <div class="menu-container" style="display: flex;flex-wrap: wrap;">
                         <div>
-                            <h3><i class="fas fa-images"></i> スタンプ管理</h3>
-                            <p>自分が投稿したスタンプや、お気に入りに設定したスタンプを管理できます。</p>
-                        </div>
-                        <div>
-                            <h3><i class="fas fa-book"></i> マニュアル</h3>
-                            <p>リスナー向けの使い方を表示します。</p>
+                            <h3><a href="{{ route('book_index') }}"><i class="fas fa-book"></i> スタンプ帳</a></h3>
+                            <p>スタンプ帳や、スタンプ帳に追加したスタンプの管理ができます。</p>
                         </div>
                     </div>
                 </div>

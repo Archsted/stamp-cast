@@ -44,14 +44,18 @@ Route::group(['prefix' => '/v1'], function () {
 
         // タグ名と件数
         Route::get('/{room}/tags', 'RoomController@indexTagNamesWithCount');
+
+        // スタンプ削除
+        Route::delete('/{room}/stamps/{stamp}', 'StampController@uploadedDelete')
+            ->middleware('auth:api');
     });
 
     // Stamp
     Route::group(['prefix' => '/stamps'], function () {
         Route::get('/samples', 'StampController@sample');
 
-        Route::delete('/{stamp}', 'StampController@uploadedDelete')
-            ->middleware('auth:api');
+//        Route::delete('/{stamp}', 'StampController@uploadedDelete')
+//            ->middleware('auth:api');
     });
 
     // Favorite
@@ -68,5 +72,35 @@ Route::group(['prefix' => '/v1'], function () {
 
         // 送信一覧から送信者をブラックリストに入れる
         Route::post('/imprints/{imprint}', 'BlackListController@storeByImprint');
+    });
+
+    // Book
+    Route::group(['prefix' => '/books', 'middleware' => ['auth:api']], function () {
+        // 一覧取得
+        Route::get('/', 'BookController@indexApi');
+
+        // 新規作成
+        Route::post('/{book}/stamps', 'BookController@storeStampApi');
+
+        // 詳細とスタンプ取得
+        Route::get('/{book}', 'BookController@showApi');
+
+        // Bookの並び順変更
+        Route::put('/{book}/order', 'BookController@updateOrderApi');
+
+        // Bookの削除
+        Route::delete('/{book}', 'BookController@destroyApi');
+
+        // Bookに登録中のスタンプの並び順変更
+        Route::put('/{book}/stamps/{stampId}/order', 'BookController@updateStampOrderApi');
+
+        // Bookに登録中のスタンプを一括削除
+        Route::put('/{book}/stamps', 'BookController@destroyStampsApi');
+
+        // Bookに登録中のスタンプを別のBookに移動
+        Route::put('/{book}/stamps/move', 'BookController@moveStampsApi');
+
+        // Bookに登録中のスタンプを別のBookにコピー
+        Route::put('/{book}/stamps/copy', 'BookController@copyStampsApi');
     });
 });

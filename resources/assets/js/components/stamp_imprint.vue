@@ -59,16 +59,15 @@
 
                         axios.post(url)
                             .then( response => {
-                                alert('追加しました。')
+                                alert('追加しました。');
                             })
                             .catch( error => {
-
+                                alert(error.response.data.message);
                             });
                     })
                     .catch(error => {
                         // キャンセル時
                     });
-
             },
         }
     }

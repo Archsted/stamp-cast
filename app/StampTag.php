@@ -12,4 +12,9 @@ class StampTag extends Model
     {
         return $this->belongsTo('App\Tag');
     }
+
+    public function stamp()
+    {
+        return $this->belongsTo('App\Stamp');
+    }
 }
