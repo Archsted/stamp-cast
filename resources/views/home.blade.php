@@ -41,7 +41,7 @@
                             <p>デスクトップにスタンプを表示するためのツールの説明、実行ファイルのダウンロードができます。</p>
                         </div>
                         <div>
-                            <h3><i class="fas fa-ban fa-fw"></i> ブラックリスト管理</h3>
+                            <h3><a href="{{ route('blackList_index') }}"><i class="fas fa-ban fa-fw"></i> ブラックリスト管理</a></h3>
                             <p>ブラックリストに追加したユーザーの管理ができます。</p>
                         </div>
                     </div>

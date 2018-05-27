@@ -83,7 +83,7 @@ Route::group(['prefix' => '/tools', 'middleware' => ['auth']], function () {
 });
 
 // スタンプ帳関連
-Route::group(['prefix' => '/books'], function () {
+Route::group(['prefix' => '/books', 'middleware' => ['auth']], function () {
     Route::get('/', 'BookController@index')->name('book_index');
 
     Route::get('/create', 'BookController@create')->name('book_create');
@@ -101,4 +101,8 @@ Route::group(['prefix' => '/books'], function () {
     Route::put('/{book}', 'BookController@update')
         ->where('book', '^[\d]+$')
         ->name('book_update');
+});
+
+Route::group(['prefix' => '/blackLists', 'middleware' => ['auth']], function (){
+   Route::get('/', 'BlackListController@index')->name('blackList_index');
 });

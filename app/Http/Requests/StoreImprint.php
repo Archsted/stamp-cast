@@ -21,8 +21,7 @@ class StoreImprint extends FormRequest
         $room = $this->route('room');
 
         // ルームの持ち主のブラックリストに登録されていたらNG
-        if ($room->user->blackListUsers()->where('id', $user->id)->count() > 0 ||
-            $room->user->blackListIps()->where('ip', request()->ip())->count() > 0) {
+        if ($room->user->blackListIps()->where('ip', request()->ip())->count() > 0) {
             return false;
         }
 

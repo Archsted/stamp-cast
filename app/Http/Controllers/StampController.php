@@ -38,7 +38,6 @@ class StampController extends Controller
         $roomOwner = $room->user;
 
         $blackListIps = $roomOwner->blackListIps->pluck('ip');
-        $blackListUserIds = $roomOwner->blackListUsers->pluck('id');
 
         // キーワード（タグ）
         $tag = $request->get('tag');
@@ -58,13 +57,13 @@ class StampController extends Controller
                     // ルームに送信されたStampを新しい順に取得する
                     $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps, $tag) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        ->whereHas('stamp', function ($query) use ($blackListIps, $tag) {
+                            $query->withoutBlackList($blackListIps);
                         })
                         ->with([
-                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            'stamp' => function ($query) use ($blackListIps) {
                                 $query
-                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->withoutBlackList($blackListIps)
                                     ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                             },
                             'stamp.tags' => function ($query) use ($room) {
@@ -103,13 +102,13 @@ class StampController extends Controller
                     // ルームに送信されたStampを件数順に取得する
                     $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        ->whereHas('stamp', function ($query) use ($blackListIps) {
+                            $query->withoutBlackList($blackListIps);
                         })
                         ->with([
-                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            'stamp' => function ($query) use ($blackListIps) {
                                 $query
-                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->withoutBlackList($blackListIps)
                                     ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                             },
                             'stamp.tags' => function ($query) use ($room) {
@@ -153,13 +152,13 @@ class StampController extends Controller
                     $query = Book::query()
                         ->where('id', $request->book_id)
                         ->where('user_id', $request->user()->id)
-                        ->whereHas('stamps', function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        ->whereHas('stamps', function ($query) use ($blackListIps) {
+                            $query->withoutBlackList($blackListIps);
                         })
                         ->with([
-                            'stamps' => function ($query) use ($blackListUserIds, $blackListIps, $tag, $room, $onlyNoTags) {
+                            'stamps' => function ($query) use ($blackListIps, $tag, $room, $onlyNoTags) {
                                 $query
-                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->withoutBlackList($blackListIps)
                                     ->select([
                                         'stamps.id',
                                         'stamps.user_id',
@@ -244,7 +243,7 @@ class StampController extends Controller
                             $query->where('room_id', $room->id)
                                 ->orWhereNull('room_id');
                         })
-                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->withoutBlackList($blackListIps)
                         ->with([
                             'tags' => function ($query) use ($room) {
                                 $query->where('room_id', $room->id);
@@ -286,13 +285,13 @@ class StampController extends Controller
 
                     $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps, $tag) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        ->whereHas('stamp', function ($query) use ($blackListIps, $tag) {
+                            $query->withoutBlackList($blackListIps);
                         })
                         ->with([
-                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            'stamp' => function ($query) use ($blackListIps) {
                                 $query
-                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->withoutBlackList($blackListIps)
                                     ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                             },
                             'stamp.tags' => function ($query) use ($room) {
@@ -332,13 +331,13 @@ class StampController extends Controller
 
                     $query = ImprintLog::query()
                         ->where('room_id', $room->id)
-                        ->whereHas('stamp', function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        ->whereHas('stamp', function ($query) use ($blackListIps) {
+                            $query->withoutBlackList($blackListIps);
                         })
                         ->with([
-                            'stamp' => function ($query) use ($blackListUserIds, $blackListIps) {
+                            'stamp' => function ($query) use ($blackListIps) {
                                 $query
-                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->withoutBlackList($blackListIps)
                                     ->select(['id', 'user_id', 'room_id', 'name', 'thumbnail', 'is_animation']);
                             },
                             'stamp.tags' => function ($query) use ($room) {
@@ -381,13 +380,13 @@ class StampController extends Controller
                     $query = Book::query()
                         ->where('id', $request->book_id)
                         ->where('user_id', $request->user()->id)
-                        ->whereHas('stamps', function ($query) use ($blackListUserIds, $blackListIps) {
-                            $query->withoutBlackList($blackListIps, $blackListUserIds);
+                        ->whereHas('stamps', function ($query) use ($blackListIps) {
+                            $query->withoutBlackList($blackListIps);
                         })
                         ->with([
-                            'stamps' => function ($query) use ($blackListUserIds, $blackListIps, $tag, $room, $onlyNoTags) {
+                            'stamps' => function ($query) use ($blackListIps, $tag, $room, $onlyNoTags) {
                                 $query
-                                    ->withoutBlackList($blackListIps, $blackListUserIds)
+                                    ->withoutBlackList($blackListIps)
                                     ->select([
                                         'stamps.id',
                                         'stamps.user_id',
@@ -463,7 +462,7 @@ class StampController extends Controller
                             $query->where('room_id', $room->id)
                                 ->orWhereNull('room_id');
                         })
-                        ->withoutBlackList($blackListIps, $blackListUserIds)
+                        ->withoutBlackList($blackListIps)
                         ->with([
                             'tags' => function ($query) use ($room) {
                                 $query->where('room_id', $room->id);
