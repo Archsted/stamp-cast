@@ -59,12 +59,11 @@ class RoomController extends Controller
         $roomOwner = $room->user;
 
         $blackListIps = $roomOwner->blackListIps->pluck('ip');
-        $blackListUserIds = $roomOwner->blackListUsers->pluck('id');
 
         $query = StampTag::query()
             ->where('room_id', $room->id)
-            ->whereHas('stamp', function ($sql) use ($blackListIps, $blackListUserIds, $request, $room) {
-                $sql->withoutBlackList($blackListIps, $blackListUserIds);
+            ->whereHas('stamp', function ($sql) use ($blackListIps, $request, $room) {
+                $sql->withoutBlackList($blackListIps);
 
                 if ($request->bookId) {
                     $sql->whereHas('books', function ($sql) use ($request) {

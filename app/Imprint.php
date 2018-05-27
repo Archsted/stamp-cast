@@ -34,16 +34,12 @@ class Imprint extends Model
         $query->orderBy('created_at', 'desc');
     }
 
-    public function scopeWithoutBlackList($query, $blackListIps, $blackListUserIds)
+    public function scopeWithoutBlackList($query, $blackListIps)
     {
         $query->where(function ($query) use ($blackListIps) {
             $query
                 ->whereNotIn('ip', $blackListIps)
                 ->orWhereNull('ip');
-        })->where(function ($query) use ($blackListUserIds) {
-            $query
-                ->whereNotIn('user_id', $blackListUserIds)
-                ->orWhereNull('user_id');
         });
     }
 }
