@@ -98,7 +98,7 @@
         --}}
 
         <div class="room-info">
-            <h3>{{$room->name}}
+            <h3><a href="{{ room_path() }}">{{$room->name}}</a>
                 <div style="margin-left: 20px; display: inline-block">
                     @switch($room->uploader_level)
                         @case(1)
