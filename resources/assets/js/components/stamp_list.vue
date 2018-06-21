@@ -62,7 +62,7 @@
                 </div>
             </div>
 
-            <div class="tagViewInformation" v-show="searchTag !== ''">
+            <div class="tagViewInformation" v-show="searchTag !== '' && searchTag !== null">
                 <strong>「{{ searchTag }}」</strong>タグが付いたスタンプのみ表示中 <button class="btn btn-danger" @click="resetSearchTag">解除する</button>
             </div>
             <div class="tagViewInformation" v-show="onlyNoTags">
@@ -259,19 +259,20 @@
 
             // タグ無し指定がある場合
             if (this.noTags) {
-                this.setSearchNoTag();
+                this.setSearchNoTag(false);
             } else {
                 // タグ名の指定がある場合
                 if (this.initTag !== null) {
-                    this.setSearchTag(this.initTag);
+                    this.setSearchTag(this.initTag, false);
                 }
             }
 
             // タグ名選択をした後のブラウザバックした時に検索しなおす
             window.onpopstate = (e => {
+                console.log(e);
                 if (e.state == null) {
-                    this.searchTag = '';
-                    this.onlyNoTags = false;
+                    this.searchTag = this.initTag;
+                    this.onlyNoTags = this.noTags;
                 } else {
                     this.searchTag = e.state.searchTag;
                     this.onlyNoTags = e.state.onlyNoTags;
@@ -523,22 +524,28 @@
                         this.$toasted.error('タグ一覧の読み込みに失敗しました。', {icon: 'exclamation-triangle'});
                     });
             },
-            setSearchTag: function (tagName) {
+            setSearchTag: function (tagName, pushState = true) {
                 this.searchTag = tagName;
                 this.onlyNoTags = false;
-                this.pushStateTag(tagName);
+                if (pushState) {
+                    this.pushStateTag(tagName);
+                }
                 this.resetStamps();
             },
-            setSearchNoTag: function () {
+            setSearchNoTag: function (pushState = true) {
                 this.searchTag = '';
                 this.onlyNoTags = true;
-                this.pushStateNoTags();
+                if (pushState) {
+                    this.pushStateNoTags();
+                }
                 this.resetStamps();
             },
-            resetSearchTag: function () {
+            resetSearchTag: function (pushState = true) {
                 this.searchTag = '';
                 this.onlyNoTags = false;
-                this.pushStateNormal();
+                if (pushState) {
+                    this.pushStateNormal();
+                }
                 this.resetStamps();
             },
             toggleShowSideBar: function () {
