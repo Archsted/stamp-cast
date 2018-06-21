@@ -13,9 +13,9 @@
 
             <div class="tagList">
                 <ul>
-                    <li><a class="tag" href="#list" @click="setSearchNoTag">（タグが設定されていないもの） </a></li>
+                    <li><a class="tag" :href="getNoTagsUrl()" @click.prevent="setSearchNoTag">（タグが設定されていないもの） </a></li>
                     <li v-for="tag in allTags">
-                        <a class="tag" href="#list" @click="setSearchTag(tag.text)">{{ tag.text }} <span class="badge">{{ tag.count }}</span></a>
+                        <a class="tag" :href="getTagUrl(tag.text)" @click.prevent="setSearchTag(tag.text)">{{ tag.text }} <span class="badge">{{ tag.count }}</span></a>
                     </li>
                 </ul>
             </div>
@@ -202,15 +202,8 @@
             imprinterLevel: Number,
             uploaderLevel: Number,
             userId: Number,
-        },
-        created: function () {
-            this.readSettings();
-
-            if (!this.guest) {
-                this.getBooks();
-            }
-
-            this.getAllTags();
+            initTag: String,
+            noTags: Boolean,
         },
         components: {
             vueDropzone: vue2Dropzone,
@@ -254,6 +247,32 @@
                     return '(スタンプ帳を選択)';
                 }
             },
+        },
+        created: function () {
+            this.readSettings();
+
+            if (!this.guest) {
+                this.getBooks();
+            }
+
+            this.getAllTags();
+
+            // タグ無し指定がある場合
+            if (this.noTags) {
+                this.setSearchNoTag();
+            } else {
+                // タグ名の指定がある場合
+                if (this.initTag !== null) {
+                    this.setSearchTag(this.initTag);
+                }
+            }
+
+            // タグ名選択をした後のブラウザバックした時に検索しなおす
+            window.onpopstate = (e => {
+                this.searchTag = e.state.searchTag;
+                this.onlyNoTags = e.state.onlyNoTags;
+                this.resetStamps();
+            });
         },
         methods: {
             getStamps: function () {
@@ -502,16 +521,19 @@
             setSearchTag: function (tagName) {
                 this.searchTag = tagName;
                 this.onlyNoTags = false;
+                this.pushStateTag(tagName);
                 this.resetStamps();
             },
             setSearchNoTag: function () {
                 this.searchTag = '';
                 this.onlyNoTags = true;
+                this.pushStateNoTags();
                 this.resetStamps();
             },
             resetSearchTag: function () {
-                this.onlyNoTags = false;
                 this.searchTag = '';
+                this.onlyNoTags = false;
+                this.pushStateNormal();
                 this.resetStamps();
             },
             toggleShowSideBar: function () {
@@ -553,6 +575,37 @@
                     }
                 }
             },
+            getRoomPath: function () {
+                let paths = location.pathname.split('/');
+
+                // パスの最初の文字（ルームIDかエイリアス名）
+                return '/' + paths[1];
+            },
+            getStateObject: function () {
+                return {
+                    searchTag: this.searchTag,
+                    onlyNoTags: this.onlyNoTags
+                };
+            },
+            getNoTagsUrl: function () {
+                return this.getRoomPath() + '/notags';
+            },
+            getTagUrl: function (tag) {
+                return this.getRoomPath() + '/tag/' + tag;
+            },
+            getNormalUrl: function () {
+                return this.getRoomPath();
+            },
+            pushStateNoTags: function () {
+                window.history.pushState(this.getStateObject(), '', this.getNoTagsUrl());
+            },
+            pushStateTag: function (tag) {
+                window.history.pushState(this.getStateObject(), '', this.getTagUrl(tag));
+            },
+            pushStateNormal: function () {
+                window.history.pushState(this.getStateObject(), '', this.getNormalUrl());
+            },
+
         },
         watch: {
             stampSort: function (newValue, oldValue) {
@@ -564,7 +617,7 @@
             useInfinite: function (newValue) {
                 this.resetStamps();
             },
-        }
+        },
     }
 </script>
 

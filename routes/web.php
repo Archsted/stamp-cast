@@ -63,6 +63,12 @@ Route::get('/{room}', 'HomeController@listener')
     ->name('listener')
     ->where('room', '^[\d]+$');
 
+Route::get('/{room}/tag/{tag}', 'HomeController@listener')
+    ->where('room', '^[\d]+$');
+
+Route::get('/{room}/notags', 'HomeController@listenerNoTags')
+    ->where('room', '^[\d]+$');
+
 // 配信者ツール用のスタンプ待機URL
 Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
     ->name('broadcaster')
