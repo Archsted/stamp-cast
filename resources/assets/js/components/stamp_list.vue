@@ -269,8 +269,13 @@
 
             // タグ名選択をした後のブラウザバックした時に検索しなおす
             window.onpopstate = (e => {
-                this.searchTag = e.state.searchTag;
-                this.onlyNoTags = e.state.onlyNoTags;
+                if (e.state == null) {
+                    this.searchTag = '';
+                    this.onlyNoTags = false;
+                } else {
+                    this.searchTag = e.state.searchTag;
+                    this.onlyNoTags = e.state.onlyNoTags;
+                }
                 this.resetStamps();
             });
         },
