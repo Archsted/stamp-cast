@@ -29,9 +29,19 @@ class HomeController extends Controller
         return view('home', compact('room'));
     }
 
-    public function listener(Room $room)
+    public function listener(Room $room, $tag = null)
     {
-        return view('listener', compact('room'));
+        $noTags = 'false';
+
+        return view('listener', compact('room', 'tag', 'noTags'));
+    }
+
+    public function listenerNoTags(Room $room)
+    {
+        $tag = null;
+        $noTags = 'true';
+
+        return view('listener', compact('room', 'tag', 'noTags'));
     }
 
     public function broadcaster(Room $room)

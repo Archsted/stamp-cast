@@ -145,10 +145,12 @@
 
         <stamp-list
                 ref="stampList"
-                :room="{id: {{$room->id}}, userId: {{ $room->user_id }}}"
+                :room="{id: {{ $room->id }}, userId: {{ $room->user_id }}}"
                 :room-id="{{ $room->id }}"
                 :uploader-level="{{ $room->uploader_level }}"
                 :imprinter-level="{{ $room->imprinter_level }}"
+                :init-tag="{{ is_null($tag) ? 'null' : "'" . $tag . "'" }}"
+                :no-tags="{{ $noTags }}"
                 @auth
                 :user-id="{{ auth()->user()->id }}"
                 @endauth
