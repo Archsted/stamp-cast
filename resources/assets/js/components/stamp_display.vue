@@ -34,7 +34,7 @@
                 :resizable="sizeDisplay"
                 :draggable="sizeDisplay"
                 :active="sizeDisplay">
-                <div id="stampDisplayArea" class="stampArea" v-bind:style="stampSizeStyle">
+                <div id="stampSize" class="stampArea" v-bind:style="stampSizeStyle">
 
                 </div>
             </vue-draggable-resizable>
