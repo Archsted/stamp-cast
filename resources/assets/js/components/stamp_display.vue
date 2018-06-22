@@ -34,11 +34,11 @@
                 :resizable="sizeDisplay"
                 :draggable="sizeDisplay"
                 :active="sizeDisplay">
-                <div class="stampArea" v-bind:style="stampSizeStyle">
+                <div class="stampArea draggableUI" v-bind:style="stampSizeStyle">
 
                 </div>
             </vue-draggable-resizable>
-            <div class="stampArea" id="display" v-bind:style="stampAreaStyle">
+            <div class="stampArea draggableUI" id="display" v-bind:style="stampAreaStyle">
                 <div class="stampAreaInfoWrapper" v-bind:style="{ display: informationDisplay }">
                     <div class="stampAreaInfo stampAreaTop"><span>{{ stampArea.w }}</span></div>
                     <div class="stampAreaInfo stampAreaRight"><span>{{ stampArea.h }}</span></div>
@@ -62,7 +62,7 @@
             :draggable="draggableSub">
             <hsc-menu-style-white>
                 <hsc-menu-context-menu>
-                    <div class="menuWrapper">
+                    <div class="menuWrapper draggableUI">
                         <div id="stampAreaControl" class="unselectable">
                             <div class="buttonControl">
                                 <button class="btn btn-primary"
