@@ -495,6 +495,7 @@
                     backgroundColor: 'rgba(255, 0, 0, 0.0)',
                     border: 'dashed 1px rgba(255, 0, 0, 0.0)',
                     overflow: 'hidden',
+                    zIndex: 0,
                 };
             },
 
@@ -503,6 +504,7 @@
                     backgroundColor: 'rgba(255, 0, 0, 0.4)',
                     border: 'dashed 1px rgba(255, 0, 0, 0.7)',
                     overflow: 'hidden',
+                    zIndex: 1,
                 };
             },
 
