@@ -76,7 +76,11 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        return view('book.show', compact('book'));
+        $twitterToken = request()->user()->twitterToken;
+
+        $canSendTwitter = ($twitterToken !== null);
+
+        return view('book.show', compact('book', 'canSendTwitter'));
     }
 
     /**

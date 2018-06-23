@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Book');
     }
+
+    public function twitterToken()
+    {
+        return $this->hasOne('App\TwitterToken');
+    }
 }

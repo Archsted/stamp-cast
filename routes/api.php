@@ -103,4 +103,9 @@ Route::group(['prefix' => '/v1'], function () {
         // Bookに登録中のスタンプを別のBookにコピー
         Route::put('/{book}/stamps/copy', 'BookController@copyStampsApi');
     });
+
+    // Twitter
+    Route::post('/apps/twitter/send', 'TwitterTokenController@send')
+        ->middleware(['auth:api']);
+
 });
