@@ -18,6 +18,7 @@
             </div>
             <div class="form-inline" v-if="stamps.length > 0">
                 <p>各スタンプはドラッグ＆ドロップで表示される順番を変えることも出来ます。</p>
+                <p v-if="canSendTwitter">各スタンプ右上に表示されるTwitterアイコンから、Twitterにスタンプを投稿できます。</p>
                 <div class="form-group">
                     <button class="btn btn-primary" style="margin-right: 6px;" @click="checkAll">全てを選択</button>
                 </div>
@@ -75,6 +76,9 @@
                      @click.stop>
                     <a :href="stamp.name" target="_blank"><i class="fas fa-external-link-alt"></i></a>
                 </div>
+                <div class="twitterForm" @click.stop="sendTwitter(stamp.id, stamp.name)" v-if="canSendTwitter">
+                    <i class="fab fa-twitter fa-lg"></i>
+                </div>
                 <div class="checkedForm" v-show="isChecked(stamp.id)">
                     <span class="fa-layers fa-fw fa-2x">
                         <i class="fas fa-circle" style="color:#bf5329"></i>
@@ -88,6 +92,10 @@
 
 <script>
     import Vue from "vue";
+
+    // ダイアログ
+    import VuejsDialog from "vuejs-dialog"
+    Vue.use(VuejsDialog);
 
     // ドラッグ
     import draggable from 'vuedraggable';
@@ -123,7 +131,8 @@
             draggable,
         },
         props: {
-            book: Object
+            book: Object,
+            canSendTwitter: Boolean,
         },
         created: function() {
             this.getStamps();
@@ -261,7 +270,7 @@
                             this.getBooks();
                         }
 
-                        this.$toasted.success('スタンプを移動しました。', {icon: 'trash-alt'});
+                        this.$toasted.success('スタンプを移動しました。', {icon: 'comment'});
                     })
                     .catch(error => {
                         alert('エラーが発生しました。画面を更新します。');
@@ -284,11 +293,44 @@
                             this.getBooks();
                         }
 
-                        this.$toasted.success('スタンプをコピーしました。', {icon: 'trash-alt'});
+                        this.$toasted.success('スタンプをコピーしました。', {icon: 'comment'});
                     })
                     .catch(error => {
                         alert('エラーが発生しました。画面を更新します。');
                         location.reload();
+                    });
+            },
+
+            sendTwitter(stampId, stampName) {
+                this.$dialog.confirm(
+                    '<div style="text-align: center">' +
+                    '<p>以下の内容でTwitterに送信します。</p>' +
+                    '<div class="deleteConfirmStamp"><div class="dialogStampWrapper"><img src="' + stampName + '" class="dialogStamp"></div></div>' +
+                    '<div><textarea name="twitterMessage" id="twitterMessage" class="form-control" cols="30" rows="3" placeholder="本文（任意入力）"></textarea></div>' +
+                    '</div>',
+                    {
+                        html: true,
+                        loader: true,
+                        okText: '送信する',
+                        cancelText: 'キャンセル',
+                        animation: 'fade',
+                    })
+                    .then((dialog) => {
+                        let twitterMessageDom = document.querySelector('#twitterMessage');
+
+                        axios.post('/api/v1/apps/twitter/send', {'stamp_id': stampId, 'message': twitterMessageDom.value })
+                            .then(response => {
+                                this.$toasted.success(' Twitterに投稿しました。', {icon: 'comment'});
+                            })
+                            .catch(error => {
+                                this.$toasted.error(error.response.data.message, {icon: 'exclamation-triangle'});
+                            })
+                            .finally(() => {
+                                dialog.close();
+                            });
+                    })
+                    .catch(() => {
+                        // ここはスタンプの削除をキャンセルしたとき
                     });
             },
         },
@@ -321,7 +363,7 @@
 
 </script>
 
-<style scoped>
+<style>
 
     .control-panel {
         margin-bottom: 18px;
@@ -365,9 +407,53 @@
         linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
     }
 
+    .dialogStampWrapper {
+        position: relative;
+        margin-left: 1px;
+        margin-right: 1px;
+        margin-bottom: 2px;
+        height: 140px;
+        min-width: 45px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        cursor: pointer;
+
+        border: solid 1px #888;
+
+        /* 市松模様 */
+        background-color: #f9f9f9;
+        -webkit-background-size: 30px 30px;
+        -moz-background-size: 30px 30px;
+        background-size: 30px 30px;
+        background-position: 0 0, 15px 15px;
+        background-image: -webkit-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -webkit-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: -moz-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -moz-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: -ms-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -ms-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: -o-linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        -o-linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+        background-image: linear-gradient(45deg,  #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%),
+        linear-gradient(-135deg, #ddd 25%, #ddd 25%, transparent 25%, transparent 75%, #ddd 75%, #ddd 75%);
+    }
+
     .stamp {
         height: 70px;
         max-width: 100%;
+    }
+
+    .dialogStamp {
+        height: 100% !important;
+        max-width: 100%;
+
+        /*border: solid 2px #888;*/
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        box-sizing: border-box;
     }
 
     .stampWrapper:hover > div {
@@ -409,6 +495,16 @@
         color: #4c4cff;
     }
 
+    .twitterForm {
+        opacity: 0;
+        transition: .5s ease;
+        position: absolute;
+        right: 3px;
+        top: 0;
+        text-align: right;
+        color: #1ca1f2;
+    }
+
     .checkedForm {
         opacity: 1 !important;
         transition: .5s ease;
@@ -425,5 +521,11 @@
         left: 0;
         transform: scale(2.0);
         border: solid 1px #000;
+    }
+
+    .deleteConfirmStamp {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 </style>

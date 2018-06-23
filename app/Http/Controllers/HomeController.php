@@ -29,6 +29,11 @@ class HomeController extends Controller
         return view('home', compact('room'));
     }
 
+    public function apps()
+    {
+        return view('user.apps');
+    }
+
     public function listener(Room $room, $tag = null)
     {
         $noTags = 'false';

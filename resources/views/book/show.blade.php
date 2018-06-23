@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-fluid">
-        <book-show :book="{{ $book }}"></book-show>
+        <book-show :book="{{ $book }}" :can-send-twitter="{{ $canSendTwitter ? 'true' : 'false' }}"></book-show>
     </div>
 @endsection
 

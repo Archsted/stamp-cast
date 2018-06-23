@@ -85,6 +85,9 @@
 
                                 <ul class="dropdown-menu">
                                     <li>
+                                        <a href="{{ route('apps') }}">外部アプリ連携</a>
+                                    </li>
+                                    <li>
                                         <a href="{{ route('logout') }}"
                                            onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">

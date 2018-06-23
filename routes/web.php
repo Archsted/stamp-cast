@@ -109,6 +109,16 @@ Route::group(['prefix' => '/books', 'middleware' => ['auth']], function () {
         ->name('book_update');
 });
 
-Route::group(['prefix' => '/blackLists', 'middleware' => ['auth']], function (){
+// ブラックリスト
+Route::group(['prefix' => '/blackLists', 'middleware' => ['auth']], function () {
    Route::get('/', 'BlackListController@index')->name('blackList_index');
+});
+
+// 外部連携
+Route::group(['prefix' => '/apps', 'middleware' => ['auth']], function () {
+    Route::get('/', 'HomeController@apps')->name('apps');
+
+    Route::get('/twitter', 'TwitterTokenController@redirectToTwitter');
+    Route::get('/twitter/callback', 'TwitterTokenController@handleTwitterCallback');
+    Route::get('/twitter/logout', 'TwitterTokenController@clearToken');
 });

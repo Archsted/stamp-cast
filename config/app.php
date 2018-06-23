@@ -179,6 +179,7 @@ return [
 
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Thujohn\Twitter\TwitterServiceProvider::class,
     ],
 
     /*
@@ -228,6 +229,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Image' => Intervention\Image\Facades\Image::class,
+        'Twitter' => Thujohn\Twitter\Facades\Twitter::class,
 
     ],
 
