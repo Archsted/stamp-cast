@@ -204,6 +204,7 @@
             userId: Number,
             initTag: String,
             noTags: Boolean,
+            sendRoomId: Number,
         },
         components: {
             vueDropzone: vue2Dropzone,
@@ -247,6 +248,7 @@
                     return '(スタンプ帳を選択)';
                 }
             },
+
         },
         created: function () {
             this.readSettings();
@@ -314,10 +316,12 @@
                     // スタンプ送信
                     let url;
 
+                    let sendRoomId = (this.sendRoomId) ? this.sendRoomId : this.room.id;
+
                     if (this.guest) {
-                        url = '/api/v1/rooms/' + this.room.id + '/imprints/guest';
+                        url = '/api/v1/rooms/' + sendRoomId + '/imprints/guest';
                     } else {
-                        url = '/api/v1/rooms/' + this.room.id + '/imprints';
+                        url = '/api/v1/rooms/' + sendRoomId + '/imprints';
                     }
 
                     axios.post(url, {
@@ -636,6 +640,7 @@
 <style>
     .stampListWrapper {
         display: flex;
+        margin-bottom: 150px;
     }
 
     .sidebar {
