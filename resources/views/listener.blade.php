@@ -125,20 +125,35 @@
                         @break
                     @endswitch
                 </div>
-                @auth
-                    @if( auth()->user()->id === $room->user_id )
+
                         <div class="pull-right">
                             <small>
+                                @if (
+                                ($room->uploader_level === \App\Room::UPLOADER_LEVEL_ANYONE) ||
+                                (($room->uploader_level === \App\Room::UPLOADER_LEVEL_USER_ONLY) && auth() && auth()->user())
+                                )
+                                    @if(session('send.room') && session('send.room.id') === $room->id)
+                                        <button class="btn btn-warning btn-sm disabled" role="button">
+                                            <i class="fas fa-crosshairs"></i> スタンプ送信先に固定中
+                                        </button>
+                                    @else
+                                    <a class="btn btn-warning btn-sm" href="{{ route('room_target', ['room' => $room->id]) }}" role="button">
+                                        <i class="fas fa-crosshairs"></i> ここをスタンプ送信先に固定
+                                    </a>
+                                    @endif
+                                @endif
+                                @auth
+                                @if( auth()->user()->id === $room->user_id )
                                 <a class="btn btn-success btn-sm" href="{{ route('room_imprint', ['room' => $room->id]) }}" role="button">
                                     <i class="far fa-list-alt"></i> スタンプ履歴
                                 </a>
                                 <a class="btn btn-success btn-sm" href="{{ route('room_edit', ['room' => $room->id]) }}" role="button">
                                     <i class="fas fa-edit"></i> ルーム設定変更
                                 </a>
+                                @endif
+                                @endauth
                             </small>
                         </div>
-                    @endif
-                @endauth
             </h3>
 
             @if(strlen($room->description) > 0)
@@ -162,7 +177,20 @@
                 @guest
                 :user-id="null"
                 @endguest
+                @if(session('send.room'))
+                :send-room-id="{{ session('send.room.id') }}"
+                @endif
         ></stamp-list>
+
+        @if(session('send.room'))
+            <div style="position: fixed; bottom: 60px; left:0; right:0;">
+                <div style="display: flex; justify-content:center;">
+                    <div class="alert alert-danger" style=" background-color: rgba(242, 222, 222, 0.7);">
+                        <span style="font-weight: bold; text-shadow:2px 2px 4px #ffffff;">現在、どのルームからスタンプを送信しても「{{ session('send.room.name') }}」(id: {{ session('send.room.id') }}) に届きます。</span> <a class="btn btn-danger btn-sm" href="{{ route('clear_room_target') }}">解除する</a>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 @endsection
 

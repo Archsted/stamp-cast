@@ -69,6 +69,14 @@ Route::get('/{room}/tag/{tag}', 'HomeController@listener')
 Route::get('/{room}/notags', 'HomeController@listenerNoTags')
     ->where('room', '^[\d]+$');
 
+Route::get('/{room}/target', 'HomeController@setSendRoom')
+    ->name('room_target')
+    ->where('room', '^[\d]+$');
+
+Route::get('/clearTarget', 'HomeController@clearSendRoom')
+    ->name('clear_room_target');
+
+
 // 配信者ツール用のスタンプ待機URL
 Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
     ->name('broadcaster')
