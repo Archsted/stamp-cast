@@ -30,7 +30,7 @@
 </head>
 <body>
 <div id="app">
-    <stamp-display ref="stamp" room-id="{{ $room->id }}"></stamp-display>
+    <stamp-display ref="stamp"></stamp-display>
 </div>
 <script src="{{ mix('js/broadcaster_beta.js') }}"></script>
 </body>
