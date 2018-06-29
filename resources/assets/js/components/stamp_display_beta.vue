@@ -36,7 +36,7 @@
 
             document.getElementById('canvas').appendChild(app.view);
 
-            PIXI.loader.add('sta', '/storage/stamps/ro8rHoAq0jZltl3lejJLiMUdEIaMLSiD6SPqIP2q.png').load((loader, resources) => {
+            PIXI.loader.add('sta', '/storage/stamps/AlhcfTSsHcvRqWgFe5jRQDVrIVquat0Q3YBgYWBY.gif').load((loader, resources) => {
                 const sta = new PIXI.Sprite(resources.sta.texture);
 
                 sta.x = app.renderer.width / 2;
