@@ -52,8 +52,8 @@
             ref="controlPanel"
             :w="controlPanelWidth"
             :h="controlPanelHeight"
-            :x="0"
-            :y="0"
+            :x="controlPanel.x"
+            :y="controlPanel.y"
             :z="999"
             :parent="true"
             :resizable="false"
@@ -198,11 +198,11 @@
     export default {
         data: function () {
             return {
-                areaDisplay: true,
+                areaDisplay: false,
                 sizeDisplay: false,
-                stampAreaStyle: this.getVisibleStyle(),
+                stampAreaStyle: this.getInvisibleStyle(),
                 stampSizeStyle: this.getInvisibleStyle(),
-                informationDisplay: 'block',
+                informationDisplay: 'none', // block or none
 
                 counter: 0,
                 displayEl: null,
@@ -223,6 +223,12 @@
                 stampOpacity: 0.0,
                 stampVolume: 0.0,
                 stampDelay: 0.0,
+
+                // コントロールパネル表示位置
+                controlPanel: {
+                    x: 0,
+                    y: 0,
+                },
 
                 // スタンプ表示領域
                 stampArea: {
@@ -349,6 +355,9 @@
                 this.stampSize.h = 140;
                 this.stampSize.x = 174;
                 this.stampSize.y = 0;
+
+                this.controlPanel.x = 0;
+                this.controlPanel.y = 0;
             },
 
             loadSettings: function () {
@@ -384,8 +393,6 @@
                         data.stampArea.hasOwnProperty('w') &&
                         data.stampArea.hasOwnProperty('h')) {
 
-                        let wrapper = document.querySelector('#stampAreaWrapper');
-
                         if (data.stampArea.w >= this.minStampAreaW && data.stampArea.h >= this.minStampAreaH &&
                             data.stampArea.x >= 0 && data.stampArea.y >= 0
                         ) {
@@ -404,21 +411,28 @@
                         data.stampSize.hasOwnProperty('w') &&
                         data.stampSize.hasOwnProperty('h')) {
 
-                        let wrapper = document.querySelector('#stampAreaWrapper');
-
                         // 表示領域が全て画面内に収まる場合のみ
                         if (data.stampSize.w >= this.minStampAreaW && data.stampArea.h >= this.minStampAreaH &&
                             data.stampSize.x >= 0 && data.stampSize.y >= 0
-                        // &&
-                        // data.stampSize.w + data.stampSize.x <=  wrapper.clientWidth &&
-                        // data.stampSize.h + data.stampSize.y <= wrapper.clientHeight
                         ) {
-
                             // 反映
                             this.stampSize.w = data.stampSize.w;
                             this.stampSize.h = data.stampSize.h;
                             this.stampSize.x = data.stampSize.x;
                             this.stampSize.y = data.stampSize.y;
+                        }
+                    }
+                }
+
+                if (data.hasOwnProperty('controlPanel')) {
+                    if (data.controlPanel.hasOwnProperty('x') &&
+                        data.controlPanel.hasOwnProperty('y')) {
+
+                        // 表示領域が全て画面内に収まる場合のみ
+                        if (data.controlPanel.x >= 0 && data.controlPanel.y >= 0) {
+                            // 反映
+                            this.controlPanel.x = data.controlPanel.x;
+                            this.controlPanel.y = data.controlPanel.y;
                         }
                     }
                 }
@@ -441,6 +455,10 @@
                         h: this.stampSize.h,
                         x: this.stampSize.x,
                         y: this.stampSize.y,
+                    },
+                    controlPanel: {
+                        x: this.controlPanel.x,
+                        y: this.controlPanel.y,
                     },
                 };
 
@@ -484,6 +502,11 @@
             },
 
             onControlDragStop: function (x, y) {
+                this.controlPanel.x = x;
+                this.controlPanel.y = y;
+
+                this.saveSettings();
+
                 this.refreshSliders();
             },
             onControlResizeStop: function (x, y, width, height) {
