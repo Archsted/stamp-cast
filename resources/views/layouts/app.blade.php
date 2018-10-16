@@ -28,6 +28,19 @@
     <!-- Styles -->
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@etude_kaicho">
+    <meta property="og:url" content="https://stamp.archsted.com">
+    @section('og_title')
+        <meta property="og:title" content="スタンプキャスト">
+    @show
+    @section('og_description')
+        <meta property="og:description" content="リスナーから送信されたスタンプ画像を配信者のデスクトップ上に表示する、配信者用のコミュニケーションシステムです。">
+    @show
+    @section('og_image')
+        <meta property="og:image" content="https://stamp.archsted.com/images/card.png">
+    @show
 </head>
 <body>
     <div id="app">
