@@ -4,6 +4,10 @@
     {{ config('app.name', 'StampCast') }} - {{$room->name}}
 @endsection
 
+@section('og_title')
+    <meta property="og:title" content="{{ config('app.name', 'StampCast') }} - {{$room->name}}">
+@endsection
+
 @section('content')
     <div class="container-fluid">
 
