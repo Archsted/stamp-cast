@@ -23,7 +23,7 @@
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:site" content="@etude_kaicho">
         <meta property="og:url" content="https://stamp.archsted.com">
-        <meta property="og:title" content="スタンプキャスト">
+        <meta property="og:title" content="{{ config('app.name', 'StampCast') }}">
         <meta property="og:description" content="リスナーから送信されたスタンプ画像を配信者のデスクトップ上に表示する、配信者用のコミュニケーションシステムです。">
         <meta property="og:image" content="https://stamp.archsted.com/images/card.png">
     </head>
