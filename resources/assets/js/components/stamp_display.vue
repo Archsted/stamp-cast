@@ -279,7 +279,11 @@
             this.setDefaultSettings();
             this.loadSettings();
 
-            createjs.Sound.registerSound("/button16.mp3?id=2", 'receiveStamp');
+            if (this.roomId == 1) {
+                createjs.Sound.registerSound("/pop11_2.mp3?id=1", 'receiveStamp');
+            } else {
+                createjs.Sound.registerSound("/button16.mp3?id=2", 'receiveStamp');
+            }
 
             /*
             let stampSe = localStorage.getItem("SE_stamp_received");
@@ -550,8 +554,12 @@
 
                     // クラス、スタイルの定義
                     img.classList.add('stamp');
-                    img.style.top = this.getRandomTop(size.height) + 'px';
-                    img.style.left = this.getRandomLeft(size.width) + 'px';
+
+                    let randomTop = this.getRandomTop(size.height);
+                    let randomLeft = this.getRandomLeft(size.width);
+
+                    img.style.top = `${randomTop}px`;
+                    img.style.left = `${randomLeft}px`;
 
                     // 要素の追加
                     this.displayEl.appendChild(img);
@@ -576,25 +584,62 @@
                         }
                     });
 
-                    // スタンプのライムライン定義
-                    basicTimeLine
-                        .add({
-                            targets: img,
-                            scale: {
-                                value: [0.2, 1],
-                            },
-                            duration: 200,
-                            opacity: this.stampOpacity,
-                            easing: 'easeInOutSine'
-                        })
-                        .add({
-                            targets: img,
-                            scale: 0.5,
-                            duration: 500,
-                            opacity: 0,
-                            delay: this.delay,
-                            easing: 'easeInOutSine'
-                        });
+                    if (this.roomId == 1) {
+                        basicTimeLine
+                            .add({
+                                targets: img,
+                                height: {
+                                    value: [`${size.height}px`, `${size.height + 30}px`],
+                                },
+                                top: {
+                                    value: [`${randomTop}px`, `${randomTop - 40}px`],
+                                },
+                                duration: 100,
+                                opacity: this.stampOpacity,
+                                easing: 'easeOutExpo'
+                            })
+                            .add({
+                                targets: img,
+                                height: {
+                                    value: [`${size.height + 30}px`, `${size.height}px`],
+                                },
+                                top: {
+                                    value: [`${randomTop - 40}px`, `${randomTop}px`],
+                                },
+                                duration: 200,
+                                opacity: this.stampOpacity,
+                                easing: 'easeInQuad'
+                            })
+                            .add({
+                                targets: img,
+                                translateY: -20,
+                                duration: 300,
+                                opacity: 0,
+                                delay: this.delay,
+                                easing: 'easeInOutSine'
+                            });
+
+                    } else {
+                        // スタンプのライムライン定義
+                        basicTimeLine
+                            .add({
+                                targets: img,
+                                scale: {
+                                    value: [0.2, 1],
+                                },
+                                duration: 200,
+                                opacity: this.stampOpacity,
+                                easing: 'easeInOutSine'
+                            })
+                            .add({
+                                targets: img,
+                                scale: 0.5,
+                                duration: 500,
+                                opacity: 0,
+                                delay: this.delay,
+                                easing: 'easeInOutSine'
+                            });
+                    }
 
                 };
 
