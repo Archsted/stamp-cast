@@ -279,7 +279,7 @@
             this.setDefaultSettings();
             this.loadSettings();
 
-            if (this.roomId == 1) {
+            if (this.roomId == 1 || this.roomId == 372) {
                 createjs.Sound.registerSound("/pop11_2.mp3?id=1", 'receiveStamp');
             } else {
                 createjs.Sound.registerSound("/button16.mp3?id=2", 'receiveStamp');
@@ -584,15 +584,39 @@
                         }
                     });
 
-                    if (this.roomId == 1) {
+                    if (this.roomId == 1 || this.roomId == 372) {
                         basicTimeLine
                             .add({
                                 targets: img,
                                 height: {
-                                    value: [`${size.height}px`, `${size.height + 30}px`],
+                                    value: [`${size.height}px`, `${size.height + 40}px`],
                                 },
                                 top: {
-                                    value: [`${randomTop}px`, `${randomTop - 40}px`],
+                                    value: [`${randomTop}px`, `${randomTop - 60}px`],
+                                },
+                                duration: 150,
+                                opacity: this.stampOpacity,
+                                easing: 'easeOutExpo'
+                            })
+                            .add({
+                                targets: img,
+                                height: {
+                                    value: [`${size.height + 40}px`, `${size.height}px`],
+                                },
+                                top: {
+                                    value: [`${randomTop - 60}px`, `${randomTop}px`],
+                                },
+                                duration: 200,
+                                opacity: this.stampOpacity,
+                                easing: 'easeInQuad'
+                            })
+                            .add({
+                                targets: img,
+                                height: {
+                                    value: [`${size.height}px`, `${size.height + 10}px`],
+                                },
+                                top: {
+                                    value: [`${randomTop}px`, `${randomTop - 15}px`],
                                 },
                                 duration: 100,
                                 opacity: this.stampOpacity,
@@ -601,12 +625,12 @@
                             .add({
                                 targets: img,
                                 height: {
-                                    value: [`${size.height + 30}px`, `${size.height}px`],
+                                    value: [`${size.height + 10}px`, `${size.height}px`],
                                 },
                                 top: {
-                                    value: [`${randomTop - 40}px`, `${randomTop}px`],
+                                    value: [`${randomTop - 15}px`, `${randomTop}px`],
                                 },
-                                duration: 200,
+                                duration: 150,
                                 opacity: this.stampOpacity,
                                 easing: 'easeInQuad'
                             })
