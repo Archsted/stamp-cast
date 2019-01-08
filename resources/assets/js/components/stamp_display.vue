@@ -161,6 +161,29 @@
                                     />
                                 </div>
                             </div>
+
+                            <div class="sliderControl"
+                                 v-show="!minControlPanel">
+                                表示
+                                <select name="stampType"
+                                        id="stampType"
+                                        v-on:mouseover="draggableSub = false"
+                                        v-on:mouseout="draggableSub = true"
+                                        v-model.number="stampType"
+                                        v-on:change="saveSettings"
+                                        >
+                                    <option v-for="stampTypeValue in stampTypeList" v-bind:value="stampTypeValue">{{stampTypeValue}}</option>
+                                </select>
+
+                                <button class="btn btn-primary btn-xs"
+                                        v-on:mouseover="draggableSub = false"
+                                        v-on:mouseout="draggableSub = true"
+                                        @click="addRandomStamp">
+                                    確認
+                                </button>
+                            </div>
+
+
                             <!--
                                             <div>
                                                 <input type="file" @change="soundFileChange">
@@ -215,6 +238,9 @@
                 controlPanelHeight: 52, // min
 //                controlPanelHeight: 178, // max
                 audio: null,
+
+                stampType: 1,
+                stampTypeList: [1, 2],
 
                 minStampAreaW: 120,
                 minStampAreaH: 120,
@@ -279,11 +305,8 @@
             this.setDefaultSettings();
             this.loadSettings();
 
-            if (this.roomId == 1 || this.roomId == 372) {
-                createjs.Sound.registerSound("/pop11_2.mp3?id=1", 'receiveStamp');
-            } else {
-                createjs.Sound.registerSound("/button16.mp3?id=2", 'receiveStamp');
-            }
+            createjs.Sound.registerSound("/button16.mp3?rev=1", 'receiveStamp1');
+            createjs.Sound.registerSound("/pop11_2.mp3?rev=1", 'receiveStamp2');
 
             /*
             let stampSe = localStorage.getItem("SE_stamp_received");
@@ -362,6 +385,8 @@
 
                 this.controlPanel.x = 0;
                 this.controlPanel.y = 0;
+
+                this.stampType = 1;
             },
 
             loadSettings: function () {
@@ -441,6 +466,13 @@
                     }
                 }
 
+                // スタンプ表示タイプ
+                if (data.hasOwnProperty('stampType')) {
+                    if (this.stampTypeList.includes(data.stampType)) {
+                        this.stampType = data.stampType;
+                    }
+                }
+
             },
 
             saveSettings: function () {
@@ -464,6 +496,7 @@
                         x: this.controlPanel.x,
                         y: this.controlPanel.y,
                     },
+                    stampType: this.stampType,
                 };
 
                 Vue.ls.set('setting', JSON.stringify(data));
@@ -543,6 +576,54 @@
                 this.sizeDisplay = !this.sizeDisplay;
             },
 
+            addRandomStamp: function() {
+                switch(Math.floor(Math.random() * 5)) {
+                    case 0:
+                        this.addStamp({
+                            'name': '/images/ex02.png',
+                            'width': 380,
+                            'height' : 300,
+                        });
+                        break;
+                    case 1:
+                        this.addStamp({
+                            'name': '/images/ex03.png',
+                            'width': 330,
+                            'height' : 288,
+                        });
+                        break;
+                    case 2:
+                        this.addStamp({
+                            'name': '/images/ex04.png',
+                            'width': 1267,
+                            'height' : 664,
+                        });
+                        break;
+                    case 3:
+                        this.addStamp({
+                            'name': '/images/ex05.gif',
+                            'width': 210,
+                            'height' : 140,
+                        });
+                        break;
+                    case 4:
+                        this.addStamp({
+                            'name': '/images/ex01.png',
+                            'width': 320,
+                            'height' : 320,
+                        });
+                        break;
+
+                    default:
+                        this.addStamp({
+                            'name': '/images/ex01.png',
+                            'width': 320,
+                            'height' : 320,
+                        });
+                        break;
+                }
+            },
+
             addStamp: function(stamp) {
                 let img = new Image();
 
@@ -570,7 +651,7 @@
                     let basicTimeLine = animejs.timeline({
                         begin: () => {
                             if (!this.isMute) {
-                                let soundInstance = createjs.Sound.createInstance('receiveStamp');
+                                let soundInstance = createjs.Sound.createInstance(`receiveStamp${this.stampType}`);
                                 soundInstance.setVolume(this.stampVolume);
                                 soundInstance.play();
 
@@ -584,7 +665,28 @@
                         }
                     });
 
-                    if (this.roomId == 1 || this.roomId == 372) {
+                    if (this.stampType === 1) {
+                        // デフォルト
+                        basicTimeLine
+                            .add({
+                                targets: img,
+                                scale: {
+                                    value: [0.2, 1],
+                                },
+                                duration: 200,
+                                opacity: this.stampOpacity,
+                                easing: 'easeInOutSine'
+                            })
+                            .add({
+                                targets: img,
+                                scale: 0.5,
+                                duration: 500,
+                                opacity: 0,
+                                delay: this.delay,
+                                easing: 'easeInOutSine'
+                            });
+                    } else if (this.stampType === 2) {
+                        // デレステ風
                         basicTimeLine
                             .add({
                                 targets: img,
@@ -642,9 +744,8 @@
                                 delay: this.delay,
                                 easing: 'easeInOutSine'
                             });
-
                     } else {
-                        // スタンプのライムライン定義
+                        // デフォルトを一応指定
                         basicTimeLine
                             .add({
                                 targets: img,
@@ -882,13 +983,13 @@
         align-content: space-around;
         flex-wrap: wrap;
         align-items: center;
-        background-color:rgba(100, 100, 255, 0.2);
+        background-color:rgba(255, 255, 255, 1);
         width: 100%;
         height: 100%;
         /*padding: 15px 5px;*/
         padding: 0;
         box-sizing: border-box;
-        border: solid 2px rgba(0, 0, 200, 0.7);
+        border: solid 2px rgba(0, 0, 200, 1);
         border-radius: 6px;
         overflow: hidden;
     }
@@ -961,6 +1062,10 @@
         justify-content: space-between;
     }
 
+    .sliderControl > button {
+        font-size: 1em !important;
+    }
+
     .SliderWrapper {
         margin: 0 6px;
     }
@@ -970,6 +1075,11 @@
         font-weight: normal;
         line-height: 1;
         color: inherit;
+    }
+
+    #stampType {
+        margin-left: 14px;
+        margin-right: 14px;
     }
 
     .fixed {
