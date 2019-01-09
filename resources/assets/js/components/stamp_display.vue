@@ -165,24 +165,37 @@
                             <div class="sliderControl"
                                  v-show="!minControlPanel">
                                 表示
-                                <select name="stampType"
-                                        id="stampType"
+                                <select name="stampAnime"
+                                        id="stampAnime"
                                         v-on:mouseover="draggableSub = false"
                                         v-on:mouseout="draggableSub = true"
-                                        v-model.number="stampType"
+                                        v-model.number="stampAnime"
                                         v-on:change="saveSettings"
                                         >
-                                    <option v-for="stampTypeValue in stampTypeList" v-bind:value="stampTypeValue">{{stampTypeValue}}</option>
+                                    <option v-for="stampAnimeValue in stampAnimeList" v-bind:value="stampAnimeValue">{{stampAnimeValue}}</option>
                                 </select>
 
+                                音
+                                <select name="stampSe"
+                                        id="stampSe"
+                                        v-on:mouseover="draggableSub = false"
+                                        v-on:mouseout="draggableSub = true"
+                                        v-model.number="stampSe"
+                                        v-on:change="saveSettings"
+                                >
+                                    <option v-for="stampSeValue in stampSeList" v-bind:value="stampSeValue">{{stampSeValue}}</option>
+                                </select>
+                            </div>
+
+                            <div class="sliderControl"
+                                 v-show="!minControlPanel">
                                 <button class="btn btn-primary btn-xs"
                                         v-on:mouseover="draggableSub = false"
                                         v-on:mouseout="draggableSub = true"
                                         @click="addRandomStamp">
-                                    確認
+                                    表示テスト
                                 </button>
                             </div>
-
 
                             <!--
                                             <div>
@@ -209,6 +222,8 @@
         name: 'ls', // name variable Vue.[ls] or this.[$ls],
         storage: 'local', // storage name session, local, memory
     });
+
+    import qs from 'query-string';
 
     import VueDraggableResizable from 'vue-draggable-resizable';
     Vue.component('vue-draggable-resizable', VueDraggableResizable);
@@ -239,8 +254,11 @@
 //                controlPanelHeight: 178, // max
                 audio: null,
 
-                stampType: 1,
-                stampTypeList: [1, 2],
+                stampAnime: 1,
+                stampAnimeList: [1, 2],
+
+                stampSe: 1,
+                stampSeList: [1, 2],
 
                 minStampAreaW: 120,
                 minStampAreaH: 120,
@@ -304,6 +322,8 @@
             // 初期値設定読み込み
             this.setDefaultSettings();
             this.loadSettings();
+
+//            this.setSettingsFromParams();
 
             createjs.Sound.registerSound("/button16.mp3?rev=1", 'receiveStamp1');
             createjs.Sound.registerSound("/pop11_2.mp3?rev=1", 'receiveStamp2');
@@ -386,7 +406,93 @@
                 this.controlPanel.x = 0;
                 this.controlPanel.y = 0;
 
-                this.stampType = 1;
+                this.stampAnime = 1;
+                this.stampSe = 1;
+            },
+
+            setSettingsFromParams: function () {
+                const params = qs.parse(location.search);
+
+                if (params.hasOwnProperty('opacity')) {
+                    if (isFloat(params.opacity)) {
+                        const paramOpacity = Number(params.opacity);
+                        if (paramOpacity >= 0 && paramOpacity <= 1) {
+                            this.stampOpacity = paramOpacity;
+                        }
+                    }
+                }
+
+                if (params.hasOwnProperty('volume')) {
+                    if (isFloat(params.volume)) {
+                        const paramVolume = Number(params.volume);
+                        if (paramVolume >= 0 && paramVolume <= 1) {
+                            this.stampVolume = paramVolume;
+                        }
+                    }
+                }
+
+                if (params.hasOwnProperty('delay')) {
+                    if (isFloat(params.delay)) {
+                        const paramDelay = Number(params.delay);
+                        if (paramDelay >= 0.5 && paramDelay <= 8) {
+                            this.stampDelay = paramDelay;
+                        }
+                    }
+                }
+
+                if (params.hasOwnProperty('anime')) {
+                    if (isNumber(params.anime)) {
+                        const paramAnime = Number(params.anime);
+                        if (this.stampAnimeList.includes(paramAnime)) {
+                            this.stampAnime = paramAnime;
+                        }
+                    }
+                }
+
+                if (params.hasOwnProperty('se')) {
+                    if (isNumber(params.se)) {
+                        const paramSe = Number(params.se);
+                        if (this.stampSeList.includes(paramSe)) {
+                            this.stampSe = paramSe;
+                        }
+                    }
+                }
+
+                if (params.hasOwnProperty('w')) {
+                    if (isNumber(params.w)) {
+                        this.stampArea.w = Number(params.w);
+                    }
+                }
+
+                if (params.hasOwnProperty('h')) {
+                    if (isNumber(params.h)) {
+                        this.stampArea.h = Number(params.h);
+                    }
+                }
+
+                if (params.hasOwnProperty('x')) {
+                    if (isNumber(params.x)) {
+                        this.stampArea.x = Number(params.x);
+                    }
+                }
+
+                if (params.hasOwnProperty('y')) {
+                    if (isNumber(params.y)) {
+                        this.stampArea.y = Number(params.y);
+                    }
+                }
+
+                if (params.hasOwnProperty('sw')) {
+                    if (isNumber(params.sw)) {
+                        this.stampSize.w = Number(params.sw);
+                    }
+                }
+
+                if (params.hasOwnProperty('sh')) {
+                    if (isNumber(params.sh)) {
+                        this.stampSize.h = Number(params.sh);
+                    }
+                }
             },
 
             loadSettings: function () {
@@ -467,9 +573,16 @@
                 }
 
                 // スタンプ表示タイプ
-                if (data.hasOwnProperty('stampType')) {
-                    if (this.stampTypeList.includes(data.stampType)) {
-                        this.stampType = data.stampType;
+                if (data.hasOwnProperty('stampAnime')) {
+                    if (this.stampAnimeList.includes(data.stampAnime)) {
+                        this.stampAnime = data.stampAnime;
+                    }
+                }
+
+                // スタンプ音
+                if (data.hasOwnProperty('stampSe')) {
+                    if (this.stampSeList.includes(data.stampSe)) {
+                        this.stampSe = data.stampSe;
                     }
                 }
 
@@ -496,7 +609,8 @@
                         x: this.controlPanel.x,
                         y: this.controlPanel.y,
                     },
-                    stampType: this.stampType,
+                    stampAnime: this.stampAnime,
+                    stampSe: this.stampSe,
                 };
 
                 Vue.ls.set('setting', JSON.stringify(data));
@@ -651,7 +765,7 @@
                     let basicTimeLine = animejs.timeline({
                         begin: () => {
                             if (!this.isMute) {
-                                let soundInstance = createjs.Sound.createInstance(`receiveStamp${this.stampType}`);
+                                let soundInstance = createjs.Sound.createInstance(`receiveStamp${this.stampSe}`);
                                 soundInstance.setVolume(this.stampVolume);
                                 soundInstance.play();
 
@@ -665,105 +779,111 @@
                         }
                     });
 
-                    if (this.stampType === 1) {
-                        // デフォルト
-                        basicTimeLine
-                            .add({
-                                targets: img,
-                                scale: {
-                                    value: [0.2, 1],
-                                },
-                                duration: 200,
-                                opacity: this.stampOpacity,
-                                easing: 'easeInOutSine'
-                            })
-                            .add({
-                                targets: img,
-                                scale: 0.5,
-                                duration: 500,
-                                opacity: 0,
-                                delay: this.delay,
-                                easing: 'easeInOutSine'
-                            });
-                    } else if (this.stampType === 2) {
-                        // デレステ風
-                        basicTimeLine
-                            .add({
-                                targets: img,
-                                height: {
-                                    value: [`${size.height}px`, `${size.height + 40}px`],
-                                },
-                                top: {
-                                    value: [`${randomTop}px`, `${randomTop - 60}px`],
-                                },
-                                duration: 150,
-                                opacity: this.stampOpacity,
-                                easing: 'easeOutExpo'
-                            })
-                            .add({
-                                targets: img,
-                                height: {
-                                    value: [`${size.height + 40}px`, `${size.height}px`],
-                                },
-                                top: {
-                                    value: [`${randomTop - 60}px`, `${randomTop}px`],
-                                },
-                                duration: 200,
-                                opacity: this.stampOpacity,
-                                easing: 'easeInQuad'
-                            })
-                            .add({
-                                targets: img,
-                                height: {
-                                    value: [`${size.height}px`, `${size.height + 10}px`],
-                                },
-                                top: {
-                                    value: [`${randomTop}px`, `${randomTop - 15}px`],
-                                },
-                                duration: 100,
-                                opacity: this.stampOpacity,
-                                easing: 'easeOutExpo'
-                            })
-                            .add({
-                                targets: img,
-                                height: {
-                                    value: [`${size.height + 10}px`, `${size.height}px`],
-                                },
-                                top: {
-                                    value: [`${randomTop - 15}px`, `${randomTop}px`],
-                                },
-                                duration: 150,
-                                opacity: this.stampOpacity,
-                                easing: 'easeInQuad'
-                            })
-                            .add({
-                                targets: img,
-                                translateY: -20,
-                                duration: 300,
-                                opacity: 0,
-                                delay: this.delay,
-                                easing: 'easeInOutSine'
-                            });
-                    } else {
-                        // デフォルトを一応指定
-                        basicTimeLine
-                            .add({
-                                targets: img,
-                                scale: {
-                                    value: [0.2, 1],
-                                },
-                                duration: 200,
-                                opacity: this.stampOpacity,
-                                easing: 'easeInOutSine'
-                            })
-                            .add({
-                                targets: img,
-                                scale: 0.5,
-                                duration: 500,
-                                opacity: 0,
-                                delay: this.delay,
-                                easing: 'easeInOutSine'
-                            });
+                    // スタンプアニメーション
+                    switch (this.stampAnime) {
+                        case 1:
+                            // グラブル風
+                            basicTimeLine
+                                .add({
+                                    targets: img,
+                                    scale: {
+                                        value: [0.2, 1],
+                                    },
+                                    duration: 200,
+                                    opacity: this.stampOpacity,
+                                    easing: 'easeInOutSine'
+                                })
+                                .add({
+                                    targets: img,
+                                    scale: 0.5,
+                                    duration: 500,
+                                    opacity: 0,
+                                    delay: this.delay,
+                                    easing: 'easeInOutSine'
+                                });
+
+                            break;
+                        case 2:
+                            // デレステ風
+                            basicTimeLine
+                                .add({
+                                    targets: img,
+                                    height: {
+                                        value: [`${size.height}px`, `${size.height + 40}px`],
+                                    },
+                                    top: {
+                                        value: [`${randomTop}px`, `${randomTop - 60}px`],
+                                    },
+                                    duration: 150,
+                                    opacity: this.stampOpacity,
+                                    easing: 'easeOutExpo'
+                                })
+                                .add({
+                                    targets: img,
+                                    height: {
+                                        value: [`${size.height + 40}px`, `${size.height}px`],
+                                    },
+                                    top: {
+                                        value: [`${randomTop - 60}px`, `${randomTop}px`],
+                                    },
+                                    duration: 200,
+                                    opacity: this.stampOpacity,
+                                    easing: 'easeInQuad'
+                                })
+                                .add({
+                                    targets: img,
+                                    height: {
+                                        value: [`${size.height}px`, `${size.height + 10}px`],
+                                    },
+                                    top: {
+                                        value: [`${randomTop}px`, `${randomTop - 15}px`],
+                                    },
+                                    duration: 100,
+                                    opacity: this.stampOpacity,
+                                    easing: 'easeOutExpo'
+                                })
+                                .add({
+                                    targets: img,
+                                    height: {
+                                        value: [`${size.height + 10}px`, `${size.height}px`],
+                                    },
+                                    top: {
+                                        value: [`${randomTop - 15}px`, `${randomTop}px`],
+                                    },
+                                    duration: 150,
+                                    opacity: this.stampOpacity,
+                                    easing: 'easeInQuad'
+                                })
+                                .add({
+                                    targets: img,
+                                    translateY: -20,
+                                    duration: 300,
+                                    opacity: 0,
+                                    delay: this.delay,
+                                    easing: 'easeInOutSine'
+                                });
+                            break;
+
+                        default:
+                            // 一応指定
+                            basicTimeLine
+                                .add({
+                                    targets: img,
+                                    scale: {
+                                        value: [0.2, 1],
+                                    },
+                                    duration: 200,
+                                    opacity: this.stampOpacity,
+                                    easing: 'easeInOutSine'
+                                })
+                                .add({
+                                    targets: img,
+                                    scale: 0.5,
+                                    duration: 500,
+                                    opacity: 0,
+                                    delay: this.delay,
+                                    easing: 'easeInOutSine'
+                                });
                     }
 
                 };
@@ -1057,7 +1177,7 @@
     }
 
     .sliderControl {
-        margin: 10px 6px;
+        margin: 6px 6px;
         display: flex;
         justify-content: space-between;
     }
@@ -1077,9 +1197,13 @@
         color: inherit;
     }
 
-    #stampType {
-        margin-left: 14px;
-        margin-right: 14px;
+    #stampAnime {
+        margin-left: 4px;
+        margin-right: 16px;
+    }
+    #stampSe {
+        margin-left: 4px;
+        margin-right: 4px;
     }
 
     .fixed {

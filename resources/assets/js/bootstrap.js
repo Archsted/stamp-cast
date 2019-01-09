@@ -45,3 +45,13 @@ window.Vue = require('vue');
 
 // polyfill
 require('./polyfill');
+
+function isNumber(val) {
+    var regex = new RegExp(/^[0-9]+$/);
+    return regex.test(val);
+}
+
+function isFloat(val) {
+    var regex = new RegExp(/^[0-9]+(\.[0-9])?$/);
+    return regex.test(val);
+}
