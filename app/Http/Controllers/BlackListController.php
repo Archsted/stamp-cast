@@ -30,9 +30,10 @@ class BlackListController extends Controller
 
         // （念のため）スタンプのアップロード者のIPが自分のIPと異なる場合
         if ($stamp->ip !== $request->ip()) {
-            $blackListIp = BlackListIp::firstOrNew(['ip' => $stamp->ip]);
-
-            $user->blackListIps()->save($blackListIp);
+            BlackListIp::create([
+                'ip' => $stamp->ip,
+                'user_id' => $user->id,
+            ]);
         } else {
             abort(403, '自分のIPアドレスと同一です。');
         }
@@ -55,9 +56,10 @@ class BlackListController extends Controller
 
         // （念のため）スタンプの送信者のIPが自分のIPと異なる場合
         if ($imprint->ip !== $request->ip()) {
-            $blackListIp = BlackListIp::firstOrNew(['ip' => $imprint->ip]);
-
-            $user->blackListIps()->save($blackListIp);
+            BlackListIp::create([
+                'ip' => $imprint->ip,
+                'user_id' => $user->id,
+            ]);
         } else {
             abort(403, '自分のIPアドレスと同一です。');
         }
