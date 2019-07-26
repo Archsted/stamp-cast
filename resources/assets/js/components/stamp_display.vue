@@ -62,7 +62,12 @@
             :draggable="draggableSub">
             <hsc-menu-style-white>
                 <hsc-menu-context-menu>
-                    <div id="stampAreaControlWrapper" class="menuWrapper">
+                    <div id="stampAreaControlWrapper"
+                         class="menuWrapper"
+                         v-on:mouseover="isHoverControlPanel = true"
+                         v-on:mouseout="isHoverControlPanel = false"
+                         v-bind:style="controlPanelStyle"
+                    >
                         <div id="stampAreaControl" class="unselectable">
                             <div class="buttonControl">
                                 <button class="btn btn-primary"
@@ -185,16 +190,24 @@
                                 >
                                     <option v-for="stampSeValue in stampSeList" v-bind:value="stampSeValue">{{stampSeValue}}</option>
                                 </select>
-                            </div>
 
-                            <div class="sliderControl"
-                                 v-show="!minControlPanel">
                                 <button class="btn btn-primary btn-xs"
                                         v-on:mouseover="draggableSub = false"
                                         v-on:mouseout="draggableSub = true"
                                         @click="addRandomStamp">
-                                    表示テスト
+                                    テスト
                                 </button>
+                            </div>
+
+                            <div class="sliderControl"
+                                 v-show="!minControlPanel">
+                                <input type="checkbox"
+                                       v-model="isAutoHide"
+                                       v-on:mouseover="draggableSub = false"
+                                       v-on:mouseout="draggableSub = true"
+                                       @click="toggleIsAutoHide"
+                                       id="autoHideCheckbox"
+                                ><label for="autoHideCheckbox" style="margin-left:5px;">操作パネルを自動的に隠す</label>
                             </div>
 
                             <!--
@@ -263,6 +276,9 @@
                 minStampAreaW: 120,
                 minStampAreaH: 120,
 
+                isAutoHide: false,
+                isHoverControlPanel: false,
+
                 // コントロールパネル設定値
                 stampOpacity: 0.0,
                 stampVolume: 0.0,
@@ -307,6 +323,16 @@
                 return {
                     opacity: this.sizeDisplay ? 1 : 0.3
                 };
+            },
+            autoHideButtonStyle: function () {
+                return {
+                    opacity: this.isAutoHide ? 1 : 0.3
+                }
+            },
+            controlPanelStyle: function () {
+                return {
+                    opacity: (!this.isAutoHide || this.isHoverControlPanel) ? 1 : 0
+                }
             },
             delay: function () {
                 return this.stampDelay * 1000;
@@ -378,7 +404,7 @@
                     this.$refs.controlPanel.height = 52;
                 } else {
 //                    this.$refs.controlPanel.width = 168;
-                    this.$refs.controlPanel.width = 180;
+                    this.$refs.controlPanel.width = 220;
                     this.$refs.controlPanel.height = 200;
                     this.$nextTick(() => {
                         this.refreshSliders();
@@ -688,6 +714,10 @@
 
             toggleSizeDisplay: function() {
                 this.sizeDisplay = !this.sizeDisplay;
+            },
+
+            toggleIsAutoHide: function () {
+                this.isAutoHide = !this.isAutoHide;
             },
 
             addRandomStamp: function() {
@@ -1199,11 +1229,19 @@
 
     #stampAnime {
         margin-left: 4px;
-        margin-right: 16px;
+        margin-right: 4px;
     }
     #stampSe {
         margin-left: 4px;
-        margin-right: 4px;
+        margin-right: 12px;
+    }
+
+    #stampAreaControlWrapper {
+        -webkit-transition: all .8s;
+        -moz-transition: all .8s;
+        -ms-transition: all .8s;
+        -o-transition: all .8s;
+        transition: all .8s;
     }
 
     .fixed {
