@@ -62,6 +62,23 @@
                 </div>
             </div>
 
+            <!--
+            <div style="margin-bottom: 20px;" v-if="room.id === 1">
+                <form class="form-inline" @submit.prevent="sendMessage">
+                    <div class="form-group">
+                        <label for="comment">コメント</label>
+                        <input type="text" class="form-control" id="comment" placeholder="Enterでも送信可" v-model="comment" style="width:50vw;">
+                    </div>
+                    <div class="checkbox" style="padding: 0 10px;">
+                        <label>
+                            <input type="checkbox" v-model="isAnonymous"> 匿名
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-warning">送信</button>
+                </form>
+            </div>
+            -->
+
             <div class="tagViewInformation" v-show="searchTag !== '' && searchTag !== null">
                 <strong>「{{ searchTag }}」</strong>タグが付いたスタンプのみ表示中 <button class="btn btn-danger" @click="resetSearchTag">解除する</button>
             </div>
@@ -189,12 +206,15 @@
                     createImageThumbnails: false,
                     withCredentials: true,
                     headers: {
-                        'X-CSRF-TOKEN': window.axios.defaults.headers.common['X-CSRF-TOKEN']
+                        'Authorization': window.axios.defaults.headers.common['Authorization'],
+                        'Accept': window.axios.defaults.headers.common['Accept'],
                     },
                     dictDefaultMessage: '<p>好きな画像をアップ</p><p><i class="fas fa-upload fa-2x" style="color:#000;"></i></p><p>この枠内にD&Dでも可</p>'
                 },
                 allTags: {},
                 showSideBar: true,
+                isAnonymous: true,
+                comment: '',
             };
         },
         props: {
@@ -597,6 +617,33 @@
                 // パスの最初の文字（ルームIDかエイリアス名）
                 return '/' + paths[1];
             },
+            sendMessage: function () {
+                // コメント送信
+                let url;
+
+                let sendRoomId = (this.sendRoomId) ? this.sendRoomId : this.room.id;
+
+                if (this.guest || this.isAnonymous) {
+                    url = '/api/v1/rooms/' + sendRoomId + '/imprints/text/guest';
+                } else {
+                    url = '/api/v1/rooms/' + sendRoomId + '/imprints/text';
+                }
+
+                const sendComment = this.comment;
+                this.comment = '';
+
+                axios.post(url, {
+                    comment: sendComment
+                }).then(response => {
+                    this.$toasted.success('コメントを送信しました。', {icon: 'comment'});
+                }).catch(error => {
+                    if (error.response.data.message === "Too Many Attempts.") {
+                        this.$toasted.error('連投を検知しました、少し時間をおいてください。', {icon: 'exclamation-triangle'});
+                    } else {
+                        this.$toasted.error('コメント送信に失敗しました。', {icon: 'exclamation-triangle'});
+                    }
+                });
+            },
             getStateObject: function () {
                 return {
                     searchTag: this.searchTag,
@@ -621,7 +668,6 @@
             pushStateNormal: function () {
                 window.history.pushState(this.getStateObject(), '', this.getNormalUrl());
             },
-
         },
         watch: {
             stampSort: function (newValue, oldValue) {

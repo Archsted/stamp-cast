@@ -385,6 +385,11 @@
                     if (this.isShow) {
                         this.addStamp(e.stamp);
                     }
+                })
+                .listen('TextStampEvent', (e) => {
+                    if (this.isShow) {
+                        this.addTextStamp(e.stamp);
+                    }
                 });
         },
         mounted: function () {
@@ -919,6 +924,10 @@
                 };
 
                 img.src = stamp.name;
+            },
+
+            addTextStamp: function(imprint) {
+                // console.log(imprint.comment, imprint.user)
             },
 
             getRandomTop: function (offset) {

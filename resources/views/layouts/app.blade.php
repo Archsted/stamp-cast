@@ -21,6 +21,13 @@
     @show
     </title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    @if(Auth::user())
+        <meta name="api-token" content="{{ Auth::user()->api_token }}">
+    @else
+        <meta name="api-token" content="">
+    @endif
+
     <script src="//www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
 
     <script src="//{{ Request::getHost() }}:6001/socket.io/socket.io.js"></script>

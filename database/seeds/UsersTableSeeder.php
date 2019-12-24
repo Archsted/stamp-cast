@@ -19,6 +19,9 @@ class UsersTableSeeder extends Seeder
                 'name' => '会長',
                 'password' => bcrypt('kmc1345h'),
                 'remember_token' => str_random(10),
+                'api_token' => null,
+                'rate_limit' => 60,
+                'rank' => 2,
             ],
         ];
 

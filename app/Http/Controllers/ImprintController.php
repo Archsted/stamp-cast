@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Events\StampEvent;
+use App\Events\TextStampEvent;
 use App\Http\Requests\StoreImprint;
 use App\Http\Requests\StoreImprintGuest;
+use App\Http\Requests\StoreTextImprint;
+use App\Http\Requests\StoreTextImprintGuest;
 use App\Imprint;
 use App\ImprintLog;
 use App\Room;
@@ -99,4 +102,36 @@ class ImprintController extends Controller
 
         $imprintLog->save();
     }
+
+    // ログインユーザによるテキストスタンプ送信
+    public function createText(Room $room, StoreTextImprint $request)
+    {
+        // 匿名送信だった場合は送信者のUserIdをnullにする
+        $userId = $request->user()->id;
+
+        $imprint = Imprint::create([
+            'room_id' => $room->id,
+            'user_id' => $userId,
+            'stamp_id' => null,
+            'comment' => $request->comment,
+            'ip' => $request->ip(),
+        ]);
+
+        event(new TextStampEvent($imprint, $room));
+    }
+
+    // 未ログインユーザによるテキストスタンプ送信
+    public function guestCreateText(Room $room, StoreTextImprintGuest $request)
+    {
+        $imprint = Imprint::create([
+            'room_id' => $room->id,
+            'user_id' => null,
+            'stamp_id' => null,
+            'comment' => $request->comment,
+            'ip' => $request->ip(),
+        ]);
+
+        event(new TextStampEvent($imprint, $room));
+    }
+
 }
