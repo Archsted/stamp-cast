@@ -12,3 +12,4 @@ yarn-error.log
 .env
 laravel-echo-server.json
 nohup.out
+laravel-echo-server.lock
