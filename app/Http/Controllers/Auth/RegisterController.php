@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -68,7 +69,7 @@ class RegisterController extends Controller
             'login_id' => $data['login_id'],
             'email' => isset($data['email']) ? $data['email'] : null,
             'password' => bcrypt($data['password']),
-            'api_token' => str_random(80),
+            'api_token' => Str::random(80),
         ]);
     }
 }

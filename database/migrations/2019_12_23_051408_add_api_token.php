@@ -20,6 +20,13 @@ class AddApiToken extends Migration
                 ->nullable()
                 ->default(null);
         });
+
+        $users = \App\User::all();
+
+        foreach ($users as $user) {
+            $user->api_token = \Illuminate\Support\Str::random(80);
+            $user->save();
+        }
     }
 
     /**

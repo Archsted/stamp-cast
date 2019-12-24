@@ -18,6 +18,13 @@ class AddUserRank extends Migration
                 ->after('rate_limit')
                 ->default(1);
         });
+
+        $users = \App\User::all();
+
+        foreach ($users as $user) {
+            $user->rank = 1;
+            $user->save();
+        }
     }
 
     /**

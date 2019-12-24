@@ -18,6 +18,13 @@ class AddRateLimit extends Migration
                 ->after('remember_token')
                 ->default(30);
         });
+
+        $users = \App\User::all();
+
+        foreach ($users as $user) {
+            $user->rate_limit = 30;
+            $user->save();
+        }
     }
 
     /**
