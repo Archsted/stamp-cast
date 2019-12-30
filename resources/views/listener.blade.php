@@ -11,7 +11,7 @@
 @section('content')
     <div class="container-fluid">
 
-        <div class="panel panel-success">
+        <div class="panel panel-success" style="display:none">
             <div class="panel-heading">
                 <h3 class="panel-title">更新情報</h3>
             </div>

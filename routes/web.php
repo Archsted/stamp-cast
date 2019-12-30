@@ -82,8 +82,8 @@ Route::get('/{room}/broadcaster', 'HomeController@broadcaster')
     ->name('broadcaster')
     ->where('room', '^[\d]+$');
 
-Route::get('/{room}/broadcasterBeta', 'HomeController@broadcasterBeta')
-    ->name('broadcasterBeta')
+Route::get('/{room}/broadcaster_fluid', 'HomeController@broadcasterFluid')
+    ->name('broadcaster_fluid')
     ->where('room', '^[\d]+$');
 
 Route::group(['prefix' => '/stamps'], function () {
