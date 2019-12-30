@@ -82,8 +82,8 @@ class HomeController extends Controller
         return view('broadcaster', compact('room'));
     }
 
-    public function broadcasterBeta(Room $room)
+    public function broadcasterFluid(Room $room)
     {
-        return view('broadcaster_beta', compact('room'));
+        return view('broadcaster_fluid', compact('room'));
     }
 }

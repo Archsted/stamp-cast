@@ -1,7 +1,7 @@
 require('./bootstrap');
 require('./echo');
 
-import stampDisplay from './components/stamp_display_beta';
+import stampDisplay from './components/stamp_display_fluid';
 
 const app = new Vue({
     el: '#app',

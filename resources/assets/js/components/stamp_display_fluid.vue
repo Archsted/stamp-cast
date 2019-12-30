@@ -1,50 +1,25 @@
 <template>
     <div id="stampAreaWrapper">
+        <div class="stampArea" id="display"></div>
         <vue-draggable-resizable
-            ref="stampAreaDr"
-            :w="stampArea.w"
-            :h="stampArea.h"
+            ref="stampSizeDr"
+            :w="stampSize.w"
+            :h="stampSize.h"
             :minw="minStampAreaW"
             :minh="minStampAreaH"
-            :x="stampArea.x"
-            :y="stampArea.y"
-            :z="areaZ"
-            v-on:dragging="onAreaDrag"
-            v-on:resizing="onAreaResize"
+            :x="stampSize.x"
+            :y="stampSize.y"
+            :z="sizeZ"
+            v-on:dragging="onSizeDrag"
+            v-on:resizing="onSizeResize"
             v-on:dragstop="saveSettings"
             v-on:resizestop="saveSettings"
             :parent="true"
-            :resizable="areaDisplay"
-            :draggable="areaDisplay"
-            :active="areaDisplay">
-            <vue-draggable-resizable
-                ref="stampSizeDr"
-                :w="stampSize.w"
-                :h="stampSize.h"
-                :minw="minStampAreaW"
-                :minh="minStampAreaH"
-                :x="stampSize.x"
-                :y="stampSize.y"
-                :z="sizeZ"
-                v-on:dragging="onSizeDrag"
-                v-on:resizing="onSizeResize"
-                v-on:dragstop="saveSettings"
-                v-on:resizestop="saveSettings"
-                :parent="true"
-                :resizable="sizeDisplay"
-                :draggable="sizeDisplay"
-                :active="sizeDisplay">
-                <div id="stampSize" class="stampArea" v-bind:style="stampSizeStyle">
+            :resizable="sizeDisplay"
+            :draggable="sizeDisplay"
+            :active="sizeDisplay">
+            <div id="stampSize" class="stampArea" v-bind:style="stampSizeStyle">
 
-                </div>
-            </vue-draggable-resizable>
-            <div class="stampArea" id="display" v-bind:style="stampAreaStyle">
-                <div class="stampAreaInfoWrapper" v-bind:style="{ display: informationDisplay }">
-                    <div class="stampAreaInfo stampAreaTop"><span>{{ stampArea.w }}</span></div>
-                    <div class="stampAreaInfo stampAreaRight"><span>{{ stampArea.h }}</span></div>
-                    <div class="stampAreaInfo stampAreaBottom"><span>{{ stampArea.w }}</span></div>
-                    <div class="stampAreaInfo stampAreaLeft"><span>{{ stampArea.h }}</span></div>
-                </div>
             </div>
         </vue-draggable-resizable>
 
@@ -70,16 +45,6 @@
                     >
                         <div id="stampAreaControl" class="unselectable">
                             <div class="buttonControl">
-                                <button class="btn btn-primary"
-                                        title="スタンプ表示場所調整。枠内のどこかにランダムで表示。"
-                                        v-show="!minControlPanel"
-                                        v-on:mouseover="draggableSub = false"
-                                        v-on:mouseout="draggableSub = true"
-                                        @click="toggleDisplay"
-                                        v-bind:style="areaButtonStyle">
-                                    位置
-                                </button>
-
                                 <button class="btn btn-primary"
                                         title="スタンプ大きさ調整。この枠に収まる大きさまで比率を保ち縮小。"
                                         v-show="!minControlPanel"
@@ -176,7 +141,7 @@
                                         v-on:mouseout="draggableSub = true"
                                         v-model.number="stampAnime"
                                         v-on:change="saveSettings"
-                                        >
+                                >
                                     <option v-for="stampAnimeValue in stampAnimeList" v-bind:value="stampAnimeValue">{{stampAnimeValue}}</option>
                                 </select>
 
@@ -246,15 +211,15 @@
 
     import vueSlider from 'vue-slider-component'
 
+    import util from '../util'
+
     export default {
         data: function () {
             return {
-                areaDisplay: false,
                 sizeDisplay: false,
-                stampAreaStyle: this.getInvisibleStyle(),
                 stampSizeStyle: this.getInvisibleStyle(),
-                informationDisplay: 'none', // block or none
 
+                uiType: 1,
                 counter: 0,
                 displayEl: null,
                 draggableSub: true,
@@ -308,16 +273,8 @@
             }
         },
         computed: {
-            areaZ: function () {
-                return this.areaDisplay ? 1 : 0;
-            },
             sizeZ: function () {
                 return this.sizeDisplay ? 2 : 0;
-            },
-            areaButtonStyle: function () {
-                return {
-                    opacity: this.areaDisplay ? 1 : 0.3
-                };
             },
             sizeButtonStyle: function () {
                 return {
@@ -331,7 +288,7 @@
             },
             controlPanelStyle: function () {
                 return {
-                    opacity: (!this.isAutoHide || this.isHoverControlPanel) ? 1 : 0
+                    opacity: (this.uiType !== 0 && (!this.isAutoHide || this.isHoverControlPanel)) ? 1 : 0
                 }
             },
             delay: function () {
@@ -349,35 +306,10 @@
             this.setDefaultSettings();
             this.loadSettings();
 
-//            this.setSettingsFromParams();
+            this.setSettingsFromParams();
 
             createjs.Sound.registerSound("/button16.mp3?rev=1", 'receiveStamp1');
             createjs.Sound.registerSound("/pop11_2.mp3?rev=1", 'receiveStamp2');
-
-            /*
-            let stampSe = localStorage.getItem("SE_stamp_received");
-            if (stampSe) {
-                this.audio = new Audio(stampSe);
-                this.audio.volume = this.stampVolume;
-            } else {
-                let xhr = new XMLHttpRequest();
-                xhr.open('GET', '/button16.mp3', true);
-                xhr.responseType = 'blob';
-                xhr.onload = (e) => {
-                    let fileReader = new FileReader();
-
-                    let file = (window.URL || window.webkitURL).createObjectURL(xhr.response);
-                    this.audio = new Audio(file);
-                    this.audio.volume = this.stampVolume;
-
-                    fileReader.onload = (ev) => {
-                        localStorage.setItem("SE_stamp_received", ev.target.result);
-                    };
-                    fileReader.readAsDataURL(xhr.response);
-                };
-                xhr.send();
-            }
-            */
 
             // チャンネル接続
             echo.channel('room.' + this.roomId)
@@ -396,10 +328,6 @@
             this.displayEl = document.querySelector('#display');
         },
         watch: {
-            areaDisplay: function (newDisplay) {
-                this.stampAreaStyle = newDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
-                this.informationDisplay = newDisplay ? 'block' : 'none';
-            },
             sizeDisplay: function (newSizeDisplay) {
                 this.stampSizeStyle = newSizeDisplay ? this.getVisibleStyle() : this.getInvisibleStyle();
             },
@@ -424,13 +352,13 @@
                 this.stampVolume = 0.2;
                 this.stampDelay = 3.5;
 
-                this.stampArea.w = 300;
-                this.stampArea.h = 225;
-                this.stampArea.x = 74;
+                this.stampArea.w = document.documentElement.clientWidth; // 全画面
+                this.stampArea.h = document.documentElement.clientHeight; // 全画面
+                this.stampArea.x = 0;
                 this.stampArea.y = 0;
 
-                this.stampSize.w = 140;
-                this.stampSize.h = 140;
+                this.stampSize.w = document.documentElement.clientWidth; // スタンプ表示エリア同等（＝全画面）
+                this.stampSize.h = document.documentElement.clientHeight; // スタンプ表示エリア同等（＝全画面）
                 this.stampSize.x = 174;
                 this.stampSize.y = 0;
 
@@ -444,8 +372,8 @@
             setSettingsFromParams: function () {
                 const params = qs.parse(location.search);
 
-                if (params.hasOwnProperty('opacity')) {
-                    if (isFloat(params.opacity)) {
+                if ('opacity' in params) {
+                    if (util.isFloat(params.opacity)) {
                         const paramOpacity = Number(params.opacity);
                         if (paramOpacity >= 0 && paramOpacity <= 1) {
                             this.stampOpacity = paramOpacity;
@@ -453,8 +381,8 @@
                     }
                 }
 
-                if (params.hasOwnProperty('volume')) {
-                    if (isFloat(params.volume)) {
+                if ('volume' in params) {
+                    if (util.isFloat(params.volume)) {
                         const paramVolume = Number(params.volume);
                         if (paramVolume >= 0 && paramVolume <= 1) {
                             this.stampVolume = paramVolume;
@@ -462,8 +390,8 @@
                     }
                 }
 
-                if (params.hasOwnProperty('delay')) {
-                    if (isFloat(params.delay)) {
+                if ('delay' in params) {
+                    if (util.isFloat(params.delay)) {
                         const paramDelay = Number(params.delay);
                         if (paramDelay >= 0.5 && paramDelay <= 8) {
                             this.stampDelay = paramDelay;
@@ -471,8 +399,8 @@
                     }
                 }
 
-                if (params.hasOwnProperty('anime')) {
-                    if (isNumber(params.anime)) {
+                if ('anime' in params) {
+                    if (util.isNumber(params.anime)) {
                         const paramAnime = Number(params.anime);
                         if (this.stampAnimeList.includes(paramAnime)) {
                             this.stampAnime = paramAnime;
@@ -480,8 +408,8 @@
                     }
                 }
 
-                if (params.hasOwnProperty('se')) {
-                    if (isNumber(params.se)) {
+                if ('se' in params) {
+                    if (util.isNumber(params.se)) {
                         const paramSe = Number(params.se);
                         if (this.stampSeList.includes(paramSe)) {
                             this.stampSe = paramSe;
@@ -489,41 +417,30 @@
                     }
                 }
 
-                if (params.hasOwnProperty('aw')) {
-                    if (isNumber(params.aw)) {
-                        this.stampArea.w = Number(params.aw);
-                    }
-                }
-
-                if (params.hasOwnProperty('ah')) {
-                    if (isNumber(params.ah)) {
-                        this.stampArea.h = Number(params.ah);
-                    }
-                }
-
-                if (params.hasOwnProperty('x')) {
-                    if (isNumber(params.x)) {
-                        this.stampArea.x = Number(params.x);
-                    }
-                }
-
-                if (params.hasOwnProperty('y')) {
-                    if (isNumber(params.y)) {
-                        this.stampArea.y = Number(params.y);
-                    }
-                }
-
-                if (params.hasOwnProperty('w')) {
-                    if (isNumber(params.w)) {
+                if ('w' in params) {
+                    if (util.isNumber(params.w)) {
                         this.stampSize.w = Number(params.w);
                     }
                 }
 
-                if (params.hasOwnProperty('h')) {
-                    if (isNumber(params.h)) {
+                if ('h' in params) {
+                    if (util.isNumber(params.h)) {
                         this.stampSize.h = Number(params.h);
                     }
                 }
+
+                // UIタイプ 0は非表示
+                // 現状は1種類しかないので0か1
+                if ('ui' in params) {
+                    if (util.isNumber(params.ui)) {
+                        const paramUi = Number(params.ui);
+
+                        if ([0, 1].includes(paramUi)) {
+                            this.uiType = paramUi;
+                        }
+                    }
+                }
+
             },
 
             loadSettings: function () {
@@ -552,25 +469,7 @@
                     }
                 }
 
-                // スタンプ表示領域
-                if (data.hasOwnProperty('stampArea')) {
-                    if (data.stampArea.hasOwnProperty('x') &&
-                        data.stampArea.hasOwnProperty('y') &&
-                        data.stampArea.hasOwnProperty('w') &&
-                        data.stampArea.hasOwnProperty('h')) {
-
-                        if (data.stampArea.w >= this.minStampAreaW && data.stampArea.h >= this.minStampAreaH &&
-                            data.stampArea.x >= 0 && data.stampArea.y >= 0
-                        ) {
-                            // 反映
-                            this.stampArea.w = data.stampArea.w;
-                            this.stampArea.h = data.stampArea.h;
-                            this.stampArea.x = data.stampArea.x;
-                            this.stampArea.y = data.stampArea.y;
-                        }
-                    }
-                }
-
+                // スタンプサイズ
                 if (data.hasOwnProperty('stampSize')) {
                     if (data.stampSize.hasOwnProperty('x') &&
                         data.stampSize.hasOwnProperty('y') &&
@@ -625,10 +524,10 @@
                     stampVolume: this.stampVolume,
                     stampDelay: this.stampDelay,
                     stampArea: {
-                        w: this.stampArea.w,
-                        h: this.stampArea.h,
-                        x: this.stampArea.x,
-                        y: this.stampArea.y,
+                        w: document.documentElement.clientWidth,
+                        h: document.documentElement.clientHeight,
+                        x: 0,
+                        y: 0,
                     },
                     stampSize: {
                         w: this.stampSize.w,
@@ -653,13 +552,6 @@
                 location.reload();
             },
 
-            onAreaResize: function (x, y, width, height) {
-                this.stampArea.x = x;
-                this.stampArea.y = y;
-                this.stampArea.w = width;
-                this.stampArea.h = height;
-            },
-
             onSizeResize: function (x, y, width, height) {
                 this.stampSize.x = x;
                 this.stampSize.y = y;
@@ -671,11 +563,6 @@
                 this.$refs.opacitySlider.refresh();
                 this.$refs.volumeSlider.refresh();
                 this.$refs.delaySlider.refresh();
-            },
-
-            onAreaDrag: function (x, y) {
-                this.stampArea.x = x;
-                this.stampArea.y = y;
             },
 
             onSizeDrag: function (x, y) {
@@ -711,10 +598,6 @@
                     overflow: 'hidden',
                     zIndex: 1,
                 };
-            },
-
-            toggleDisplay: function() {
-                this.areaDisplay = !this.areaDisplay;
             },
 
             toggleSizeDisplay: function() {
@@ -931,11 +814,11 @@
             },
 
             getRandomTop: function (offset) {
-                return Math.floor(Math.random() * (this.stampArea.h - offset));
+                return Math.floor(Math.random() * (document.documentElement.clientHeight - offset));
             },
 
             getRandomLeft: function (offset) {
-                return Math.floor(Math.random() * (this.stampArea.w - offset));
+                return Math.floor(Math.random() * (document.documentElement.clientWidth - offset));
             },
 
             calculateAspectRatioFit: function (srcWidth, srcHeight, maxWidth, maxHeight) {
@@ -998,142 +881,11 @@
         margin: 0;
     }
 
-    .stampAreaInfoWrapper {
-        margin: 0;
-        padding: 0;
-    }
-
     .unselectable {
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-    }
-
-    .stampAreaInfo {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    .stampAreaInfo > span {
-        background-color: #ffffff;
-        color: #000000;
-        padding: 3px 4px;
-        border: solid 1px #555555;
-    }
-
-    .stampAreaTop {
-        position: absolute;
-        top: 20px;
-        right: 0;
-        left: 0;
-        text-align: center;
-    }
-    .stampAreaTop:before{
-        content: "";
-        position: absolute;
-        top: -12px;
-        left: 50%;
-        margin-left: -6px;
-        border: 6px solid transparent;
-        border-bottom: 6px solid #555555;
-        z-index: 1;
-    }
-    .stampAreaTop:after{
-        content: "";
-        position: absolute;
-        top: -10px;
-        left: 50%;
-        margin-left: -5px;
-        border: 5px solid transparent;
-        border-bottom: 5px solid #ffffff;
-        z-index: 2;
-    }
-
-    .stampAreaRight {
-        position: absolute;
-        top: 50%;
-        right: 20px;
-        margin-top: -12px;
-        text-align: right;
-    }
-    .stampAreaRight:before{
-        content: "";
-        position: absolute;
-        right: -11px;
-        top: 50%;
-        margin-top: -6px;
-        border: 6px solid transparent;
-        border-left: 6px solid #555555;
-        z-index: 1;
-    }
-    .stampAreaRight:after{
-        content: "";
-        position: absolute;
-        right: -9px;
-        top: 50%;
-        margin-top: -5px;
-        border: 5px solid transparent;
-        border-left: 5px solid #ffffff;
-        z-index: 2;
-    }
-
-    .stampAreaBottom {
-        position: absolute;
-        right: 0;
-        bottom: 20px;
-        left: 0;
-        text-align: center;
-    }
-    .stampAreaBottom:before{
-        content: "";
-        position: absolute;
-        bottom: -12px;
-        left: 50%;
-        margin-left: -6px;
-        border: 6px solid transparent;
-        border-top: 6px solid #555555;
-        z-index: 1;
-    }
-    .stampAreaBottom:after{
-        content: "";
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        margin-left: -5px;
-        border: 5px solid transparent;
-        border-top: 5px solid #ffffff;
-        z-index: 2;
-    }
-
-    .stampAreaLeft {
-        position: absolute;
-        top: 50%;
-        left: 20px;
-        margin-top: -12px;
-        text-align: left;
-    }
-    .stampAreaLeft:before{
-        content: "";
-        position: absolute;
-        left: -11px;
-        top: 50%;
-        margin-top: -6px;
-        border: 6px solid transparent;
-        border-right: 6px solid #555555;
-        z-index: 1;
-    }
-    .stampAreaLeft:after{
-        content: "";
-        position: absolute;
-        left: -9px;
-        top: 50%;
-        margin-top: -5px;
-        border: 5px solid transparent;
-        border-right: 5px solid #ffffff;
-        z-index: 2;
     }
 
     #stampAreaControl {
