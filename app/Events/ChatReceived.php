@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Chat;
 use App\Room;
 use App\Stamp;
 use Illuminate\Broadcasting\Channel;
@@ -14,16 +15,16 @@ class ChatReceived implements ShouldBroadcast
     private $message;
     private $hash;
 
+    private $chat;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($name, $message, $hash)
+    public function __construct(Chat $chat)
     {
-        $this->name = $name;
-        $this->message = $message;
-        $this->hash = $hash;
+        $this->chat = $chat;
     }
 
     /**
@@ -45,11 +46,11 @@ class ChatReceived implements ShouldBroadcast
     {
         return [
             'chat' => [
-                'name' => $this->name,
-                'message' => $this->message,
-                'timestamp' => now(),
-                'hash' => $this->hash,
-                'key' => Str::random(40)
+                'id' => $this->chat->id,
+                'name' => $this->chat->name,
+                'color' => $this->chat->color,
+                'message' => $this->chat->message,
+                'created_at' => $this->chat->created_at,
             ],
         ];
     }

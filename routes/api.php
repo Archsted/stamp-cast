@@ -115,8 +115,5 @@ Route::group(['prefix' => '/v1'], function () {
 
 // live用
 Route::group(['prefix' => '/v1/live'], function () {
-    Route::post('/chat', function (Request $request) {
-        broadcast(new \App\Events\ChatReceived($request->name, $request->message, $request->hash));
-        return response('ok');
-    });
+    Route::post('/chat', 'Api\ChatController@store');
 });
