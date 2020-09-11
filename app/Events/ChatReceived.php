@@ -3,18 +3,12 @@
 namespace App\Events;
 
 use App\Chat;
-use App\Room;
-use App\Stamp;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Support\Str;
 
 class ChatReceived implements ShouldBroadcast
 {
-    private $name;
-    private $message;
-    private $hash;
-
     private $chat;
 
     /**
