@@ -365,7 +365,7 @@
                 this.stamps.unshift(response.stamp);
             },
             uploadErrorEvent: function () {
-                this.$toasted.error('【エラー】2MBまでの画像のみアップ可能です。ファイルに問題無い場合、少し待ってからやり直して下さい。', {icon: 'exclamation-triangle'});
+                this.$toasted.error('【エラー】6MBまでの画像のみアップ可能です。ファイルに問題無い場合、ページをリロードするか、少し待ってからやり直して下さい。', {icon: 'exclamation-triangle'});
             },
             getBooks: function () {
                 // お気に入り一覧
