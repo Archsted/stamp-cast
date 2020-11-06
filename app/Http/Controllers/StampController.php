@@ -26,7 +26,9 @@ class StampController extends Controller
     /**
      * スタンプ一覧の取得
      *
-     * @return array
+     * @param Request $request
+     * @param Room $room
+     * @return array[]
      */
     public function index(Request $request, Room $room)
     {
