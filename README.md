@@ -5,6 +5,11 @@
 - MySQL or MariaDB
 - Redis
 - NodeJS
+- ImageMagick
+
+## 備考
+
+開発はHomestead上で行うことを想定
 
 ## 開発メモ
 
