@@ -16,7 +16,7 @@
         "cross-env": "^5.1.4",
         "jquery": "^3.5.0",
         "laravel-mix": "^1.0",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.21",
         "vue": "^2.5.16",
         "vue-lazyload": "^1.2.3",
         "vue-template-compiler": "^2.5.16"
